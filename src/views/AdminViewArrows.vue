@@ -3,7 +3,6 @@ import { ref, onMounted, onUnmounted, computed, toRef } from 'vue';
 import { useVenueStore } from '../stores/venue';
 import { useVenueEditor } from '../composables/useVenueEditor';
 import { useGeometry, type Point } from '../composables/useGeometry';
-import { type EditMode } from '../constants/editor';
 import VenueGrid from '../components/VenueGrid.vue';
 
 const venueStore = useVenueStore();

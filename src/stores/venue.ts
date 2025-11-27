@@ -5,52 +5,52 @@ import { type Venue, generateMockVenue } from '../services/mockData';
 export const useVenueStore = defineStore('venue', () => {
   const currentVenue = ref<Venue | null>(null);
 
-  const loadVenue = () => {
-    // In a real app, this would fetch from API
-    // For now, check local storage or generate mock
-    const stored = localStorage.getItem('venue_data');
-    if (stored) {
-      const parsedVenue = JSON.parse(stored);
-      // Check if the stored data has the new priceInCents field
-      const hasValidPrices = parsedVenue.seats && parsedVenue.seats.length > 0 && 
-                             parsedVenue.seats[0].priceInCents !== undefined;
-      
-      if (hasValidPrices) {
-        currentVenue.value = parsedVenue;
-      } else {
-        // Old data format, regenerate
-        console.log('Regenerating venue data with prices...');
-        currentVenue.value = generateMockVenue();
-        saveVenue();
-      }
-    } else {
-      currentVenue.value = generateMockVenue();
-      saveVenue();
+  const loadVenue = async () => {
+    try {
+      const response = await fetch('/api/venue');
+      if (!response.ok) throw new Error('Failed to fetch venue');
+      const data = await response.json();
+      currentVenue.value = data;
+    } catch (error) {
+      console.error('Error loading venue:', error);
     }
   };
 
-  const saveVenue = () => {
-    if (currentVenue.value) {
-      localStorage.setItem('venue_data', JSON.stringify(currentVenue.value));
-    }
-  };
+  // Removed saveVenue as we now save to DB via API
 
-  const updateSeatStatus = (seatId: string, status: Venue['seats'][0]['status']) => {
+  const updateSeatStatus = async (seatId: string, status: Venue['seats'][0]['status']) => {
     if (!currentVenue.value) return;
+    
+    // Optimistic update
     const seat = currentVenue.value.seats.find(s => s.id === seatId);
     if (seat) {
-      // Prevent changing booked seats
-      if (seat.status === 'booked') return;
-      
+      const originalStatus = seat.status;
       seat.status = status;
-      saveVenue();
+
+      try {
+        const response = await fetch(`/api/venue/seat/${seatId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ status }),
+        });
+
+        if (!response.ok) {
+          // Revert on failure
+          seat.status = originalStatus;
+          console.error('Failed to update seat status');
+        }
+      } catch (error) {
+        seat.status = originalStatus;
+        console.error('Error updating seat:', error);
+      }
     }
   };
 
   return {
     currentVenue,
     loadVenue,
-    saveVenue,
     updateSeatStatus
   };
 });

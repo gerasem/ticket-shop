@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { type Seat } from '../services/mockData';
 
 export const useCartStore = defineStore('cart', () => {
@@ -22,6 +22,30 @@ export const useCartStore = defineStore('cart', () => {
   const clearCart = () => {
     selectedSeats.value = [];
   };
+
+  // Persistence
+  const loadCart = () => {
+    const stored = localStorage.getItem('cart_seats');
+    if (stored) {
+      try {
+        selectedSeats.value = JSON.parse(stored);
+      } catch (e) {
+        console.error('Failed to parse cart from LS', e);
+      }
+    }
+  };
+
+  const saveCart = () => {
+    localStorage.setItem('cart_seats', JSON.stringify(selectedSeats.value));
+  };
+
+  // Watch for changes
+  watch(selectedSeats, () => {
+    saveCart();
+  }, { deep: true });
+
+  // Initialize
+  loadCart();
 
   return {
     selectedSeats,
