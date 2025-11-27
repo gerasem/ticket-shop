@@ -375,8 +375,6 @@ h1 {
 
 .column-labels-container {
   display: flex;
-  gap: 20px;
-  margin-bottom: 10px;
 }
 
 .column-spacer {
@@ -387,7 +385,6 @@ h1 {
 .column-labels {
   position: relative;
   flex: 1;
-  height: 30px;
 }
 
 .column-label {

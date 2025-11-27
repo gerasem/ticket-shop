@@ -75,37 +75,39 @@ const getColX = (col: number) => {
 
 <template>
   <div class="client-view">
-    <h1>Select Your Seats</h1>
-    
-    <div v-if="venueStore.currentVenue" class="main-container">
-      <!-- Left: Price Legend -->
-      <aside class="price-legend">
-        <h3>Price Legend</h3>
+    <div class="header-section">
+      <h1>Select Your Seats</h1>
+      
+      <!-- Compact Price Legend -->
+      <div class="price-legend-compact">
         <div class="legend-items">
           <div class="legend-item">
             <div class="legend-color price-front"></div>
-            <span>Front Rows (1-2): {{ formatPrice(1500) }}</span>
+            <span>Front: {{ formatPrice(1500) }}</span>
           </div>
           <div class="legend-item">
             <div class="legend-color price-middle"></div>
-            <span>Middle Rows (3-8): {{ formatPrice(1200) }}</span>
+            <span>Middle: {{ formatPrice(1200) }}</span>
           </div>
           <div class="legend-item">
             <div class="legend-color price-back"></div>
-            <span>Back Rows (9-10): {{ formatPrice(1800) }}</span>
+            <span>Back: {{ formatPrice(1800) }}</span>
           </div>
+          <div class="legend-separator"></div>
           <div class="legend-item">
             <div class="legend-color booked"></div>
             <span>Booked</span>
           </div>
           <div class="legend-item">
             <div class="legend-color selected"></div>
-            <span>Your Selection</span>
+            <span>Selected</span>
           </div>
         </div>
-      </aside>
-
-      <!-- Center: Venue -->
+      </div>
+    </div>
+    
+    <div v-if="venueStore.currentVenue" class="main-container">
+      <!-- Left: Venue -->
       <div class="venue-container">
         <h2>{{ venueStore.currentVenue.name }}</h2>
         <div class="stage">SCREEN / STAGE</div>
@@ -197,9 +199,72 @@ const getColX = (col: number) => {
   color: white;
 }
 
-h1 {
+/* Header Section with Title and Legend */
+.header-section {
   text-align: center;
   margin-bottom: 2rem;
+}
+
+h1 {
+  margin: 0 0 1rem 0;
+}
+
+/* Compact Horizontal Price Legend */
+.price-legend-compact {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.price-legend-compact .legend-items {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+}
+
+.price-legend-compact .legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.price-legend-compact .legend-color {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.legend-separator {
+  width: 1px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.2);
+  margin: 0 0.25rem;
+}
+
+/* Legend Colors - Neutral tones */
+.legend-color.price-front {
+  background: #6b7280; /* Neutral gray */
+}
+
+.legend-color.price-middle {
+  background: #9ca3af; /* Light gray */
+}
+
+.legend-color.price-back {
+  background: #4b5563; /* Dark gray */
+}
+
+.legend-color.booked {
+  background: #ef4444; /* Red for booked */
+}
+
+.legend-color.selected {
+  background: #42b983; /* Green for selected - accent color */
 }
 
 .main-container {
@@ -207,61 +272,6 @@ h1 {
   gap: 2rem;
   width: 100%;
   margin: 0 auto;
-}
-
-/* Price Legend */
-.price-legend {
-  width: 200px;
-  background: #2a2a2a;
-  padding: 1.5rem;
-  border-radius: 12px;
-  height: fit-content;
-}
-
-.price-legend h3 {
-  margin: 0 0 1rem 0;
-  font-size: 1.1rem;
-  color: #42b983;
-}
-
-.legend-items {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  font-size: 0.9rem;
-}
-
-.legend-color {
-  width: 24px;
-  height: 24px;
-  border-radius: 6px;
-  flex-shrink: 0;
-}
-
-.legend-color.price-front {
-  background: #3498db; /* Blue for front rows */
-}
-
-.legend-color.price-middle {
-  background: #9b59b6; /* Purple for middle rows */
-}
-
-.legend-color.price-back {
-  background: #f39c12; /* Orange/Gold for back rows */
-}
-
-.legend-color.booked {
-  background: #e74c3c; /* Red for booked */
-}
-
-.legend-color.selected {
-  background: #42b983; /* Green for selected */
 }
 
 /* Venue Container */
@@ -290,19 +300,16 @@ h1 {
 
 .column-labels-container {
   display: flex;
-  gap: 20px;
-  margin-bottom: 10px;
 }
 
 .column-spacer {
-  width: 40px;
+  width: 30px;
   flex-shrink: 0;
 }
 
 .column-labels {
   position: relative;
   flex: 1;
-  height: 30px;
 }
 
 .column-label {
@@ -312,38 +319,33 @@ h1 {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
-  font-size: 14px;
-  color: #888;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 4px;
+  font-weight: 500;
+  font-size: 13px;
+  color: #999;
 }
 
 .seating-area {
   position: relative;
   display: flex;
-  gap: 20px;
-  padding: 20px 0;
 }
 
 .row-labels {
   position: relative;
-  width: 40px;
+  width: 30px;
   flex-shrink: 0;
 }
 
 .row-label {
   position: absolute;
-  width: 40px;
+  width: 30px;
   height: 30px;
   display: flex;
   align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  font-size: 14px;
-  color: #888;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 4px;
+  justify-content: flex-end;
+  padding-right: 2px;
+  font-weight: 500;
+  font-size: 13px;
+  color: #999;
 }
 
 .row-labels-left {
@@ -372,26 +374,26 @@ h1 {
   border: 2px solid transparent;
 }
 
-/* Price-based colors for FREE seats */
+/* Price-based colors for FREE seats - Neutral tones */
 .seat.free.price-front {
-  background: #3498db;
+  background: #6b7280; /* Neutral gray */
 }
 
 .seat.free.price-middle {
-  background: #9b59b6;
+  background: #9ca3af; /* Light gray */
 }
 
 .seat.free.price-back {
-  background: #f39c12;
+  background: #4b5563; /* Dark gray */
 }
 
-/* Booked seats - always red */
+/* Booked seats - red */
 .seat.booked {
-  background: #e74c3c !important;
+  background: #ef4444 !important;
   cursor: not-allowed;
 }
 
-/* Selected seats - always green */
+/* Selected seats - green accent */
 .seat.readyToBook {
   background: #42b983 !important;
   box-shadow: 0 0 15px #42b983;

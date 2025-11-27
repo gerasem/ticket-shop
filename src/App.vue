@@ -21,13 +21,10 @@ import { RouterView } from 'vue-router'
 <style scoped>
 .app-container {
   font-family: 'Inter', sans-serif;
-  max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
 }
 
 nav {
-  margin-bottom: 2rem;
   padding: 1rem;
   background: #f8f9fa;
   border-radius: 8px;
