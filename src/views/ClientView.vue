@@ -300,6 +300,8 @@ h1 {
 
 .column-labels-container {
   display: flex;
+  height: 30px;
+  margin-bottom: -40px;
 }
 
 .column-spacer {

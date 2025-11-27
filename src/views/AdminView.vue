@@ -12,6 +12,7 @@ const venueEditor = useVenueEditor(toRef(venueStore, 'currentVenue'));
 const geometry = useGeometry();
 
 // Edit mode state
+// We keep 'select' as the primary mode which now handles both single/multi select and area select
 const currentMode = ref<EditMode>('select');
 const selectedSeats = ref<Set<string>>(new Set());
 const isDragging = ref(false);
@@ -21,6 +22,9 @@ const dragOffset = ref<Point>({ x: 0, y: 0 });
 const isAreaSelecting = ref(false);
 const areaStart = ref<Point>({ x: 0, y: 0 });
 const areaEnd = ref<Point>({ x: 0, y: 0 });
+
+// Drag Ghost Element Reference
+const dragGhostRef = ref<HTMLElement | null>(null);
 
 onMounted(() => {
   venueStore.loadVenue();
@@ -49,94 +53,148 @@ const setSingleSelection = (seatId: string) => {
   selectedSeats.value.add(seatId);
 };
 
-// Seat interaction handlers
-const handleSeatMouseDown = (seatId: string, event: MouseEvent) => {
-  if (currentMode.value !== 'select') return;
+// Native Drag and Drop Handlers
+const handleDragStart = (seatId: string, event: DragEvent) => {
+  // Always allow dragging seats in select mode
   
-  event.stopPropagation(); // Prevent canvas area selection
+  const seat = venueEditor.findSeatById(seatId);
+  if (!seat) return;
+
+  // Smart Selection Logic:
+  // 1. If the dragged seat is NOT already selected:
+  //    - If Ctrl is pressed: Add it to selection.
+  //    - If Ctrl is NOT pressed: Select ONLY this seat (clear others).
+  // 2. If the dragged seat IS already selected:
+  //    - Keep the current selection (allows moving the whole group).
   
-  // Handle selection
-  if (event.ctrlKey || event.metaKey) {
-    // Multi-select with Ctrl/Cmd
-    toggleSeatSelection(seatId);
-    return; // Don't start dragging when Ctrl is pressed
-  } else {
-    // Single select (if not already selected)
-    if (!selectedSeats.value.has(seatId)) {
+  if (!selectedSeats.value.has(seatId)) {
+    if (event.ctrlKey || event.metaKey) {
+      toggleSeatSelection(seatId);
+    } else {
       setSingleSelection(seatId);
     }
   }
-  
-  // Start dragging
-  const seat = venueEditor.findSeatById(seatId);
-  if (!seat) return;
+  // If it IS selected, we do nothing here, preserving the group selection.
   
   isDragging.value = true;
+
+  // Calculate offset from the seat's top-left corner
   dragOffset.value = {
-    x: event.clientX - seat.x,
-    y: event.clientY - seat.y
+    x: event.offsetX,
+    y: event.offsetY
   };
-  
-  event.preventDefault();
+
+  if (event.dataTransfer) {
+    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('text/plain', seatId);
+
+    // Custom Drag Image for Multi-Select
+    if (selectedSeats.value.size > 1 && dragGhostRef.value) {
+      // We need to temporarily make it visible to set it as the drag image
+      // The browser makes a copy of it at that moment.
+      const ghost = dragGhostRef.value;
+      ghost.style.display = 'flex'; 
+      ghost.textContent = `Moving ${selectedSeats.value.size} seats`;
+      
+      // Set the drag image centered on the cursor
+      event.dataTransfer.setDragImage(ghost, 75, 25);
+      
+      // Hide it again immediately (in the next tick or via CSS if possible, but JS is safer here)
+      setTimeout(() => {
+        ghost.style.display = 'none';
+      }, 0);
+    }
+  }
 };
 
-// Area selection handlers
-const handleCanvasMouseDown = (event: MouseEvent) => {
-  if (currentMode.value !== 'area') return;
+const handleDragOver = (event: DragEvent) => {
+  // Allow drop
+  event.preventDefault();
+  if (event.dataTransfer) {
+    event.dataTransfer.dropEffect = 'move';
+  }
+};
+
+const handleDrop = (event: DragEvent) => {
+  event.preventDefault();
+  isDragging.value = false;
+
+  const container = getSeatsGridContainer();
+  if (!container) return;
+
+  // Get the ID of the seat that started the drag
+  const sourceSeatId = event.dataTransfer?.getData('text/plain');
+  if (!sourceSeatId) return;
+
+  const sourceSeat = venueEditor.findSeatById(sourceSeatId);
+  if (!sourceSeat) return;
+
+  // Calculate drop position relative to container
+  const relativePos = geometry.getRelativeCoordinates(event, container);
   
-  // Check if clicked on a seat - if so, ignore
+  // Calculate the new position for the source seat
+  // New X = Mouse X (relative to container) - Offset X (relative to seat)
+  const newX = relativePos.x - dragOffset.value.x;
+  const newY = relativePos.y - dragOffset.value.y;
+
+  // Calculate delta
+  const deltaX = newX - sourceSeat.x;
+  const deltaY = newY - sourceSeat.y;
+
+  // Apply delta to all selected seats
+  selectedSeats.value.forEach(seatId => {
+    const seat = venueEditor.findSeatById(seatId);
+    if (seat) {
+      seat.x += deltaX;
+      seat.y += deltaY;
+    }
+  });
+};
+
+const handleDragEnd = () => {
+  isDragging.value = false;
+};
+
+// Unified Area Selection Handler
+// This handles clicks on the background to start area selection
+const handleCanvasMouseDown = (event: MouseEvent) => {
   const target = event.target as HTMLElement;
+  
+  // If we clicked a seat, do nothing (let the seat's own handlers work)
   if (target.classList.contains('seat')) return;
+  
+  // If we clicked the background, start area selection
+  // We don't need to check for 'area' mode anymore, it's implicit
   
   const container = getSeatsGridContainer();
   if (!container) return;
+  
+  // If Ctrl is NOT pressed, clear existing selection when clicking background
+  if (!event.ctrlKey && !event.metaKey) {
+    clearSelection();
+  }
   
   areaStart.value = geometry.getRelativeCoordinates(event, container);
   areaEnd.value = { ...areaStart.value };
   isAreaSelecting.value = true;
   
+  window.addEventListener('mousemove', handleWindowMouseMove);
+  window.addEventListener('mouseup', handleWindowMouseUp);
+  
   event.preventDefault();
 };
 
-const handleCanvasMouseMove = (event: MouseEvent) => {
+const handleWindowMouseMove = (event: MouseEvent) => {
   const container = getSeatsGridContainer();
   if (!container) return;
   
-  // Handle dragging in select mode
-  if (currentMode.value === 'select' && isDragging.value && venueStore.currentVenue) {
-    const relativePos = geometry.getRelativeCoordinates(event, container);
-    const newX = relativePos.x - dragOffset.value.x;
-    const newY = relativePos.y - dragOffset.value.y;
-    
-    // Get first selected seat to calculate offset
-    const firstSeatId = Array.from(selectedSeats.value)[0];
-    if (!firstSeatId) return;
-    
-    const firstSeat = venueEditor.findSeatById(firstSeatId);
-    if (!firstSeat) return;
-    
-    const deltaX = newX - firstSeat.x;
-    const deltaY = newY - firstSeat.y;
-    
-    // Move all selected seats
-    selectedSeats.value.forEach(seatId => {
-      const seat = venueEditor.findSeatById(seatId);
-      if (seat) {
-        seat.x += deltaX;
-        seat.y += deltaY;
-      }
-    });
-  }
-  
-  // Handle area selection in area mode
-  if (currentMode.value === 'area' && isAreaSelecting.value) {
+  if (isAreaSelecting.value) {
     areaEnd.value = geometry.getRelativeCoordinates(event, container);
   }
 };
 
-const handleCanvasMouseUp = () => {
-  // Handle area selection completion
-  if (currentMode.value === 'area' && isAreaSelecting.value) {
+const handleWindowMouseUp = () => {
+  if (isAreaSelecting.value) {
     const bounds = geometry.calculateRectangleBounds(areaStart.value, areaEnd.value);
     const seatsInArea = venueEditor.getSeatsInArea(
       bounds.minX,
@@ -145,19 +203,18 @@ const handleCanvasMouseUp = () => {
       bounds.maxY
     );
     
-    clearSelection();
+    // Add seats in area to selection
+    // Note: We don't clear here because we might be adding to a selection (if Ctrl was held)
+    // or we already cleared on mousedown.
     seatsInArea.forEach(seat => selectedSeats.value.add(seat.id));
     
     isAreaSelecting.value = false;
   }
   
-  // Handle drag completion
-  if (isDragging.value) {
-    isDragging.value = false;
-  }
+  window.removeEventListener('mousemove', handleWindowMouseMove);
+  window.removeEventListener('mouseup', handleWindowMouseUp);
 };
 
-// Computed selection rectangle for visual feedback
 const selectionRectangle = computed(() => {
   if (!isAreaSelecting.value) return null;
   
@@ -174,23 +231,15 @@ const selectionRectangle = computed(() => {
       <!-- Toolbar -->
       <div class="toolbar">
         <h3>Edit Tools</h3>
-        <div class="tool-buttons">
-          <button 
-            :class="{ active: currentMode === 'select' }"
-            @click="currentMode = 'select'; selectedSeats.clear()"
-          >
-            Select Mode
-          </button>
-          <button 
-            :class="{ active: currentMode === 'area' }"
-            @click="currentMode = 'area'; selectedSeats.clear()"
-          >
-            Area Select
-          </button>
-        </div>
+        <!-- We can simplify the toolbar since modes are unified -->
         <div class="tool-info">
-          <p><strong>Select Mode:</strong> Click to select, Ctrl+Click for multi-select, drag to move</p>
-          <p><strong>Area Select:</strong> Click and drag to select multiple seats</p>
+          <p><strong>Smart Selection:</strong></p>
+          <ul>
+            <li><strong>Click Seat:</strong> Select</li>
+            <li><strong>Ctrl+Click:</strong> Multi-select</li>
+            <li><strong>Drag Seat:</strong> Move selected</li>
+            <li><strong>Drag Background:</strong> Area select</li>
+          </ul>
           <p class="selected-count">Selected: {{ selectedSeats.size }} seat(s)</p>
         </div>
       </div>
@@ -232,9 +281,8 @@ const selectionRectangle = computed(() => {
           <div 
             class="seats-grid"
             @mousedown="handleCanvasMouseDown"
-            @mousemove="handleCanvasMouseMove"
-            @mouseup="handleCanvasMouseUp"
-            @mouseleave="handleCanvasMouseUp"
+            @dragover="handleDragOver"
+            @drop="handleDrop"
           >
             <!-- Area selection rectangle -->
             <div 
@@ -253,9 +301,14 @@ const selectionRectangle = computed(() => {
               v-for="seat in venueStore.currentVenue.seats"
               :key="seat.id"
               class="seat"
-              :class="{ selected: selectedSeats.has(seat.id) }"
+              :class="{ 
+                selected: selectedSeats.has(seat.id),
+                dragging: isDragging && selectedSeats.has(seat.id)
+              }"
               :style="{ left: seat.x + 'px', top: seat.y + 'px' }"
-              @mousedown="handleSeatMouseDown(seat.id, $event)"
+              draggable="true"
+              @dragstart="handleDragStart(seat.id, $event)"
+              @dragend="handleDragEnd"
             >
               {{ seat.label }}
             </div>
@@ -265,6 +318,11 @@ const selectionRectangle = computed(() => {
     </div>
     
     <p v-else>Loading venue...</p>
+
+    <!-- Custom Drag Ghost Element -->
+    <div ref="dragGhostRef" id="drag-ghost">
+      Moving {{ selectedSeats.size }} seats
+    </div>
   </div>
 </template>
 
@@ -303,42 +361,19 @@ h1 {
   color: #42b983;
 }
 
-.tool-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
-}
-
-.tool-buttons button {
-  padding: 0.75rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 2px solid transparent;
-  border-radius: 6px;
-  color: white;
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: all 0.2s;
-}
-
-.tool-buttons button:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.tool-buttons button.active {
-  background: #42b983;
-  border-color: #42b983;
-  font-weight: bold;
-}
-
 .tool-info {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: #aaa;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
-.tool-info p {
+.tool-info ul {
+  padding-left: 1.2rem;
   margin: 0.5rem 0;
+}
+
+.tool-info li {
+  margin-bottom: 0.25rem;
 }
 
 .selected-count {
@@ -347,6 +382,7 @@ h1 {
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   color: #42b983;
   font-weight: bold;
+  font-size: 1.1rem;
 }
 
 /* Venue Container */
@@ -375,6 +411,8 @@ h1 {
 
 .column-labels-container {
   display: flex;
+  height: 30px;
+  margin-bottom: -40px;
 }
 
 .column-spacer {
@@ -463,11 +501,33 @@ h1 {
   z-index: 10;
 }
 
+.seat.dragging {
+  opacity: 0.3;
+}
+
 .selection-rectangle {
   position: absolute;
   border: 2px dashed #42b983;
   background: rgba(66, 185, 131, 0.1);
   pointer-events: none;
   z-index: 5;
+}
+
+/* Drag Ghost */
+#drag-ghost {
+  position: absolute;
+  top: -9999px;
+  left: -9999px;
+  background: #42b983;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 14px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  display: none; /* Hidden by default */
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
 }
 </style>
