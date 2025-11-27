@@ -3,6 +3,7 @@ import { onMounted } from 'vue';
 import { useVenueStore } from '../stores/venue';
 import { useCartStore } from '../stores/cart';
 import { usePrice } from '../composables/usePrice';
+import VenueGrid from '../components/VenueGrid.vue';
 
 const venueStore = useVenueStore();
 const cartStore = useCartStore();
@@ -34,43 +35,7 @@ const getPriceClass = (priceInCents: number) => {
   return 'price-middle';
 };
 
-const getRows = () => {
-  if (!venueStore.currentVenue) return [];
-  const rows = new Set<number>();
-  venueStore.currentVenue.seats.forEach(seat => {
-    const parts = seat.label.split('-');
-    if (parts[0]) {
-      const row = parseInt(parts[0]);
-      rows.add(row);
-    }
-  });
-  return Array.from(rows).sort((a, b) => a - b);
-};
 
-const getRowY = (row: number) => {
-  if (!venueStore.currentVenue) return 0;
-  const seat = venueStore.currentVenue.seats.find(s => s.label.startsWith(`${row}-`));
-  return seat ? seat.y : 0;
-};
-
-const getColumns = () => {
-  if (!venueStore.currentVenue) return [];
-  const cols = new Set<number>();
-  venueStore.currentVenue.seats.forEach(seat => {
-    const parts = seat.label.split('-');
-    if (parts[1]) {
-      const col = parseInt(parts[1]);
-      cols.add(col);
-    }
-  });
-  return Array.from(cols).sort((a, b) => a - b);
-};
-
-const getColX = (col: number) => {
-  if (!venueStore.currentVenue) return 0;
-  const seat = venueStore.currentVenue.seats.find(s => s.label.endsWith(`-${col}`));
-  return seat ? seat.x : 0;
-};
 </script>
 
 <template>
@@ -108,59 +73,24 @@ const getColX = (col: number) => {
     
     <div v-if="venueStore.currentVenue" class="main-container">
       <!-- Left: Venue -->
-      <div class="venue-container">
-        <h2>{{ venueStore.currentVenue.name }}</h2>
-        <div class="stage">SCREEN / STAGE</div>
-        
-        <!-- Top column labels -->
-        <div class="column-labels-container">
-          <div class="column-spacer"></div>
-          <div class="column-labels">
-            <div 
-              v-for="col in getColumns()" 
-              :key="'top-' + col"
-              class="column-label"
-              :style="{ left: getColX(col) + 'px' }"
-            >
-              {{ col }}
-            </div>
+      <VenueGrid :venue="venueStore.currentVenue">
+        <template #seat="{ seat }">
+          <div
+            class="seat"
+            :class="[seat.status, getPriceClass(seat.priceInCents)]"
+            :style="{ left: seat.x + 'px', top: seat.y + 'px' }"
+            @click="handleSeatClick(seat.id)"
+          >
+            <span class="seat-tooltip">
+              <span class="row-number">Row {{ seat.label.split('-')[0] }}</span>
+              <span class="seat-separator">·</span>
+              <span class="seat-number">Seat {{ seat.label.split('-')[1] }}</span>
+              <br>
+              <span class="price-info">{{ formatPrice(seat.priceInCents) }}</span>
+            </span>
           </div>
-        </div>
-
-        <div class="seating-area">
-          <!-- Left row labels -->
-          <div class="row-labels row-labels-left">
-            <div 
-              v-for="row in getRows()" 
-              :key="'left-' + row"
-              class="row-label"
-              :style="{ top: getRowY(row) + 'px' }"
-            >
-              {{ row }}
-            </div>
-          </div>
-
-          <!-- Seats grid -->
-          <div class="seats-grid">
-            <div
-              v-for="seat in venueStore.currentVenue.seats"
-              :key="seat.id"
-              class="seat"
-              :class="[seat.status, getPriceClass(seat.priceInCents)]"
-              :style="{ left: seat.x + 'px', top: seat.y + 'px' }"
-              @click="handleSeatClick(seat.id)"
-            >
-              <span class="seat-tooltip">
-                <span class="row-number">Row {{ seat.label.split('-')[0] }}</span>
-                <span class="seat-separator">·</span>
-                <span class="seat-number">Seat {{ seat.label.split('-')[1] }}</span>
-                <br>
-                <span class="price-info">{{ formatPrice(seat.priceInCents) }}</span>
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
+        </template>
+      </VenueGrid>
 
       <!-- Right: Shopping Cart -->
       <aside class="shopping-cart">

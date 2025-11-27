@@ -4,6 +4,7 @@ import { useVenueStore } from '../stores/venue';
 import { useVenueEditor } from '../composables/useVenueEditor';
 import { useGeometry, type Point } from '../composables/useGeometry';
 import { type EditMode } from '../constants/editor';
+import VenueGrid from '../components/VenueGrid.vue';
 
 const venueStore = useVenueStore();
 
@@ -203,71 +204,38 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
       </div>
 
       <!-- Venue Editor -->
-      <div class="venue-container">
-        <h2>{{ venueStore.currentVenue.name }}</h2>
-        <div class="stage">SCREEN / STAGE</div>
-        
-        <!-- Top column labels -->
-        <div class="column-labels-container">
-          <div class="column-spacer"></div>
-          <div class="column-labels">
-            <div 
-              v-for="col in venueEditor.getColumns.value" 
-              :key="'top-' + col"
-              class="column-label"
-              :style="{ left: venueEditor.getColX(col) + 'px' }"
-            >
-              {{ col }}
-            </div>
-          </div>
-        </div>
-
-        <div class="seating-area">
-          <!-- Left row labels -->
-          <div class="row-labels row-labels-left">
-            <div 
-              v-for="row in venueEditor.getRows.value" 
-              :key="'left-' + row"
-              class="row-label"
-              :style="{ top: venueEditor.getRowY(row) + 'px' }"
-            >
-              {{ row }}
-            </div>
-          </div>
-
-          <!-- Seats grid -->
+      <VenueGrid 
+        :venue="venueStore.currentVenue"
+        @grid-mousedown="handleCanvasMouseDown"
+        @row-click="toggleRowSelection"
+        @col-click="toggleColumnSelection"
+      >
+        <template #overlay>
           <div 
-            class="seats-grid"
-            @mousedown="handleCanvasMouseDown"
-          >
-            <!-- Area selection rectangle -->
-            <div 
-              v-if="selectionRectangle"
-              class="selection-rectangle"
-              :style="{
-                left: selectionRectangle.left + 'px',
-                top: selectionRectangle.top + 'px',
-                width: selectionRectangle.width + 'px',
-                height: selectionRectangle.height + 'px'
-              }"
-            ></div>
+            v-if="selectionRectangle"
+            class="selection-rectangle"
+            :style="{
+              left: selectionRectangle.left + 'px',
+              top: selectionRectangle.top + 'px',
+              width: selectionRectangle.width + 'px',
+              height: selectionRectangle.height + 'px'
+            }"
+          ></div>
+        </template>
 
-            <!-- Seats -->
-            <div
-              v-for="seat in venueStore.currentVenue.seats"
-              :key="seat.id"
-              class="seat"
-              :class="{ 
-                selected: selectedSeats.has(seat.id)
-              }"
-              :style="{ left: seat.x + 'px', top: seat.y + 'px' }"
-              @mousedown.stop="handleSeatClick(seat.id, $event)"
-            >
-              {{ seat.label }}
-            </div>
+        <template #seat="{ seat }">
+          <div
+            class="seat"
+            :class="{ 
+              selected: selectedSeats.has(seat.id)
+            }"
+            :style="{ left: seat.x + 'px', top: seat.y + 'px' }"
+            @mousedown.stop="handleSeatClick(seat.id, $event)"
+          >
+            {{ seat.label }}
           </div>
-        </div>
-      </div>
+        </template>
+      </VenueGrid>
     </div>
     
     <p v-else>Loading venue...</p>
