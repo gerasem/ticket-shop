@@ -1,65 +1,55 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, toRef } from 'vue';
 import { useVenueStore } from '../stores/venue';
+import { useVenueEditor } from '../composables/useVenueEditor';
+import { useGeometry, type Point } from '../composables/useGeometry';
+import { type EditMode } from '../constants/editor';
 
 const venueStore = useVenueStore();
 
+// Composables
+const venueEditor = useVenueEditor(toRef(venueStore, 'currentVenue'));
+const geometry = useGeometry();
+
 // Edit mode state
-type EditMode = 'select' | 'area';
 const currentMode = ref<EditMode>('select');
 const selectedSeats = ref<Set<string>>(new Set());
 const isDragging = ref(false);
-const dragOffset = ref({ x: 0, y: 0 });
+const dragOffset = ref<Point>({ x: 0, y: 0 });
 
-// Area selection
+// Area selection state
 const isAreaSelecting = ref(false);
-const areaStart = ref({ x: 0, y: 0 });
-const areaEnd = ref({ x: 0, y: 0 });
+const areaStart = ref<Point>({ x: 0, y: 0 });
+const areaEnd = ref<Point>({ x: 0, y: 0 });
 
 onMounted(() => {
   venueStore.loadVenue();
 });
 
-// Helper functions
-const getRows = () => {
-  if (!venueStore.currentVenue) return [];
-  const rows = new Set<number>();
-  venueStore.currentVenue.seats.forEach(seat => {
-    const parts = seat.label.split('-');
-    if (parts[0]) {
-      const row = parseInt(parts[0]);
-      rows.add(row);
-    }
-  });
-  return Array.from(rows).sort((a, b) => a - b);
+// Helper to get seats grid container
+const getSeatsGridContainer = (): HTMLElement | null => {
+  return document.querySelector('.seats-grid');
 };
 
-const getRowY = (row: number) => {
-  if (!venueStore.currentVenue) return 0;
-  const seat = venueStore.currentVenue.seats.find(s => s.label.startsWith(`${row}-`));
-  return seat ? seat.y : 0;
+// Selection management
+const clearSelection = () => {
+  selectedSeats.value.clear();
 };
 
-const getColumns = () => {
-  if (!venueStore.currentVenue) return [];
-  const cols = new Set<number>();
-  venueStore.currentVenue.seats.forEach(seat => {
-    const parts = seat.label.split('-');
-    if (parts[1]) {
-      const col = parseInt(parts[1]);
-      cols.add(col);
-    }
-  });
-  return Array.from(cols).sort((a, b) => a - b);
+const toggleSeatSelection = (seatId: string) => {
+  if (selectedSeats.value.has(seatId)) {
+    selectedSeats.value.delete(seatId);
+  } else {
+    selectedSeats.value.add(seatId);
+  }
 };
 
-const getColX = (col: number) => {
-  if (!venueStore.currentVenue) return 0;
-  const seat = venueStore.currentVenue.seats.find(s => s.label.endsWith(`-${col}`));
-  return seat ? seat.x : 0;
+const setSingleSelection = (seatId: string) => {
+  clearSelection();
+  selectedSeats.value.add(seatId);
 };
 
-// Seat interaction - unified handler
+// Seat interaction handlers
 const handleSeatMouseDown = (seatId: string, event: MouseEvent) => {
   if (currentMode.value !== 'select') return;
   
@@ -67,24 +57,18 @@ const handleSeatMouseDown = (seatId: string, event: MouseEvent) => {
   
   // Handle selection
   if (event.ctrlKey || event.metaKey) {
-    // Multi-select with Ctrl
-    if (selectedSeats.value.has(seatId)) {
-      selectedSeats.value.delete(seatId);
-    } else {
-      selectedSeats.value.add(seatId);
-    }
-    // Don't start dragging when Ctrl is pressed
-    return;
+    // Multi-select with Ctrl/Cmd
+    toggleSeatSelection(seatId);
+    return; // Don't start dragging when Ctrl is pressed
   } else {
     // Single select (if not already selected)
     if (!selectedSeats.value.has(seatId)) {
-      selectedSeats.value.clear();
-      selectedSeats.value.add(seatId);
+      setSingleSelection(seatId);
     }
   }
   
   // Start dragging
-  const seat = venueStore.currentVenue?.seats.find(s => s.id === seatId);
+  const seat = venueEditor.findSeatById(seatId);
   if (!seat) return;
   
   isDragging.value = true;
@@ -96,7 +80,7 @@ const handleSeatMouseDown = (seatId: string, event: MouseEvent) => {
   event.preventDefault();
 };
 
-// Area selection
+// Area selection handlers
 const handleCanvasMouseDown = (event: MouseEvent) => {
   if (currentMode.value !== 'area') return;
   
@@ -104,14 +88,10 @@ const handleCanvasMouseDown = (event: MouseEvent) => {
   const target = event.target as HTMLElement;
   if (target.classList.contains('seat')) return;
   
-  const container = document.querySelector('.seats-grid') as HTMLElement;
+  const container = getSeatsGridContainer();
   if (!container) return;
   
-  const rect = container.getBoundingClientRect();
-  areaStart.value = {
-    x: event.clientX - rect.left,
-    y: event.clientY - rect.top
-  };
+  areaStart.value = geometry.getRelativeCoordinates(event, container);
   areaEnd.value = { ...areaStart.value };
   isAreaSelecting.value = true;
   
@@ -119,18 +99,20 @@ const handleCanvasMouseDown = (event: MouseEvent) => {
 };
 
 const handleCanvasMouseMove = (event: MouseEvent) => {
+  const container = getSeatsGridContainer();
+  if (!container) return;
+  
   // Handle dragging in select mode
   if (currentMode.value === 'select' && isDragging.value && venueStore.currentVenue) {
-    const container = document.querySelector('.seats-grid') as HTMLElement;
-    if (!container) return;
-    
-    const rect = container.getBoundingClientRect();
-    const newX = event.clientX - rect.left - dragOffset.value.x;
-    const newY = event.clientY - rect.top - dragOffset.value.y;
+    const relativePos = geometry.getRelativeCoordinates(event, container);
+    const newX = relativePos.x - dragOffset.value.x;
+    const newY = relativePos.y - dragOffset.value.y;
     
     // Get first selected seat to calculate offset
     const firstSeatId = Array.from(selectedSeats.value)[0];
-    const firstSeat = venueStore.currentVenue.seats.find(s => s.id === firstSeatId);
+    if (!firstSeatId) return;
+    
+    const firstSeat = venueEditor.findSeatById(firstSeatId);
     if (!firstSeat) return;
     
     const deltaX = newX - firstSeat.x;
@@ -138,7 +120,7 @@ const handleCanvasMouseMove = (event: MouseEvent) => {
     
     // Move all selected seats
     selectedSeats.value.forEach(seatId => {
-      const seat = venueStore.currentVenue?.seats.find(s => s.id === seatId);
+      const seat = venueEditor.findSeatById(seatId);
       if (seat) {
         seat.x += deltaX;
         seat.y += deltaY;
@@ -148,33 +130,23 @@ const handleCanvasMouseMove = (event: MouseEvent) => {
   
   // Handle area selection in area mode
   if (currentMode.value === 'area' && isAreaSelecting.value) {
-    const container = document.querySelector('.seats-grid') as HTMLElement;
-    if (!container) return;
-    
-    const rect = container.getBoundingClientRect();
-    areaEnd.value = {
-      x: event.clientX - rect.left,
-      y: event.clientY - rect.top
-    };
+    areaEnd.value = geometry.getRelativeCoordinates(event, container);
   }
 };
 
 const handleCanvasMouseUp = () => {
   // Handle area selection completion
-  if (currentMode.value === 'area' && isAreaSelecting.value && venueStore.currentVenue) {
-    // Calculate selection rectangle
-    const minX = Math.min(areaStart.value.x, areaEnd.value.x);
-    const maxX = Math.max(areaStart.value.x, areaEnd.value.x);
-    const minY = Math.min(areaStart.value.y, areaEnd.value.y);
-    const maxY = Math.max(areaStart.value.y, areaEnd.value.y);
+  if (currentMode.value === 'area' && isAreaSelecting.value) {
+    const bounds = geometry.calculateRectangleBounds(areaStart.value, areaEnd.value);
+    const seatsInArea = venueEditor.getSeatsInArea(
+      bounds.minX,
+      bounds.maxX,
+      bounds.minY,
+      bounds.maxY
+    );
     
-    // Select all seats within the area
-    selectedSeats.value.clear();
-    venueStore.currentVenue.seats.forEach(seat => {
-      if (seat.x >= minX && seat.x <= maxX && seat.y >= minY && seat.y <= maxY) {
-        selectedSeats.value.add(seat.id);
-      }
-    });
+    clearSelection();
+    seatsInArea.forEach(seat => selectedSeats.value.add(seat.id));
     
     isAreaSelecting.value = false;
   }
@@ -185,20 +157,12 @@ const handleCanvasMouseUp = () => {
   }
 };
 
+// Computed selection rectangle for visual feedback
 const selectionRectangle = computed(() => {
   if (!isAreaSelecting.value) return null;
   
-  const minX = Math.min(areaStart.value.x, areaEnd.value.x);
-  const maxX = Math.max(areaStart.value.x, areaEnd.value.x);
-  const minY = Math.min(areaStart.value.y, areaEnd.value.y);
-  const maxY = Math.max(areaStart.value.y, areaEnd.value.y);
-  
-  return {
-    left: minX,
-    top: minY,
-    width: maxX - minX,
-    height: maxY - minY
-  };
+  const bounds = geometry.calculateRectangleBounds(areaStart.value, areaEnd.value);
+  return geometry.boundsToRectangle(bounds);
 });
 </script>
 
@@ -241,10 +205,10 @@ const selectionRectangle = computed(() => {
           <div class="column-spacer"></div>
           <div class="column-labels">
             <div 
-              v-for="col in getColumns()" 
+              v-for="col in venueEditor.getColumns.value" 
               :key="'top-' + col"
               class="column-label"
-              :style="{ left: getColX(col) + 'px' }"
+              :style="{ left: venueEditor.getColX(col) + 'px' }"
             >
               {{ col }}
             </div>
@@ -255,10 +219,10 @@ const selectionRectangle = computed(() => {
           <!-- Left row labels -->
           <div class="row-labels row-labels-left">
             <div 
-              v-for="row in getRows()" 
+              v-for="row in venueEditor.getRows.value" 
               :key="'left-' + row"
               class="row-label"
-              :style="{ top: getRowY(row) + 'px' }"
+              :style="{ top: venueEditor.getRowY(row) + 'px' }"
             >
               {{ row }}
             </div>
