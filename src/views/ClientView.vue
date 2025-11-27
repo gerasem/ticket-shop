@@ -192,6 +192,8 @@ const getColX = (col: number) => {
 </template>
 
 <style scoped>
+@import '../assets/venue.css';
+
 .client-view {
   padding: 2rem;
   background: #1a1a1a;
@@ -274,85 +276,21 @@ h1 {
   margin: 0 auto;
 }
 
-/* Venue Container */
-.venue-container {
-  flex: 1;
-  background: #222;
-  border-radius: 12px;
-  padding: 1.5rem;
-  overflow: auto;
-}
 
-.venue-container h2 {
-  text-align: center;
-  margin: 0 0 1rem 0;
-}
 
-.stage {
-  width: 80%;
-  height: 30px;
-  background: #555;
-  margin: 10px auto;
-  text-align: center;
-  line-height: 30px;
-  border-radius: 0 0 20px 20px;
-}
 
-.column-labels-container {
-  display: flex;
-  height: 30px;
-  margin-bottom: -40px;
-}
 
-.column-spacer {
-  width: 30px;
-  flex-shrink: 0;
-}
 
-.column-labels {
-  position: relative;
-  flex: 1;
-}
 
-.column-label {
-  position: absolute;
-  width: 30px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 500;
-  font-size: 13px;
-  color: #999;
-}
 
-.seating-area {
-  position: relative;
-  display: flex;
-}
 
-.row-labels {
-  position: relative;
-  width: 30px;
-  flex-shrink: 0;
-}
 
-.row-label {
-  position: absolute;
-  width: 30px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding-right: 2px;
-  font-weight: 500;
-  font-size: 13px;
-  color: #999;
-}
 
-.row-labels-left {
-  text-align: right;
-}
+
+
+
+
+
 
 .seats-grid {
   position: relative;
@@ -360,21 +298,7 @@ h1 {
   height: 600px;
 }
 
-.seat {
-  position: absolute;
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 10px;
-  cursor: pointer;
-  user-select: none;
-  transition: all 0.2s;
-  overflow: visible;
-  border: 2px solid transparent;
-}
+
 
 /* Price-based colors for FREE seats - Neutral tones */
 .seat.free.price-front {
@@ -401,10 +325,7 @@ h1 {
   box-shadow: 0 0 15px #42b983;
 }
 
-.seat:hover:not(.booked) {
-  transform: scale(1.15);
-  box-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
-}
+
 
 .seat-tooltip {
   display: none;
