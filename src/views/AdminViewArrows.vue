@@ -176,14 +176,14 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
         <!-- Movement Controls -->
         <div class="movement-controls">
           <h4>Movement</h4>
-          <div class="step-control">
-            <label>Step:</label>
-            <input type="number" v-model="moveStep" min="1" class="step-input" />
-          </div>
           <div class="arrow-buttons">
             <button class="arrow-btn up" @click="moveSelectedSeats(0, -1)">↑</button>
             <div class="horizontal-arrows">
               <button class="arrow-btn left" @click="moveSelectedSeats(-1, 0)">←</button>
+              <div class="step-control-compact">
+                <label>Step</label>
+                <input type="number" v-model="moveStep" min="1" class="step-input" />
+              </div>
               <button class="arrow-btn right" @click="moveSelectedSeats(1, 0)">→</button>
             </div>
             <button class="arrow-btn down" @click="moveSelectedSeats(0, 1)">↓</button>
@@ -259,20 +259,38 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
   color: #aaa;
 }
 
-.step-control {
+.step-control-compact {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
+  justify-content: center;
+  gap: 2px;
+}
+
+.step-control-compact label {
+  font-size: 0.65rem;
+  color: #aaa;
+  text-transform: uppercase;
+  line-height: 1;
 }
 
 .step-input {
-  width: 60px;
+  width: 36px;
   background: rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: white;
-  padding: 4px 8px;
+  padding: 2px 0;
   border-radius: 4px;
+  text-align: center;
+  font-size: 0.8rem;
+  /* Hide spinner buttons for number input */
+  -moz-appearance: textfield;
+}
+
+.step-input::-webkit-outer-spin-button,
+.step-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 .arrow-buttons {
@@ -285,6 +303,7 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
 .horizontal-arrows {
   display: flex;
   gap: 4px;
+  align-items: center;
 }
 
 .arrow-btn {
