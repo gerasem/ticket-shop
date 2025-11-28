@@ -22,6 +22,10 @@ const isAreaSelecting = ref(false);
 const areaStart = ref<Point>({ x: 0, y: 0 });
 const areaEnd = ref<Point>({ x: 0, y: 0 });
 
+// Tool state
+type Tool = 'select';
+const activeTool = ref<Tool>('select');
+
 // Keyboard event handler
 const handleKeydown = (event: KeyboardEvent) => {
   if (selectedSeats.value.size === 0) return;
@@ -169,36 +173,63 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
     <h1>Venue Layout Editor (Arrows)</h1>
     
     <div v-if="venueStore.currentVenue" class="editor-container">
-      <!-- Toolbar -->
-      <div class="toolbar">
-        <h3>Edit Tools</h3>
-        
-        <!-- Movement Controls -->
-        <div class="movement-controls">
-          <h4>Movement</h4>
-          <div class="arrow-buttons">
-            <button class="arrow-btn up" @click="moveSelectedSeats(0, -1)">↑</button>
-            <div class="horizontal-arrows">
-              <button class="arrow-btn left" @click="moveSelectedSeats(-1, 0)">←</button>
-              <div class="step-control-compact">
-                <label>Step</label>
-                <input type="number" v-model="moveStep" min="1" class="step-input" />
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <!-- Tools Section -->
+        <div class="sidebar-section tools-section">
+          <button 
+            class="tool-btn" 
+            :class="{ active: activeTool === 'select' }"
+            @click="activeTool = 'select'"
+            title="Selection Tool"
+          >
+            <span class="tool-icon">⬚</span>
+          </button>
+        </div>
+
+        <!-- Movement Section (Conditional) -->
+        <div v-if="selectedSeats.size > 0" class="sidebar-section movement-section">
+          <div class="movement-controls-vertical">
+            
+            <!-- Arrow Controls -->
+            <div class="arrow-buttons">
+              <button class="arrow-btn up" @click="moveSelectedSeats(0, -1)">↑</button>
+              <div class="horizontal-arrows">
+                <button class="arrow-btn left" @click="moveSelectedSeats(-1, 0)">←</button>
+                
+                <!-- Step Control (Centered) -->
+                <div class="step-control-compact">
+                  <label>Step</label>
+                  <input type="number" v-model="moveStep" min="1" class="step-input" />
+                </div>
+
+                <button class="arrow-btn right" @click="moveSelectedSeats(1, 0)">→</button>
               </div>
-              <button class="arrow-btn right" @click="moveSelectedSeats(1, 0)">→</button>
+              <button class="arrow-btn down" @click="moveSelectedSeats(0, 1)">↓</button>
             </div>
-            <button class="arrow-btn down" @click="moveSelectedSeats(0, 1)">↓</button>
+
+            <!-- Selection Info (Vertical) -->
+            <div class="selection-info-vertical">
+              <span class="selected-count">Selected: {{ selectedSeats.size }}</span>
+              <button class="clear-btn" @click="clearSelection">Clear</button>
+            </div>
           </div>
         </div>
 
-        <div class="tool-info">
-          <p><strong>Smart Selection:</strong></p>
-          <ul>
-            <li><strong>Click Seat:</strong> Select</li>
-            <li><strong>Ctrl+Click:</strong> Multi-select</li>
-            <li><strong>Arrows:</strong> Move selected</li>
-            <li><strong>Drag Background:</strong> Area select</li>
-          </ul>
-          <p class="selected-count">Selected: {{ selectedSeats.size }} seat(s)</p>
+        <!-- Help Section -->
+        <div class="sidebar-footer">
+          <div class="help-container">
+            <button class="help-btn">?</button>
+            <div class="help-tooltip">
+              <p><strong>Selection Tool</strong></p>
+              <ul>
+                <li>Click seat to select</li>
+                <li>Ctrl+Click to multi-select</li>
+                <li>Drag to area select</li>
+                <li>Use arrows to move</li>
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -206,8 +237,6 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
       <VenueGrid 
         :venue="venueStore.currentVenue"
         @grid-mousedown="handleCanvasMouseDown"
-        @row-click="toggleRowSelection"
-        @col-click="toggleColumnSelection"
       >
         <template #overlay>
           <div 
@@ -245,18 +274,188 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
 
 @import '../assets/venue.css';
 
-/* Movement Controls */
-.movement-controls {
-  background: rgba(255, 255, 255, 0.05);
-  padding: 1rem;
-  border-radius: 8px;
-  margin-bottom: 1.5rem;
+.editor-container {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  height: 600px;
 }
 
-.movement-controls h4 {
-  margin: 0 0 0.5rem 0;
-  font-size: 0.9rem;
+/* Sidebar */
+.sidebar {
+  width: 120px; /* Wider fixed width */
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 1rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  align-items: center;
+  height: 100%; /* Full height of container */
+  position: relative;
+}
+
+.sidebar-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+/* Tools */
+.tool-btn {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid transparent;
   color: #aaa;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tool-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.tool-btn.active {
+  background: rgba(66, 185, 131, 0.2);
+  border-color: #42b983;
+  color: #42b983;
+}
+
+.tool-icon {
+  font-size: 1.4rem;
+}
+
+/* Vertical Movement Controls */
+.movement-controls-vertical {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+}
+
+.step-control-compact {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.step-control-compact label {
+  font-size: 0.65rem;
+  color: #aaa;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.selection-info-vertical {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 0.5rem;
+  width: 100%;
+}
+
+.selected-count {
+  font-size: 0.8rem;
+  color: #42b983;
+  font-weight: bold;
+}
+
+.clear-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #aaa;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  cursor: pointer;
+  width: 100%;
+  text-align: center;
+}
+
+.clear-btn:hover {
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+/* Footer / Help */
+.sidebar-footer {
+  margin-top: auto;
+}
+
+.help-container {
+  position: relative;
+}
+
+.help-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #aaa;
+  font-weight: bold;
+  cursor: help;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+}
+
+.help-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.help-tooltip {
+  display: none;
+  position: absolute;
+  left: 100%;
+  bottom: 0;
+  margin-left: 10px;
+  background: rgba(0, 0, 0, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1rem;
+  border-radius: 6px;
+  width: 180px;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  font-size: 0.8rem;
+  text-align: left;
+}
+
+.help-container:hover .help-tooltip {
+  display: block;
+}
+
+.help-tooltip p {
+  margin: 0 0 0.5rem 0;
+  color: #42b983;
+}
+
+.help-tooltip ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.help-tooltip li {
+  margin-bottom: 0.25rem;
+  color: #ccc;
+  line-height: 1.3;
 }
 
 .step-control-compact {
