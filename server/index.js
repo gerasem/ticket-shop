@@ -1,7 +1,6 @@
 import express from 'express';
 import sqlite3 from 'sqlite3';
 import cors from 'cors';
-import bodyParser from 'body-parser';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
@@ -12,7 +11,7 @@ const app = express();
 const port = 3001;
 
 app.use(cors());
-app.use(bodyParser.json());
+app.use(express.json());
 
 // Initialize SQLite database
 const dbPath = join(__dirname, 'venue.db');
@@ -25,10 +24,38 @@ const db = new sqlite3.Database(dbPath, (err) => {
   }
 });
 
-function initializeDatabase() {
-  db.serialize(() => {
+// Promise wrappers for SQLite
+const dbRun = (sql, params = []) => {
+  return new Promise((resolve, reject) => {
+    db.run(sql, params, function (err) {
+      if (err) reject(err);
+      else resolve(this);
+    });
+  });
+};
+
+const dbGet = (sql, params = []) => {
+  return new Promise((resolve, reject) => {
+    db.get(sql, params, (err, row) => {
+      if (err) reject(err);
+      else resolve(row);
+    });
+  });
+};
+
+const dbAll = (sql, params = []) => {
+  return new Promise((resolve, reject) => {
+    db.all(sql, params, (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
+    });
+  });
+};
+
+async function initializeDatabase() {
+  try {
     // Create Venues Table
-    db.run(`CREATE TABLE IF NOT EXISTS venues (
+    await dbRun(`CREATE TABLE IF NOT EXISTS venues (
       id TEXT PRIMARY KEY,
       name TEXT,
       type TEXT,
@@ -37,7 +64,7 @@ function initializeDatabase() {
     )`);
 
     // Create Seats Table
-    db.run(`CREATE TABLE IF NOT EXISTS seats (
+    await dbRun(`CREATE TABLE IF NOT EXISTS seats (
       id TEXT PRIMARY KEY,
       venue_id TEXT,
       x INTEGER,
@@ -49,40 +76,35 @@ function initializeDatabase() {
     )`);
 
     // Check if data exists, if not seed it
-    db.get("SELECT count(*) as count FROM venues", (err, row) => {
-      if (err) {
-        console.error(err.message);
-        return;
-      }
-      if (row.count === 0) {
-        console.log('Seeding database...');
-        seedDatabase();
-      }
-    });
-  });
+    const row = await dbGet("SELECT count(*) as count FROM venues");
+    if (row.count === 0) {
+      console.log('Seeding database...');
+      await seedDatabase();
+    }
+  } catch (err) {
+    console.error('Database initialization error:', err);
+  }
 }
 
-function seedDatabase() {
+async function seedDatabase() {
   const venueId = 'venue-1';
   
-  // Insert Venue
-  const venueStmt = db.prepare("INSERT INTO venues (id, name, type, width, height) VALUES (?, ?, ?, ?, ?)");
-  venueStmt.run(venueId, 'Grand Cinema Hall 1', 'cinema', 800, 600);
-  venueStmt.finalize();
+  try {
+    // Insert Venue
+    await dbRun("INSERT INTO venues (id, name, type, width, height) VALUES (?, ?, ?, ?, ?)", 
+      [venueId, 'Grand Cinema Hall 1', 'cinema', 800, 600]);
 
-  // Insert Seats (Logic copied from mockData.ts)
-  const rows = 10;
-  const cols = 15;
-  const seatSize = 40;
-  const gap = 10;
-  const PRICE_FRONT = 1500;
-  const PRICE_MIDDLE = 1200;
-  const PRICE_BACK = 1800;
+    // Insert Seats (Logic copied from mockData.ts)
+    const rows = 10;
+    const cols = 15;
+    const seatSize = 40;
+    const gap = 10;
+    const PRICE_FRONT = 1500;
+    const PRICE_MIDDLE = 1200;
+    const PRICE_BACK = 1800;
 
-  const seatStmt = db.prepare("INSERT INTO seats (id, venue_id, x, y, status, label, priceInCents) VALUES (?, ?, ?, ?, ?, ?, ?)");
+    await dbRun("BEGIN TRANSACTION");
 
-  db.serialize(() => {
-    db.run("BEGIN TRANSACTION");
     for (let r = 0; r < rows; r++) {
       let price;
       if (r < 2) price = PRICE_FRONT;
@@ -96,44 +118,41 @@ function seedDatabase() {
         const status = Math.random() > 0.8 ? 'booked' : 'free';
         const label = `${r + 1}-${c + 1}`;
         
-        seatStmt.run(id, venueId, x, y, status, label, price);
+        await dbRun("INSERT INTO seats (id, venue_id, x, y, status, label, priceInCents) VALUES (?, ?, ?, ?, ?, ?, ?)",
+          [id, venueId, x, y, status, label, price]);
       }
     }
-    db.run("COMMIT", () => {
-      console.log('Database seeded successfully.');
-    });
-    seatStmt.finalize();
-  });
+    
+    await dbRun("COMMIT");
+    console.log('Database seeded successfully.');
+  } catch (err) {
+    await dbRun("ROLLBACK");
+    console.error('Seeding error:', err);
+  }
 }
 
 // API Endpoints
 
 // Get Venue Data
-app.get('/api/venue', (req, res) => {
+app.get('/api/venue', async (req, res) => {
   const venueId = 'venue-1'; // Single venue for now
   
-  db.get("SELECT * FROM venues WHERE id = ?", [venueId], (err, venue) => {
-    if (err) {
-      res.status(500).json({ error: err.message });
-      return;
-    }
+  try {
+    const venue = await dbGet("SELECT * FROM venues WHERE id = ?", [venueId]);
     if (!venue) {
       res.status(404).json({ error: 'Venue not found' });
       return;
     }
 
-    db.all("SELECT * FROM seats WHERE venue_id = ?", [venueId], (err, seats) => {
-      if (err) {
-        res.status(500).json({ error: err.message });
-        return;
-      }
-      res.json({ ...venue, seats });
-    });
-  });
+    const seats = await dbAll("SELECT * FROM seats WHERE venue_id = ?", [venueId]);
+    res.json({ ...venue, seats });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Update Seat Status
-app.post('/api/venue/seat/:id', (req, res) => {
+app.post('/api/venue/seat/:id', async (req, res) => {
   const seatId = req.params.id;
   const { status } = req.body;
 
@@ -142,27 +161,28 @@ app.post('/api/venue/seat/:id', (req, res) => {
     return;
   }
 
-  db.run("UPDATE seats SET status = ? WHERE id = ?", [status, seatId], function(err) {
-    if (err) {
-      res.status(500).json({ error: err.message });
-      return;
-    }
-    if (this.changes === 0) {
+  try {
+    const result = await dbRun("UPDATE seats SET status = ? WHERE id = ?", [status, seatId]);
+    if (result.changes === 0) {
       res.status(404).json({ error: 'Seat not found' });
       return;
     }
     res.json({ message: 'Seat updated', id: seatId, status });
-  });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Reset Database (Dev Tool)
-app.post('/api/venue/reset', (req, res) => {
-  db.serialize(() => {
-    db.run("DELETE FROM seats");
-    db.run("DELETE FROM venues");
-    seedDatabase();
+app.post('/api/venue/reset', async (req, res) => {
+  try {
+    await dbRun("DELETE FROM seats");
+    await dbRun("DELETE FROM venues");
+    await seedDatabase();
     res.json({ message: 'Database reset' });
-  });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.listen(port, () => {
