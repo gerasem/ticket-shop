@@ -286,8 +286,6 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
 
 <style scoped>
 
-@import '../assets/venue.css';
-
 .editor-container {
   display: flex;
   gap: 1rem;

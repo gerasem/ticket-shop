@@ -122,7 +122,6 @@ const getPriceClass = (priceInCents: number) => {
 </template>
 
 <style scoped>
-@import '../assets/venue.css';
 
 .client-view {
   padding: 2rem;

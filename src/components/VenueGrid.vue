@@ -80,5 +80,4 @@ const venueEditor = useVenueEditor(toRef(props, 'venue'));
 </template>
 
 <style scoped>
-@import '../assets/venue.css';
 </style>
