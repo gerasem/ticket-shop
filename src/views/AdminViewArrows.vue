@@ -13,6 +13,7 @@ const geometry = useGeometry();
 
 // Edit mode state
 const selectedSeats = ref<Set<string>>(new Set());
+const isStageSelected = ref(false);
 
 // Movement state
 const moveStep = ref(10);
@@ -28,7 +29,7 @@ const activeTool = ref<Tool>('select');
 
 // Keyboard event handler
 const handleKeydown = (event: KeyboardEvent) => {
-  if (selectedSeats.value.size === 0) return;
+  if (selectedSeats.value.size === 0 && !isStageSelected.value) return;
   
   // Prevent default scrolling for arrow keys
   if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
@@ -37,16 +38,16 @@ const handleKeydown = (event: KeyboardEvent) => {
 
   switch (event.key) {
     case 'ArrowUp':
-      moveSelectedSeats(0, -1);
+      moveSelection(0, -1);
       break;
     case 'ArrowDown':
-      moveSelectedSeats(0, 1);
+      moveSelection(0, 1);
       break;
     case 'ArrowLeft':
-      moveSelectedSeats(-1, 0);
+      moveSelection(-1, 0);
       break;
     case 'ArrowRight':
-      moveSelectedSeats(1, 0);
+      moveSelection(1, 0);
       break;
   }
 };
@@ -68,6 +69,7 @@ const getSeatsGridContainer = (): HTMLElement | null => {
 // Selection management
 const clearSelection = () => {
   selectedSeats.value.clear();
+  isStageSelected.value = false;
 };
 
 const toggleSeatSelection = (seatId: string) => {
@@ -84,17 +86,27 @@ const setSingleSelection = (seatId: string) => {
 };
 
 // Movement Logic
-const moveSelectedSeats = (dx: number, dy: number) => {
+const moveSelection = (dx: number, dy: number) => {
   const stepX = dx * moveStep.value;
   const stepY = dy * moveStep.value;
 
-  selectedSeats.value.forEach(seatId => {
-    const seat = venueEditor.findSeatById(seatId);
-    if (seat) {
-      seat.x += stepX;
-      seat.y += stepY;
-    }
-  });
+  if (isStageSelected.value && venueStore.currentVenue) {
+    venueStore.currentVenue.stage.x += stepX;
+    venueStore.currentVenue.stage.y += stepY;
+  } else {
+    selectedSeats.value.forEach(seatId => {
+      const seat = venueEditor.findSeatById(seatId);
+      if (seat) {
+        seat.x += stepX;
+        seat.y += stepY;
+      }
+    });
+  }
+};
+
+const handleStageMouseDown = () => {
+  clearSelection();
+  isStageSelected.value = true;
 };
 
 // Unified Area Selection Handler
@@ -188,14 +200,14 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
         </div>
 
         <!-- Movement Section (Conditional) -->
-        <div v-if="selectedSeats.size > 0" class="sidebar-section movement-section">
+        <div v-if="selectedSeats.size > 0 || isStageSelected" class="sidebar-section movement-section">
           <div class="movement-controls-vertical">
             
             <!-- Arrow Controls -->
             <div class="arrow-buttons">
-              <button class="arrow-btn up" @click="moveSelectedSeats(0, -1)">↑</button>
+              <button class="arrow-btn up" @click="moveSelection(0, -1)">↑</button>
               <div class="horizontal-arrows">
-                <button class="arrow-btn left" @click="moveSelectedSeats(-1, 0)">←</button>
+                <button class="arrow-btn left" @click="moveSelection(-1, 0)">←</button>
                 
                 <!-- Step Control (Centered) -->
                 <div class="step-control-compact">
@@ -203,14 +215,15 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
                   <input type="number" v-model="moveStep" min="1" class="step-input" />
                 </div>
 
-                <button class="arrow-btn right" @click="moveSelectedSeats(1, 0)">→</button>
+                <button class="arrow-btn right" @click="moveSelection(1, 0)">→</button>
               </div>
-              <button class="arrow-btn down" @click="moveSelectedSeats(0, 1)">↓</button>
+              <button class="arrow-btn down" @click="moveSelection(0, 1)">↓</button>
             </div>
 
             <!-- Selection Info (Vertical) -->
             <div class="selection-info-vertical">
-              <span class="selected-count">Selected: {{ selectedSeats.size }}</span>
+              <span class="selected-count" v-if="isStageSelected">Stage Selected</span>
+              <span class="selected-count" v-else>Selected: {{ selectedSeats.size }}</span>
               <button class="clear-btn" @click="clearSelection">Clear</button>
             </div>
           </div>
@@ -237,6 +250,7 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
       <VenueGrid 
         :venue="venueStore.currentVenue"
         @grid-mousedown="handleCanvasMouseDown"
+        @stage-mousedown="handleStageMouseDown"
       >
         <template #overlay>
           <div 

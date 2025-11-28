@@ -9,6 +9,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'grid-mousedown', event: MouseEvent): void;
+  (e: 'stage-mousedown', event: MouseEvent): void;
   (e: 'row-click', row: number): void;
   (e: 'col-click', col: number): void;
 }>();
@@ -19,7 +20,17 @@ const venueEditor = useVenueEditor(toRef(props, 'venue'));
 <template>
   <div class="venue-container">
     <h2>{{ venue.name }}</h2>
-    <div class="stage">SCREEN / STAGE</div>
+    <div 
+      v-if="venue.stage"
+      class="stage"
+      :style="{
+        left: venue.stage.x + 'px',
+        top: venue.stage.y + 'px',
+        width: venue.stage.width + 'px',
+        height: venue.stage.height + 'px'
+      }"
+      @mousedown.stop="emit('stage-mousedown', $event)"
+    >SCREEN / STAGE</div>
     
     <!-- Top column labels -->
     <div class="column-labels-container">

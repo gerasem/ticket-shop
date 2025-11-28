@@ -10,6 +10,10 @@ export const useVenueStore = defineStore('venue', () => {
       const response = await fetch('/api/venue');
       if (!response.ok) throw new Error('Failed to fetch venue');
       const data = await response.json();
+      // Ensure stage exists (backward compatibility/safety)
+      if (!data.stage) {
+        data.stage = { x: 100, y: 20, width: 600, height: 40 };
+      }
       currentVenue.value = data;
     } catch (error) {
       console.error('Error loading venue:', error);

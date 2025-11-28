@@ -14,7 +14,7 @@ app.use(cors());
 app.use(express.json());
 
 // Initialize SQLite database
-const dbPath = join(__dirname, 'venue.db');
+const dbPath = join(__dirname, 'venue_v2.db');
 const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
     console.error('Error opening database', err.message);
@@ -60,7 +60,11 @@ async function initializeDatabase() {
       name TEXT,
       type TEXT,
       width INTEGER,
-      height INTEGER
+      height INTEGER,
+      stage_x INTEGER,
+      stage_y INTEGER,
+      stage_width INTEGER,
+      stage_height INTEGER
     )`);
 
     // Create Seats Table
@@ -91,8 +95,8 @@ async function seedDatabase() {
   
   try {
     // Insert Venue
-    await dbRun("INSERT INTO venues (id, name, type, width, height) VALUES (?, ?, ?, ?, ?)", 
-      [venueId, 'Grand Cinema Hall 1', 'cinema', 800, 600]);
+    await dbRun("INSERT INTO venues (id, name, type, width, height, stage_x, stage_y, stage_width, stage_height) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", 
+      [venueId, 'Grand Cinema Hall 1', 'cinema', 800, 600, 100, 20, 600, 40]);
 
     // Insert Seats (Logic copied from mockData.ts)
     const rows = 10;
@@ -145,7 +149,24 @@ app.get('/api/venue', async (req, res) => {
     }
 
     const seats = await dbAll("SELECT * FROM seats WHERE venue_id = ?", [venueId]);
-    res.json({ ...venue, seats });
+    
+    // Construct stage object from flat columns
+    const venueWithStage = {
+      ...venue,
+      stage: {
+        x: venue.stage_x,
+        y: venue.stage_y,
+        width: venue.stage_width,
+        height: venue.stage_height
+      }
+    };
+    
+    // Remove flat stage columns if desired, or keep them. 
+    // For cleanliness, let's remove them from the root object if we want to match the interface exactly, 
+    // but keeping them doesn't usually hurt.
+    // Let's just return the structured object.
+    
+    res.json({ ...venueWithStage, seats });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

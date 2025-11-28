@@ -14,6 +14,12 @@ export interface Venue {
   width: number;
   height: number;
   seats: Seat[];
+  stage: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  };
 }
 
 export const generateMockVenue = (): Venue => {
@@ -57,6 +63,12 @@ export const generateMockVenue = (): Venue => {
     type: 'cinema',
     width: 800,
     height: 600,
-    seats
+    seats,
+    stage: {
+      x: 100,
+      y: 20,
+      width: 600,
+      height: 40
+    }
   };
 };
