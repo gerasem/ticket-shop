@@ -178,6 +178,7 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
     setSingleSelection(seatId);
   }
 };
+
 </script>
 
 <template>

@@ -194,6 +194,24 @@ app.post('/api/venue/seat/:id', async (req, res) => {
   }
 });
 
+// Shift All Seats (Fix Layout)
+app.post('/api/venue/shift-seats', async (req, res) => {
+  const { shiftY } = req.body;
+  const venueId = 'venue-1';
+
+  if (typeof shiftY !== 'number') {
+    res.status(400).json({ error: 'Invalid shiftY' });
+    return;
+  }
+
+  try {
+    const result = await dbRun("UPDATE seats SET y = y + ? WHERE venue_id = ?", [shiftY, venueId]);
+    res.json({ message: 'Seats shifted', changes: result.changes });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Reset Database (Dev Tool)
 app.post('/api/venue/reset', async (req, res) => {
   try {

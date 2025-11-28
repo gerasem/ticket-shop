@@ -49,7 +49,7 @@ export const generateMockVenue = (): Venue => {
       seats.push({
         id: `r${r}-c${c}`,
         x: c * (seatSize + gap) + 50,
-        y: r * (seatSize + gap) + 50,
+        y: r * (seatSize + gap) + 130,
         status: Math.random() > 0.8 ? 'booked' : 'free',
         label: `${r + 1}-${c + 1}`,
         priceInCents: price
