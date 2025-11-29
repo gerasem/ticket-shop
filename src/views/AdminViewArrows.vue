@@ -5,6 +5,7 @@ import { useVenueEditor } from '../composables/useVenueEditor';
 import { useGeometry, type Point } from '../composables/useGeometry';
 import { usePrice } from '../composables/usePrice';
 import VenueGrid from '../components/VenueGrid.vue';
+import type { Seat } from '../services/mockData';
 
 const venueStore = useVenueStore();
 
@@ -19,6 +20,31 @@ const isStageSelected = ref(false);
 
 // Movement state
 const moveStep = ref(10);
+
+// Computed property to get current price of selected seat(s)
+// Returns price only if all selected seats have the same price
+const currentPrice = computed(() => {
+  if (selectedSeats.value.size === 0 || !venueStore.currentVenue) return null;
+  
+  const seatsArray = Array.from(selectedSeats.value);
+  
+  // Get all selected seats
+  const seats = seatsArray
+    .map(id => venueEditor.findSeatById(id))
+    .filter((seat): seat is Seat => seat !== undefined);
+  
+  if (seats.length === 0) return null;
+  
+  // Check if all seats have the same price
+  const firstPrice = seats[0].priceInCents;
+  const allSamePrice = seats.every(seat => seat.priceInCents === firstPrice);
+  
+  // Only return price if all selected seats have the same price
+  if (!allSamePrice) return null;
+  
+  // Convert cents to euros for display
+  return (firstPrice / 100).toFixed(2);
+});
 
 // Area selection state
 const isAreaSelecting = ref(false);
@@ -36,6 +62,9 @@ const lastMousePos = ref<Point>({ x: 0, y: 0 });
 
 // Add seat preview state
 const previewSeatPos = ref<Point | null>(null);
+
+// Price editing state
+const priceInput = ref<string>('');
 
 // Keyboard event handler
 const handleKeydown = (event: KeyboardEvent) => {
@@ -127,6 +156,31 @@ const deleteSelectedSeats = () => {
   );
   
   clearSelection();
+};
+
+// Update price for selected seats
+const updateSelectedSeatsPrice = () => {
+  if (!venueStore.currentVenue || selectedSeats.value.size === 0) return;
+  
+  const priceValue = parseFloat(priceInput.value);
+  if (isNaN(priceValue) || priceValue < 0) {
+    alert('Please enter a valid price');
+    return;
+  }
+  
+  // Convert euros to cents
+  const priceInCents = Math.round(priceValue * 100);
+  
+  // Update all selected seats
+  selectedSeats.value.forEach(seatId => {
+    const seat = venueEditor.findSeatById(seatId);
+    if (seat) {
+      seat.priceInCents = priceInCents;
+    }
+  });
+  
+  // Clear the input
+  priceInput.value = '';
 };
 
 const recalculateRows = () => {
@@ -477,6 +531,28 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
               <span class="selected-count" v-else>Selected: {{ selectedSeats.size }}</span>
               <button class="action-btn delete-btn" @click="deleteSelectedSeats">Delete</button>
               <button class="clear-btn" @click="clearSelection">Clear Selection</button>
+              
+              <!-- Price Editing (only for seats, not stage) -->
+              <div v-if="!isStageSelected && selectedSeats.size > 0" class="price-edit-section">
+                <div class="current-price" v-if="currentPrice">
+                  <label>Current Price:</label>
+                  <span class="price-value">{{ currentPrice }}€</span>
+                </div>
+                <div class="price-input-group">
+                  <label>New Price (€)</label>
+                  <input 
+                    type="number" 
+                    v-model="priceInput" 
+                    class="price-input"
+                    placeholder="0.00"
+                    step="0.01"
+                    min="0"
+                  />
+                  <button class="action-btn price-btn" @click="updateSelectedSeatsPrice">
+                    Update Price
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -932,5 +1008,75 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
   pointer-events: none;
   font-size: 16px;
   color: white;
+}
+
+/* Price Editing Styles */
+.price-edit-section {
+  width: 100%;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.current-price {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.current-price label {
+  font-size: 0.65rem;
+  color: #aaa;
+  text-transform: uppercase;
+}
+
+.price-value {
+  font-size: 0.9rem;
+  color: #42b983;
+  font-weight: bold;
+}
+
+.price-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  width: 100%;
+}
+
+.price-input-group label {
+  font-size: 0.65rem;
+  color: #aaa;
+  text-transform: uppercase;
+}
+
+.price-input {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  padding: 4px 6px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.price-input:focus {
+  border-color: #42b983;
+  outline: none;
+}
+
+.price-btn {
+  background: rgba(66, 185, 131, 0.2);
+  color: #42b983;
+  border: 1px solid rgba(66, 185, 131, 0.5);
+  margin-top: 0.25rem;
+}
+
+.price-btn:hover {
+  background: rgba(66, 185, 131, 0.4);
 }
 </style>
