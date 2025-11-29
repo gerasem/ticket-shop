@@ -53,6 +53,10 @@ const handleKeydown = (event: KeyboardEvent) => {
     case 'ArrowRight':
       moveSelection(1, 0);
       break;
+    case 'Delete':
+    case 'Backspace':
+      deleteSelectedSeats();
+      break;
   }
 };
 
@@ -106,6 +110,17 @@ const moveSelection = (dx: number, dy: number) => {
       }
     });
   }
+};
+
+const deleteSelectedSeats = () => {
+  if (!venueStore.currentVenue || selectedSeats.value.size === 0) return;
+  
+  // Filter out selected seats
+  venueStore.currentVenue.seats = venueStore.currentVenue.seats.filter(
+    seat => !selectedSeats.value.has(seat.id)
+  );
+  
+  clearSelection();
 };
 
 const handleStageMouseDown = (event?: MouseEvent) => {
@@ -296,6 +311,7 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
               type="number" 
               v-model.number="venueStore.currentVenue.width" 
               class="settings-input"
+              step="10"
             />
           </div>
 
@@ -305,6 +321,7 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
               type="number" 
               v-model.number="venueStore.currentVenue.height" 
               class="settings-input"
+              step="10"
             />
           </div>
         </div>
@@ -334,7 +351,8 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
             <div class="selection-info-vertical">
               <span class="selected-count" v-if="isStageSelected">Stage Selected</span>
               <span class="selected-count" v-else>Selected: {{ selectedSeats.size }}</span>
-              <button class="clear-btn" @click="clearSelection">Clear</button>
+              <button class="action-btn delete-btn" @click="deleteSelectedSeats">Delete</button>
+              <button class="clear-btn" @click="clearSelection">Clear Selection</button>
             </div>
           </div>
         </div>
@@ -521,6 +539,27 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
   color: #ef4444;
 }
 
+.action-btn {
+  width: 100%;
+  padding: 6px;
+  border-radius: 4px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.2s;
+}
+
+.delete-btn {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.5);
+}
+
+.delete-btn:hover {
+  background: rgba(239, 68, 68, 0.4);
+}
+
 /* Footer / Help */
 .sidebar-footer {
   margin-top: auto;
@@ -698,7 +737,6 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
 }
 
 .settings-input {
-  width: 100%;
   background: rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: white;
