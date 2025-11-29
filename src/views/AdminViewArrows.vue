@@ -123,6 +123,40 @@ const deleteSelectedSeats = () => {
   clearSelection();
 };
 
+const recalculateRows = () => {
+  if (!venueStore.currentVenue) return;
+
+  const seats = [...venueStore.currentVenue.seats];
+
+  // 1. Sort by Y, then X
+  seats.sort((a, b) => {
+    // Tolerance for same row (e.g. 10px)
+    if (Math.abs(a.y - b.y) < 10) {
+      return a.x - b.x;
+    }
+    return a.y - b.y;
+  });
+
+  // 2. Assign new labels
+  let currentRowY = -1000;
+  let currentRowNum = 0;
+  let currentSeatNum = 0;
+
+  seats.forEach(seat => {
+    // Check if this is a new row (y diff > 10)
+    if (Math.abs(seat.y - currentRowY) > 10) {
+      currentRowNum++;
+      currentSeatNum = 1;
+      currentRowY = seat.y;
+    } else {
+      currentSeatNum++;
+    }
+
+    // Update label
+    seat.label = `${currentRowNum}-${currentSeatNum}`;
+  });
+};
+
 const handleStageMouseDown = (event?: MouseEvent) => {
   if (activeTool.value === 'pan' && event) {
     startPanning(event);
@@ -323,6 +357,12 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
               class="settings-input"
               step="10"
             />
+          </div>
+
+          <div class="settings-group">
+            <button class="action-btn recalc-btn" @click="recalculateRows">
+              Recalculate Rows
+            </button>
           </div>
         </div>
 
@@ -558,6 +598,21 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
 
 .delete-btn:hover {
   background: rgba(239, 68, 68, 0.4);
+}
+
+.delete-btn:hover {
+  background: rgba(239, 68, 68, 0.4);
+}
+
+.recalc-btn {
+  background: rgba(66, 185, 131, 0.2);
+  color: #42b983;
+  border: 1px solid rgba(66, 185, 131, 0.5);
+  margin-top: 0.5rem;
+}
+
+.recalc-btn:hover {
+  background: rgba(66, 185, 131, 0.4);
 }
 
 /* Footer / Help */
