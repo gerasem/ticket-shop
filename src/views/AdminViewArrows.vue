@@ -3,6 +3,7 @@ import { ref, onMounted, onUnmounted, computed, toRef } from 'vue';
 import { useVenueStore } from '../stores/venue';
 import { useVenueEditor } from '../composables/useVenueEditor';
 import { useGeometry, type Point } from '../composables/useGeometry';
+import { usePrice } from '../composables/usePrice';
 import VenueGrid from '../components/VenueGrid.vue';
 
 const venueStore = useVenueStore();
@@ -10,6 +11,7 @@ const venueStore = useVenueStore();
 // Composables
 const venueEditor = useVenueEditor(toRef(venueStore, 'currentVenue'));
 const geometry = useGeometry();
+const { formatPrice } = usePrice();
 
 // Edit mode state
 const selectedSeats = ref<Set<string>>(new Set());
@@ -141,23 +143,35 @@ const recalculateRows = () => {
     return a.y - b.y;
   });
 
-  // 2. Assign new labels
+  // 2. Group seats by rows (based on Y coordinate)
+  const rows: { y: number; seats: typeof seats }[] = [];
   let currentRowY = -1000;
-  let currentRowNum = 0;
-  let currentSeatNum = 0;
+  let currentRow: typeof seats = [];
 
   seats.forEach(seat => {
-    // Check if this is a new row (y diff > 10)
     if (Math.abs(seat.y - currentRowY) > 10) {
-      currentRowNum++;
-      currentSeatNum = 1;
+      // New row
+      if (currentRow.length > 0) {
+        rows.push({ y: currentRowY, seats: currentRow });
+      }
+      currentRow = [seat];
       currentRowY = seat.y;
     } else {
-      currentSeatNum++;
+      // Same row
+      currentRow.push(seat);
     }
+  });
+  
+  // Don't forget the last row
+  if (currentRow.length > 0) {
+    rows.push({ y: currentRowY, seats: currentRow });
+  }
 
-    // Update label
-    seat.label = `${currentRowNum}-${currentSeatNum}`;
+  // 3. Assign labels: row number and column number
+  rows.forEach((row, rowIndex) => {
+    row.seats.forEach((seat, colIndex) => {
+      seat.label = `${rowIndex + 1}-${colIndex + 1}`;
+    });
   });
 };
 
@@ -532,6 +546,7 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
               selected: selectedSeats.has(seat.id)
             }"
             :style="{ left: seat.x + 'px', top: seat.y + 'px' }"
+            :title="formatPrice(seat.priceInCents)"
             @mousedown.stop="handleSeatClick(seat.id, $event)"
           >
             {{ seat.label }}
