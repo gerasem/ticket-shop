@@ -32,6 +32,9 @@ const activeTool = ref<Tool>('pan');
 const isPanning = ref(false);
 const lastMousePos = ref<Point>({ x: 0, y: 0 });
 
+// Add seat preview state
+const previewSeatPos = ref<Point | null>(null);
+
 // Keyboard event handler
 const handleKeydown = (event: KeyboardEvent) => {
   if (selectedSeats.value.size === 0 && !isStageSelected.value) return;
@@ -167,15 +170,41 @@ const handleStageMouseDown = (event?: MouseEvent) => {
   isStageSelected.value = true;
 };
 
+const handleMouseMoveForPreview = (event: MouseEvent) => {
+  if (activeTool.value !== 'add-seat') {
+    previewSeatPos.value = null;
+    return;
+  }
+
+  const container = getSeatsGridContainer();
+  if (!container) return;
+
+  const coords = geometry.getRelativeCoordinates(event, container);
+  
+  // Offset by half seat size (15px) to center on cursor
+  const offsetX = coords.x - 15;
+  const offsetY = coords.y - 15;
+  
+  // Snap to grid (10px)
+  const x = Math.round(offsetX / 10) * 10;
+  const y = Math.round(offsetY / 10) * 10;
+
+  previewSeatPos.value = { x, y };
+};
+
 const addSeat = (event: MouseEvent) => {
   const container = getSeatsGridContainer();
   if (!container || !venueStore.currentVenue) return;
 
   const coords = geometry.getRelativeCoordinates(event, container);
   
+  // Offset by half seat size (15px) to center on cursor
+  const offsetX = coords.x - 15;
+  const offsetY = coords.y - 15;
+  
   // Snap to grid (10px)
-  const x = Math.round(coords.x / 10) * 10;
-  const y = Math.round(coords.y / 10) * 10;
+  const x = Math.round(offsetX / 10) * 10;
+  const y = Math.round(offsetY / 10) * 10;
 
   const newSeat = {
     id: `seat-${Date.now()}`,
@@ -472,6 +501,7 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
         }"
         @grid-mousedown="handleCanvasMouseDown"
         @stage-mousedown="handleStageMouseDown"
+        @mousemove="handleMouseMoveForPreview"
       >
         <template #overlay>
           <div 
@@ -484,6 +514,15 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
               height: selectionRectangle.height + 'px'
             }"
           ></div>
+          
+          <!-- Preview seat for add-seat tool -->
+          <div
+            v-if="previewSeatPos && activeTool === 'add-seat'"
+            class="seat preview-seat"
+            :style="{ left: previewSeatPos.x + 'px', top: previewSeatPos.y + 'px' }"
+          >
+            +
+          </div>
         </template>
 
         <template #seat="{ seat }">
@@ -868,5 +907,15 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
 .settings-input:focus {
   border-color: #42b983;
   outline: none;
+}
+
+/* Preview Seat Styles */
+.preview-seat {
+  opacity: 0.5;
+  background: #42b983 !important;
+  border: 2px dashed #42b983;
+  pointer-events: none;
+  font-size: 16px;
+  color: white;
 }
 </style>
