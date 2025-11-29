@@ -24,8 +24,12 @@ const areaStart = ref<Point>({ x: 0, y: 0 });
 const areaEnd = ref<Point>({ x: 0, y: 0 });
 
 // Tool state
-type Tool = 'select';
-const activeTool = ref<Tool>('select');
+type Tool = 'select' | 'pan';
+const activeTool = ref<Tool>('pan');
+
+// Panning state
+const isPanning = ref(false);
+const lastMousePos = ref<Point>({ x: 0, y: 0 });
 
 // Keyboard event handler
 const handleKeydown = (event: KeyboardEvent) => {
@@ -104,13 +108,66 @@ const moveSelection = (dx: number, dy: number) => {
   }
 };
 
-const handleStageMouseDown = () => {
+const handleStageMouseDown = (event?: MouseEvent) => {
+  if (activeTool.value === 'pan' && event) {
+    startPanning(event);
+    return;
+  }
   clearSelection();
   isStageSelected.value = true;
 };
 
+const handleContainerMouseDown = (event: MouseEvent) => {
+  // Ignore if clicking sidebar or if already panning
+  if ((event.target as HTMLElement).closest('.sidebar')) return;
+  
+  if (activeTool.value === 'pan') {
+    startPanning(event);
+  }
+};
+
+// Panning Logic
+const startPanning = (event: MouseEvent) => {
+  if (isPanning.value) return;
+  
+  isPanning.value = true;
+  lastMousePos.value = { x: event.clientX, y: event.clientY };
+  document.body.style.cursor = 'grabbing';
+  
+  window.addEventListener('mousemove', handlePanMove);
+  window.addEventListener('mouseup', handlePanUp);
+  event.preventDefault();
+};
+
+const handlePanMove = (event: MouseEvent) => {
+  if (!isPanning.value) return;
+  
+  const dx = event.clientX - lastMousePos.value.x;
+  const dy = event.clientY - lastMousePos.value.y;
+  
+  // Scroll container (likely handles horizontal scroll)
+  const container = document.querySelector('.venue-container');
+  if (container) {
+    container.scrollBy(-dx, -dy);
+  }
+  
+  // Scroll window (likely handles vertical scroll)
+  window.scrollBy(-dx, -dy);
+  
+  lastMousePos.value = { x: event.clientX, y: event.clientY };
+};
+
+const handlePanUp = () => {
+  isPanning.value = false;
+  document.body.style.cursor = '';
+  window.removeEventListener('mousemove', handlePanMove);
+  window.removeEventListener('mouseup', handlePanUp);
+};
+
 // Unified Area Selection Handler
 const handleCanvasMouseDown = (event: MouseEvent) => {
+  if (activeTool.value === 'pan') return;
+
   const target = event.target as HTMLElement;
   
   // If we clicked a seat, do nothing (let the seat's own handlers work)
@@ -172,6 +229,11 @@ const selectionRectangle = computed(() => {
 
 // Seat click handler for selection
 const handleSeatClick = (seatId: string, event: MouseEvent) => {
+  if (activeTool.value === 'pan') {
+    startPanning(event);
+    return;
+  }
+
   if (event.ctrlKey || event.metaKey) {
     toggleSeatSelection(seatId);
   } else {
@@ -185,11 +247,23 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
   <div class="admin-view">
     <h1>Venue Layout Editor</h1>
     
-    <div v-if="venueStore.currentVenue" class="editor-container">
+    <div 
+      v-if="venueStore.currentVenue" 
+      class="editor-container"
+      @mousedown="handleContainerMouseDown"
+    >
       <!-- Sidebar -->
       <div class="sidebar">
         <!-- Tools Section -->
         <div class="sidebar-section tools-section">
+          <button 
+            class="tool-btn" 
+            :class="{ active: activeTool === 'pan' }"
+            @click="activeTool = 'pan'"
+            title="Pan Tool"
+          >
+            <span class="tool-icon">✋</span>
+          </button>
           <button 
             class="tool-btn" 
             :class="{ active: activeTool === 'select' }"
@@ -242,6 +316,10 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
                 <li>Drag to area select</li>
                 <li>Use arrows to move</li>
               </ul>
+              <p><strong>Pan Tool</strong></p>
+              <ul>
+                <li>Drag to move view</li>
+              </ul>
             </div>
           </div>
         </div>
@@ -250,6 +328,7 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
       <!-- Venue Editor -->
       <VenueGrid 
         :venue="venueStore.currentVenue"
+        :class="{ 'cursor-grab': activeTool === 'pan' }"
         @grid-mousedown="handleCanvasMouseDown"
         @stage-mousedown="handleStageMouseDown"
       >
@@ -545,5 +624,15 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
 .seat {
   cursor: pointer;
   background: #9b59b6;
+}
+
+.cursor-grab :deep(.seats-grid),
+.cursor-grab :deep(.seat) {
+  cursor: grab;
+}
+
+.cursor-grab :deep(.seats-grid):active,
+.cursor-grab :deep(.seat):active {
+  cursor: grabbing;
 }
 </style>

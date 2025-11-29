@@ -33,10 +33,6 @@ const zoomOut = () => {
     zoomLevel.value = Math.max(zoomLevel.value - ZOOM_STEP, MIN_ZOOM);
   }
 };
-
-const resetZoom = () => {
-  zoomLevel.value = 1;
-};
 </script>
 
 <template>
@@ -48,7 +44,6 @@ const resetZoom = () => {
       <button @click="zoomOut" :disabled="zoomLevel <= MIN_ZOOM" title="Zoom Out">-</button>
       <span class="zoom-level">{{ Math.round(zoomLevel * 100) }}%</span>
       <button @click="zoomIn" :disabled="zoomLevel >= MAX_ZOOM" title="Zoom In">+</button>
-      <button @click="resetZoom" class="reset-btn" title="Reset Zoom">⟲</button>
     </div>
 
     <div 
@@ -138,8 +133,8 @@ const resetZoom = () => {
 }
 
 .zoom-controls button {
-  width: 28px;
-  height: 28px;
+  width: 20px;
+  height: 20px;
   border-radius: 4px;
   border: 1px solid rgba(255, 255, 255, 0.2);
   background: rgba(255, 255, 255, 0.1);
@@ -150,6 +145,7 @@ const resetZoom = () => {
   justify-content: center;
   font-weight: bold;
   transition: all 0.2s;
+  padding: 0;
 }
 
 .zoom-controls button:hover:not(:disabled) {
@@ -163,15 +159,10 @@ const resetZoom = () => {
 }
 
 .zoom-level {
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   color: #aaa;
   min-width: 40px;
   text-align: center;
   font-variant-numeric: tabular-nums;
-}
-
-.reset-btn {
-  margin-left: 0.25rem;
-  font-size: 1.1rem;
 }
 </style>
