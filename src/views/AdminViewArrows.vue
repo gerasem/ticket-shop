@@ -24,7 +24,7 @@ const areaStart = ref<Point>({ x: 0, y: 0 });
 const areaEnd = ref<Point>({ x: 0, y: 0 });
 
 // Tool state
-type Tool = 'select' | 'pan';
+type Tool = 'select' | 'pan' | 'settings';
 const activeTool = ref<Tool>('pan');
 
 // Panning state
@@ -145,14 +145,11 @@ const handlePanMove = (event: MouseEvent) => {
   const dx = event.clientX - lastMousePos.value.x;
   const dy = event.clientY - lastMousePos.value.y;
   
-  // Scroll container (likely handles horizontal scroll)
-  const container = document.querySelector('.venue-container');
+  // Scroll venue content (user requested panning inside this element)
+  const container = document.querySelector('.venue-scalable-content');
   if (container) {
     container.scrollBy(-dx, -dy);
   }
-  
-  // Scroll window (likely handles vertical scroll)
-  window.scrollBy(-dx, -dy);
   
   lastMousePos.value = { x: event.clientX, y: event.clientY };
 };
@@ -272,10 +269,48 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
           >
             <span class="tool-icon">⬚</span>
           </button>
+          <button 
+            class="tool-btn" 
+            :class="{ active: activeTool === 'settings' }"
+            @click="activeTool = 'settings'"
+            title="Settings"
+          >
+            <span class="tool-icon">⚙️</span>
+          </button>
+        </div>
+
+        <!-- Settings Section -->
+        <div v-if="activeTool === 'settings'" class="sidebar-section settings-section">
+          <div class="settings-group">
+            <label>Name</label>
+            <input 
+              type="text" 
+              v-model="venueStore.currentVenue.name" 
+              class="settings-input"
+            />
+          </div>
+          
+          <div class="settings-group">
+            <label>Width (px)</label>
+            <input 
+              type="number" 
+              v-model.number="venueStore.currentVenue.width" 
+              class="settings-input"
+            />
+          </div>
+
+          <div class="settings-group">
+            <label>Height (px)</label>
+            <input 
+              type="number" 
+              v-model.number="venueStore.currentVenue.height" 
+              class="settings-input"
+            />
+          </div>
         </div>
 
         <!-- Movement Section (Conditional) -->
-        <div v-if="selectedSeats.size > 0 || isStageSelected" class="sidebar-section movement-section">
+        <div v-if="(selectedSeats.size > 0 || isStageSelected) && activeTool === 'select'" class="sidebar-section movement-section">
           <div class="movement-controls-vertical">
             
             <!-- Arrow Controls -->
@@ -319,6 +354,10 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
               <p><strong>Pan Tool</strong></p>
               <ul>
                 <li>Drag to move view</li>
+              </ul>
+              <p><strong>Settings</strong></p>
+              <ul>
+                <li>Edit venue props</li>
               </ul>
             </div>
           </div>
@@ -634,5 +673,42 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
 .cursor-grab :deep(.seats-grid):active,
 .cursor-grab :deep(.seat):active {
   cursor: grabbing;
+}
+
+/* Settings Styles */
+.settings-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0 0.25rem;
+}
+
+.settings-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  width: 100%;
+}
+
+.settings-group label {
+  font-size: 0.7rem;
+  color: #aaa;
+  text-transform: uppercase;
+}
+
+.settings-input {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  padding: 4px 6px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.settings-input:focus {
+  border-color: #42b983;
+  outline: none;
 }
 </style>

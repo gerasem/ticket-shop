@@ -48,7 +48,11 @@ const zoomOut = () => {
 
     <div 
       class="venue-scalable-content"
-      :style="{ transform: `scale(${zoomLevel})` }"
+      :style="{ 
+        transform: `scale(${zoomLevel})`,
+        width: venue.width + 'px',
+        height: venue.height + 'px'
+      }"
     >
       <div 
         v-if="venue.stage"
@@ -112,10 +116,15 @@ const zoomOut = () => {
 
 <style scoped>
 .venue-scalable-content {
-  transform-origin: top center;
+  transform-origin: top left;
   transition: transform 0.2s ease-out;
-  min-height: 600px; /* Ensure space for content */
-  padding-bottom: 50px;
+  /* Visual boundary */
+  background: #2a2a2a;
+  border: 1px solid #444;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  /* Rigid binding */
+  overflow: auto;
+  position: relative;
 }
 
 .zoom-controls {
