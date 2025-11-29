@@ -8,7 +8,7 @@ import { RouterView } from 'vue-router'
       <nav>
         <RouterLink to="/">Home</RouterLink> |
         <RouterLink to="/client">Client Booking</RouterLink> |
-        <RouterLink to="/admin-arrows">Admin (Arrows)</RouterLink>
+        <RouterLink to="/admin-arrows">Admin</RouterLink>
       </nav>
     </header>
 

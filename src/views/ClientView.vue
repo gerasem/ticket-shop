@@ -136,10 +136,6 @@ const getPriceClass = (priceInCents: number) => {
   margin-bottom: 2rem;
 }
 
-h1 {
-  margin: 0 0 1rem 0;
-}
-
 /* Compact Horizontal Price Legend */
 .price-legend-compact {
   display: flex;

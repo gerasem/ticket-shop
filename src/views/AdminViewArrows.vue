@@ -183,7 +183,7 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
 
 <template>
   <div class="admin-view">
-    <h1>Venue Layout Editor (Arrows)</h1>
+    <h1>Venue Layout Editor</h1>
     
     <div v-if="venueStore.currentVenue" class="editor-container">
       <!-- Sidebar -->
@@ -291,7 +291,6 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
   display: flex;
   gap: 1rem;
   align-items: flex-start;
-  height: 600px;
 }
 
 /* Sidebar */
@@ -426,6 +425,7 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
   align-items: center;
   justify-content: center;
   font-size: 0.8rem;
+  padding: 0;
 }
 
 .help-btn:hover {
