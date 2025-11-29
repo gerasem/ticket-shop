@@ -24,7 +24,8 @@ const areaStart = ref<Point>({ x: 0, y: 0 });
 const areaEnd = ref<Point>({ x: 0, y: 0 });
 
 // Tool state
-type Tool = 'select' | 'pan' | 'settings';
+// Tool state
+type Tool = 'select' | 'pan' | 'settings' | 'add-seat';
 const activeTool = ref<Tool>('pan');
 
 // Panning state
@@ -166,6 +167,28 @@ const handleStageMouseDown = (event?: MouseEvent) => {
   isStageSelected.value = true;
 };
 
+const addSeat = (event: MouseEvent) => {
+  const container = getSeatsGridContainer();
+  if (!container || !venueStore.currentVenue) return;
+
+  const coords = geometry.getRelativeCoordinates(event, container);
+  
+  // Snap to grid (10px)
+  const x = Math.round(coords.x / 10) * 10;
+  const y = Math.round(coords.y / 10) * 10;
+
+  const newSeat = {
+    id: `seat-${Date.now()}`,
+    x,
+    y,
+    status: 'free' as const,
+    label: 'New',
+    priceInCents: 1200 // Default price
+  };
+
+  venueStore.currentVenue.seats.push(newSeat);
+};
+
 const handleContainerMouseDown = (event: MouseEvent) => {
   // Ignore if clicking sidebar or if already panning
   if ((event.target as HTMLElement).closest('.sidebar')) return;
@@ -213,6 +236,11 @@ const handlePanUp = () => {
 // Unified Area Selection Handler
 const handleCanvasMouseDown = (event: MouseEvent) => {
   if (activeTool.value === 'pan') return;
+  
+  if (activeTool.value === 'add-seat') {
+    addSeat(event);
+    return;
+  }
 
   const target = event.target as HTMLElement;
   
@@ -324,13 +352,21 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
         >
           <span class="tool-icon">⚙️</span>
         </button>
+        <button 
+          class="tool-btn" 
+          :class="{ active: activeTool === 'add-seat' }"
+          @click="activeTool = 'add-seat'"
+          title="Add Seat"
+        >
+          <span class="tool-icon">➕</span>
+        </button>
       </div>
 
       <!-- Properties Panel (Sidebar) -->
       <div class="sidebar">
         <!-- Tool Title -->
         <div class="sidebar-header">
-          <h3>{{ activeTool === 'pan' ? 'Pan' : activeTool === 'select' ? 'Select' : 'Settings' }}</h3>
+          <h3>{{ activeTool === 'pan' ? 'Pan' : activeTool === 'select' ? 'Select' : activeTool === 'add-seat' ? 'Add Seat' : 'Settings' }}</h3>
         </div>
 
         <!-- Settings Section -->
@@ -430,7 +466,10 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
       <!-- Venue Editor -->
       <VenueGrid 
         :venue="venueStore.currentVenue"
-        :class="{ 'cursor-grab': activeTool === 'pan' }"
+        :class="{ 
+          'cursor-grab': activeTool === 'pan',
+          'cursor-add': activeTool === 'add-seat'
+        }"
         @grid-mousedown="handleCanvasMouseDown"
         @stage-mousedown="handleStageMouseDown"
       >
@@ -789,6 +828,10 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
 .cursor-grab :deep(.seats-grid):active,
 .cursor-grab :deep(.seat):active {
   cursor: grabbing;
+}
+
+.cursor-add :deep(.seats-grid) {
+  cursor: crosshair;
 }
 
 /* Settings Styles */
