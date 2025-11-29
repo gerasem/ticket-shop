@@ -1,6 +1,6 @@
 
 .admin-view {
-  padding: 2rem;
+  padding: 2rem 1rem;
   background: #1a1a1a;
   min-height: 100vh;
   color: white;
@@ -49,7 +49,6 @@ h1 {
 .selected-count {
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
   color: #42b983;
   font-weight: bold;
   font-size: 1.1rem;

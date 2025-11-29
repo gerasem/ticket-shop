@@ -298,34 +298,39 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
       class="editor-container"
       @mousedown="handleContainerMouseDown"
     >
-      <!-- Sidebar -->
+      <!-- Main Toolbar -->
+      <div class="main-toolbar">
+        <button 
+          class="tool-btn" 
+          :class="{ active: activeTool === 'pan' }"
+          @click="activeTool = 'pan'"
+          title="Pan Tool"
+        >
+          <span class="tool-icon">✋</span>
+        </button>
+        <button 
+          class="tool-btn" 
+          :class="{ active: activeTool === 'select' }"
+          @click="activeTool = 'select'"
+          title="Selection Tool"
+        >
+          <span class="tool-icon">⬚</span>
+        </button>
+        <button 
+          class="tool-btn" 
+          :class="{ active: activeTool === 'settings' }"
+          @click="activeTool = 'settings'"
+          title="Settings"
+        >
+          <span class="tool-icon">⚙️</span>
+        </button>
+      </div>
+
+      <!-- Properties Panel (Sidebar) -->
       <div class="sidebar">
-        <!-- Tools Section -->
-        <div class="sidebar-section tools-section">
-          <button 
-            class="tool-btn" 
-            :class="{ active: activeTool === 'pan' }"
-            @click="activeTool = 'pan'"
-            title="Pan Tool"
-          >
-            <span class="tool-icon">✋</span>
-          </button>
-          <button 
-            class="tool-btn" 
-            :class="{ active: activeTool === 'select' }"
-            @click="activeTool = 'select'"
-            title="Selection Tool"
-          >
-            <span class="tool-icon">⬚</span>
-          </button>
-          <button 
-            class="tool-btn" 
-            :class="{ active: activeTool === 'settings' }"
-            @click="activeTool = 'settings'"
-            title="Settings"
-          >
-            <span class="tool-icon">⚙️</span>
-          </button>
+        <!-- Tool Title -->
+        <div class="sidebar-header">
+          <h3>{{ activeTool === 'pan' ? 'Pan' : activeTool === 'select' ? 'Select' : 'Settings' }}</h3>
         </div>
 
         <!-- Settings Section -->
@@ -469,19 +474,40 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
   align-items: flex-start;
 }
 
-/* Sidebar */
-.sidebar {
-  width: 120px; /* Wider fixed width */
+/* Main Toolbar */
+.main-toolbar {
+  width: 60px;
   flex-shrink: 0;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 8px;
-  padding: 1rem 0.5rem;
+  padding: 1rem 0;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: .5rem;
   align-items: center;
-  height: 100%; /* Full height of container */
-  position: relative;
+  height: 100%;
+}
+
+/* Sidebar (Properties) */
+.sidebar {
+  width: 160px; /* Wider for properties */
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  align-items: center;
+  height: 100%;
+}
+
+.sidebar-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: #42b983;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .sidebar-section {
@@ -556,11 +582,7 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
   width: 100%;
 }
 
-.selected-count {
-  font-size: 0.8rem;
-  color: #42b983;
-  font-weight: bold;
-}
+
 
 .clear-btn {
   background: transparent;
