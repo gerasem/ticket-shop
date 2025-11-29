@@ -25,7 +25,7 @@ export const useCartStore = defineStore('cart', () => {
 
   // Persistence
   const loadCart = () => {
-    const stored = localStorage.getItem('cart_seats');
+    const stored = sessionStorage.getItem('cart_seats');
     if (stored) {
       try {
         selectedSeats.value = JSON.parse(stored);
@@ -36,7 +36,7 @@ export const useCartStore = defineStore('cart', () => {
   };
 
   const saveCart = () => {
-    localStorage.setItem('cart_seats', JSON.stringify(selectedSeats.value));
+    sessionStorage.setItem('cart_seats', JSON.stringify(selectedSeats.value));
   };
 
   // Watch for changes
