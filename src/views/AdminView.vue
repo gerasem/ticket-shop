@@ -88,9 +88,6 @@ const lastMousePos = ref<Point>({ x: 0, y: 0 });
 // Add seat preview state
 const previewSeatPos = ref<Point | null>(null);
 
-// Price editing state
-const priceInput = ref<string>('');
-
 // Keyboard event handler
 const handleKeydown = (event: KeyboardEvent) => {
   if (selectedSeats.value.size === 0 && !isStageSelected.value) return;
@@ -269,6 +266,9 @@ const updateSelectedSeatsType = (typeId: string) => {
       seat.typeId = typeId;
     }
   });
+  
+  // Clear selection after updating type
+  clearSelection();
 };
 
 const recalculateRows = () => {
@@ -668,27 +668,27 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
               <button class="clear-btn" @click="clearSelection">Clear Selection</button>
               
               <!-- Type Selection (only for seats, not stage) -->
-              <div v-if="!isStageSelected && selectedSeats.size > 0" class="type-edit-section">
-                <div class="current-type" v-if="currentType">
-                  <label>Current Type:</label>
-                  <span class="type-value">{{ venueStore.currentVenue.seatTypes.find(t => t.id === currentType)?.name }}</span>
+              <div v-if="!isStageSelected && selectedSeats.size > 0" class="settings-group type-edit-section">
+                <div class="settings-subtitle">Seat Type</div>
+                
+                <div class="current-type-info" v-if="currentType">
+                  <span class="label">Current:</span>
+                  <span class="value">{{ venueStore.currentVenue.seatTypes.find(t => t.id === currentType)?.name }}</span>
                 </div>
-                <div class="type-select-group">
-                  <label>Change Type</label>
-                  <select 
-                    class="type-select"
-                    @change="updateSelectedSeatsType(($event.target as HTMLSelectElement).value)"
+                
+                <select 
+                  class="settings-input type-select"
+                  @change="updateSelectedSeatsType(($event.target as HTMLSelectElement).value)"
+                >
+                  <option value="">Change Type...</option>
+                  <option 
+                    v-for="type in venueStore.currentVenue.seatTypes" 
+                    :key="type.id"
+                    :value="type.id"
                   >
-                    <option value="">-- Select Type --</option>
-                    <option 
-                      v-for="type in venueStore.currentVenue.seatTypes" 
-                      :key="type.id"
-                      :value="type.id"
-                    >
-                      {{ type.name }} ({{ formatPrice(type.priceInCents) }})
-                    </option>
-                  </select>
-                </div>
+                    {{ type.name }} ({{ formatPrice(type.priceInCents) }})
+                  </option>
+                </select>
               </div>
             </div>
           </div>
@@ -1277,6 +1277,23 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
   padding: 4px 6px;
   border-radius: 4px;
   font-size: 0.8rem;
+}
+
+.current-type-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  padding: 0 2px;
+}
+
+.current-type-info .label {
+  color: #aaa;
+}
+
+.current-type-info .value {
+  color: #42b983;
+  font-weight: bold;
 }
 
 .settings-input:focus {
