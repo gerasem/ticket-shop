@@ -128,6 +128,81 @@ const setSingleSelection = (seatId: string) => {
   selectedSeats.value.add(seatId);
 };
 
+// Select all seats (toggle: if all selected, deselect all)
+const selectAllSeats = () => {
+  if (!venueStore.currentVenue) return;
+  
+  // Check if all seats are already selected
+  const allSelected = venueStore.currentVenue.seats.every(seat => 
+    selectedSeats.value.has(seat.id)
+  );
+  
+  if (allSelected) {
+    // Deselect all
+    clearSelection();
+  } else {
+    // Select all
+    clearSelection();
+    venueStore.currentVenue.seats.forEach(seat => {
+      selectedSeats.value.add(seat.id);
+    });
+  }
+};
+
+// Select all seats in a row (toggle: if all in row selected, deselect them)
+const selectRow = (rowNumber: number) => {
+  if (!venueStore.currentVenue) return;
+  
+  // Get all seats in this row
+  const rowSeats = venueStore.currentVenue.seats.filter(seat =>
+    seat.label.startsWith(`${rowNumber}-`)
+  );
+  
+  // Check if all seats in this row are already selected
+  const allRowSelected = rowSeats.every(seat => 
+    selectedSeats.value.has(seat.id)
+  );
+  
+  if (allRowSelected) {
+    // Deselect all seats in this row
+    rowSeats.forEach(seat => {
+      selectedSeats.value.delete(seat.id);
+    });
+  } else {
+    // Select all seats in this row
+    rowSeats.forEach(seat => {
+      selectedSeats.value.add(seat.id);
+    });
+  }
+};
+
+// Select all seats in a column (toggle: if all in column selected, deselect them)
+const selectColumn = (colNumber: number) => {
+  if (!venueStore.currentVenue) return;
+  
+  // Get all seats in this column
+  const colSeats = venueStore.currentVenue.seats.filter(seat =>
+    seat.label.endsWith(`-${colNumber}`)
+  );
+  
+  // Check if all seats in this column are already selected
+  const allColSelected = colSeats.every(seat => 
+    selectedSeats.value.has(seat.id)
+  );
+  
+  if (allColSelected) {
+    // Deselect all seats in this column
+    colSeats.forEach(seat => {
+      selectedSeats.value.delete(seat.id);
+    });
+  } else {
+    // Select all seats in this column
+    colSeats.forEach(seat => {
+      selectedSeats.value.add(seat.id);
+    });
+  }
+};
+
 // Movement Logic
 const moveSelection = (dx: number, dy: number) => {
   const stepX = dx * moveStep.value;
@@ -347,10 +422,7 @@ const handleCanvasMouseDown = (event: MouseEvent) => {
   const container = getSeatsGridContainer();
   if (!container) return;
   
-  // If Ctrl is NOT pressed, clear existing selection when clicking background
-  if (!event.ctrlKey && !event.metaKey) {
-    clearSelection();
-  }
+  // Don't clear selection when starting area select (allow adding to selection)
   
   areaStart.value = geometry.getRelativeCoordinates(event, container);
   areaEnd.value = { ...areaStart.value };
@@ -405,11 +477,8 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
     return;
   }
 
-  if (event.ctrlKey || event.metaKey) {
-    toggleSeatSelection(seatId);
-  } else {
-    setSingleSelection(seatId);
-  }
+  // Always toggle selection (multi-select by default)
+  toggleSeatSelection(seatId);
 };
 
 </script>
@@ -504,6 +573,13 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
           </div>
         </div>
 
+        <!-- Select All Section (when select tool is active) -->
+        <div v-if="activeTool === 'select'" class="sidebar-section select-all-section">
+          <button class="action-btn select-all-btn" @click="selectAllSeats">
+            Select All Seats
+          </button>
+        </div>
+
         <!-- Movement Section (Conditional) -->
         <div v-if="(selectedSeats.size > 0 || isStageSelected) && activeTool === 'select'" class="sidebar-section movement-section">
           <div class="movement-controls-vertical">
@@ -564,9 +640,9 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
             <div class="help-tooltip">
               <p><strong>Selection Tool</strong></p>
               <ul>
-                <li>Click seat to select</li>
-                <li>Ctrl+Click to multi-select</li>
+                <li>Click seat to toggle select</li>
                 <li>Drag to area select</li>
+                <li>Click row/col label to select all</li>
                 <li>Use arrows to move</li>
               </ul>
               <p><strong>Pan Tool</strong></p>
@@ -585,6 +661,7 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
       <!-- Venue Editor -->
       <VenueGrid 
         :venue="venueStore.currentVenue"
+        :enable-label-selection="activeTool === 'select'"
         :class="{ 
           'cursor-grab': activeTool === 'pan',
           'cursor-add': activeTool === 'add-seat'
@@ -592,6 +669,8 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
         @grid-mousedown="handleCanvasMouseDown"
         @stage-mousedown="handleStageMouseDown"
         @mousemove="handleMouseMoveForPreview"
+        @row-click="selectRow"
+        @col-click="selectColumn"
       >
         <template #overlay>
           <div 
@@ -1077,6 +1156,21 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
 }
 
 .price-btn:hover {
+  background: rgba(66, 185, 131, 0.4);
+}
+
+/* Select All Button */
+.select-all-section {
+  padding: 0 0.25rem;
+}
+
+.select-all-btn {
+  background: rgba(66, 185, 131, 0.2);
+  color: #42b983;
+  border: 1px solid rgba(66, 185, 131, 0.5);
+}
+
+.select-all-btn:hover {
   background: rgba(66, 185, 131, 0.4);
 }
 </style>

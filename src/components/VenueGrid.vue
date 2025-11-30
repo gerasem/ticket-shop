@@ -5,6 +5,7 @@ import { useVenueEditor } from '../composables/useVenueEditor';
 
 const props = defineProps<{
   venue: Venue;
+  enableLabelSelection?: boolean; // Enable row/column selection by clicking labels
 }>();
 
 const emit = defineEmits<{
@@ -74,8 +75,9 @@ const zoomOut = () => {
             v-for="col in venueEditor.getColumns.value" 
             :key="'top-' + col"
             class="column-label"
+            :class="{ 'clickable': enableLabelSelection }"
             :style="{ left: venueEditor.getColX(col) + 'px' }"
-            @click="emit('col-click', col)"
+            @click="enableLabelSelection && emit('col-click', col)"
           >
             {{ col }}
           </div>
@@ -89,8 +91,9 @@ const zoomOut = () => {
             v-for="row in venueEditor.getRows.value" 
             :key="'left-' + row"
             class="row-label"
+            :class="{ 'clickable': enableLabelSelection }"
             :style="{ top: venueEditor.getRowY(row) + 'px' }"
-            @click="emit('row-click', row)"
+            @click="enableLabelSelection && emit('row-click', row)"
           >
             {{ row }}
           </div>
