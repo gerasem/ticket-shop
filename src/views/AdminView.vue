@@ -5,7 +5,8 @@ import { useVenueEditor } from '../composables/useVenueEditor';
 import { useGeometry, type Point } from '../composables/useGeometry';
 import { usePrice } from '../composables/usePrice';
 import VenueGrid from '../components/VenueGrid.vue';
-import type { Seat } from '../services/mockData';
+import SeatTypeModal from '../components/SeatTypeModal.vue';
+import type { Seat, SeatType } from '../services/mockData';
 
 const venueStore = useVenueStore();
 
@@ -87,6 +88,16 @@ const lastMousePos = ref<Point>({ x: 0, y: 0 });
 
 // Add seat preview state
 const previewSeatPos = ref<Point | null>(null);
+
+// Modal state
+const showTypeModal = ref(false);
+
+// Handle seat types update from modal
+const handleTypesUpdate = (types: SeatType[]) => {
+  if (venueStore.currentVenue) {
+    venueStore.currentVenue.seatTypes = types;
+  }
+};
 
 // Keyboard event handler
 const handleKeydown = (event: KeyboardEvent) => {
@@ -630,6 +641,14 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
               <option value="50%">Circle</option>
             </select>
           </div>
+          
+          <!-- Manage Seat Types Button -->
+          <div class="settings-divider"></div>
+          <div class="settings-group">
+            <button class="action-btn manage-types-btn" @click="showTypeModal = true">
+              Manage Seat Types
+            </button>
+          </div>
         </div>
 
         <!-- Select All Section (when select tool is active) -->
@@ -776,6 +795,13 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
     </div>
     
     <p v-else>Loading venue...</p>
+    
+    <!-- Seat Type Management Modal -->
+    <SeatTypeModal 
+      v-model="showTypeModal"
+      :venue="venueStore.currentVenue"
+      @save="handleTypesUpdate"
+    />
   </div>
 </template>
 
@@ -1236,6 +1262,17 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
 }
 
 .select-all-btn:hover {
+  background: rgba(66, 185, 131, 0.4);
+}
+
+.manage-types-btn {
+  background: rgba(66, 185, 131, 0.2);
+  color: #42b983;
+  border: 1px solid rgba(66, 185, 131, 0.5);
+  width: 100%;
+}
+
+.manage-types-btn:hover {
   background: rgba(66, 185, 131, 0.4);
 }
 
