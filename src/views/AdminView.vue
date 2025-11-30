@@ -570,24 +570,26 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
             />
           </div>
           
-          <div class="settings-group">
-            <label>Width (px)</label>
-            <input 
-              type="number" 
-              v-model.number="venueStore.currentVenue.width" 
-              class="settings-input"
-              step="10"
-            />
-          </div>
-
-          <div class="settings-group">
-            <label>Height (px)</label>
-            <input 
-              type="number" 
-              v-model.number="venueStore.currentVenue.height" 
-              class="settings-input"
-              step="10"
-            />
+          <div class="settings-row">
+            <div class="settings-group">
+              <label>Width (px)</label>
+              <input 
+                type="number" 
+                v-model.number="venueStore.currentVenue.width" 
+                class="settings-input"
+                step="10"
+              />
+            </div>
+            
+            <div class="settings-group">
+              <label>Height (px)</label>
+              <input 
+                type="number" 
+                v-model.number="venueStore.currentVenue.height" 
+                class="settings-input"
+                step="10"
+              />
+            </div>
           </div>
 
           <div class="settings-group">
@@ -600,46 +602,52 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
           <div class="settings-divider"></div>
           <div class="settings-subtitle">Default Seat Style</div>
 
-          <div class="settings-group">
-            <label>Color</label>
-            <input 
-              type="color" 
-              v-model="venueStore.currentVenue.defaultSeatStyle.color" 
-              class="settings-input color-input"
-            />
+          <!-- Color and Shape in a row -->
+          <div class="settings-row">
+            <div class="settings-group">
+              <label>Color</label>
+              <input 
+                type="color" 
+                v-model="venueStore.currentVenue.defaultSeatStyle.color" 
+                class="settings-input color-input"
+              />
+            </div>
+            
+            <div class="settings-group">
+              <label>Shape</label>
+              <select 
+                v-model="venueStore.currentVenue.defaultSeatStyle.borderRadius" 
+                class="settings-input"
+              >
+                <option value="8px">Square</option>
+                <option value="50%">Circle</option>
+              </select>
+            </div>
           </div>
 
-          <div class="settings-group">
-            <label>Width (px)</label>
-            <input 
-              type="number" 
-              v-model.number="venueStore.currentVenue.defaultSeatStyle.width" 
-              class="settings-input"
-              min="10"
-              max="100"
-            />
-          </div>
-
-          <div class="settings-group">
-            <label>Height (px)</label>
-            <input 
-              type="number" 
-              v-model.number="venueStore.currentVenue.defaultSeatStyle.height" 
-              class="settings-input"
-              min="10"
-              max="100"
-            />
-          </div>
-
-          <div class="settings-group">
-            <label>Shape</label>
-            <select 
-              v-model="venueStore.currentVenue.defaultSeatStyle.borderRadius" 
-              class="settings-input"
-            >
-              <option value="8px">Square</option>
-              <option value="50%">Circle</option>
-            </select>
+          <!-- Width and Height in a row -->
+          <div class="settings-row">
+            <div class="settings-group">
+              <label>Width (px)</label>
+              <input 
+                type="number" 
+                v-model.number="venueStore.currentVenue.defaultSeatStyle.width" 
+                class="settings-input"
+                min="10"
+                max="100"
+              />
+            </div>
+            
+            <div class="settings-group">
+              <label>Height (px)</label>
+              <input 
+                type="number" 
+                v-model.number="venueStore.currentVenue.defaultSeatStyle.height" 
+                class="settings-input"
+                min="10"
+                max="100"
+              />
+            </div>
           </div>
           
           <!-- Manage Seat Types Button -->
@@ -1156,19 +1164,7 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
   text-transform: uppercase;
 }
 
-.settings-input {
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: white;
-  padding: 4px 6px;
-  border-radius: 4px;
-  font-size: 0.8rem;
-}
 
-.settings-input:focus {
-  border-color: #42b983;
-  outline: none;
-}
 
 /* Preview Seat Styles */
 .preview-seat {
@@ -1293,11 +1289,23 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
   letter-spacing: 0.5px;
 }
 
+.settings-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
 .settings-group {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
   margin-bottom: 0.75rem;
+  min-width: 0; /* Prevent flex items from overflowing */
+}
+
+.settings-row .settings-group {
+  margin-bottom: 0;
 }
 
 .settings-group label {
@@ -1307,7 +1315,6 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
 }
 
 .settings-input {
-  width: 100%;
   background: rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: white;
@@ -1339,7 +1346,8 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
 }
 
 .color-input {
-  height: 32px;
+  height: 25px;
+  width: 100%;
   padding: 2px;
   cursor: pointer;
 }
