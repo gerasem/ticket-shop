@@ -29,6 +29,22 @@ const handleSeatClick = (seatId: string) => {
   }
 };
 
+// Remove a single seat from cart
+const removeSeat = (seatId: string) => {
+  venueStore.updateSeatStatus(seatId, 'free');
+  cartStore.removeSeat(seatId);
+};
+
+// Clear all seats from cart
+const clearCart = () => {
+  // Update all selected seats to free
+  cartStore.selectedSeats.forEach(seat => {
+    venueStore.updateSeatStatus(seat.id, 'free');
+  });
+  // Clear cart
+  cartStore.clearCart();
+};
+
 const getSeatType = (seat: any) => {
   return venueStore.currentVenue?.seatTypes.find(t => t.id === seat.typeId);
 };
@@ -89,7 +105,17 @@ const getSeatTypeClass = (seat: any) => {
 
       <!-- Right: Shopping Cart -->
       <aside class="shopping-cart">
-        <h3>Your Cart</h3>
+        <div class="cart-header">
+          <h3>Your Cart</h3>
+          <button 
+            v-if="cartStore.selectedSeats.length > 0"
+            class="clear-cart-btn" 
+            @click="clearCart"
+            title="Clear all selections"
+          >
+            Clear
+          </button>
+        </div>
         <div v-if="cartStore.selectedSeats.length === 0" class="empty-cart">
           No seats selected
         </div>
@@ -102,7 +128,16 @@ const getSeatTypeClass = (seat: any) => {
             <div class="cart-seat-info">
               <span class="cart-seat-label">Row {{ seat.label.split('-')[0] }}, Seat {{ seat.label.split('-')[1] }}</span>
             </div>
-            <span class="cart-seat-price">{{ formatPrice(getSeatType(seat)?.priceInCents || 0) }}</span>
+            <div class="cart-item-right">
+              <span class="cart-seat-price">{{ formatPrice(getSeatType(seat)?.priceInCents || 0) }}</span>
+              <button 
+                class="remove-seat-btn" 
+                @click="removeSeat(seat.id)"
+                title="Remove seat"
+              >
+                ✕
+              </button>
+            </div>
           </div>
         </div>
         <div class="cart-total">
@@ -302,10 +337,34 @@ const getSeatTypeClass = (seat: any) => {
   top: 2rem;
 }
 
+.cart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
 .shopping-cart h3 {
-  margin: 0 0 1rem 0;
+  margin: 0;
   font-size: 1.1rem;
   color: #42b983;
+}
+
+.clear-cart-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #888;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.clear-cart-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.5);
+  color: #ef4444;
 }
 
 .empty-cart {
@@ -345,8 +404,35 @@ const getSeatTypeClass = (seat: any) => {
   display: block;
 }
 
+.cart-item-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .cart-seat-price {
   color: #f39c12;
+}
+
+.remove-seat-btn {
+  background: transparent;
+  border: none;
+  color: #888;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.remove-seat-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
 }
 
 .cart-total {
