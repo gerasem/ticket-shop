@@ -29,10 +29,13 @@ const handleSeatClick = (seatId: string) => {
   }
 };
 
-const getPriceClass = (priceInCents: number) => {
-  if (priceInCents === 1500) return 'price-front';
-  if (priceInCents === 1800) return 'price-back';
-  return 'price-middle';
+const getSeatType = (seat: any) => {
+  return venueStore.currentVenue?.seatTypes.find(t => t.id === seat.typeId);
+};
+
+const getSeatTypeClass = (seat: any) => {
+  const type = getSeatType(seat);
+  return `type-${type?.id || 'unknown'}`;
 };
 
 
@@ -46,17 +49,9 @@ const getPriceClass = (priceInCents: number) => {
       <!-- Compact Price Legend -->
       <div class="price-legend-compact">
         <div class="legend-items">
-          <div class="legend-item">
-            <div class="legend-color price-front"></div>
-            <span>Front: {{ formatPrice(1500) }}</span>
-          </div>
-          <div class="legend-item">
-            <div class="legend-color price-middle"></div>
-            <span>Middle: {{ formatPrice(1200) }}</span>
-          </div>
-          <div class="legend-item">
-            <div class="legend-color price-back"></div>
-            <span>Back: {{ formatPrice(1800) }}</span>
+          <div class="legend-item" v-for="type in venueStore.currentVenue?.seatTypes" :key="type.id">
+            <div class="legend-color" :class="`type-${type.id}`"></div>
+            <span>{{ type.name }}: {{ formatPrice(type.priceInCents) }}</span>
           </div>
           <div class="legend-separator"></div>
           <div class="legend-item">
@@ -77,7 +72,7 @@ const getPriceClass = (priceInCents: number) => {
         <template #seat="{ seat }">
           <div
             class="seat"
-            :class="[seat.status, getPriceClass(seat.priceInCents)]"
+            :class="[seat.status, getSeatTypeClass(seat)]"
             :style="{ left: seat.x + 'px', top: seat.y + 'px' }"
             @click="handleSeatClick(seat.id)"
           >
@@ -86,7 +81,7 @@ const getPriceClass = (priceInCents: number) => {
               <span class="seat-separator">·</span>
               <span class="seat-number">Seat {{ seat.label.split('-')[1] }}</span>
               <br>
-              <span class="price-info">{{ formatPrice(seat.priceInCents) }}</span>
+              <span class="price-info">{{ formatPrice(getSeatType(seat)?.priceInCents || 0) }}</span>
             </span>
           </div>
         </template>
@@ -107,7 +102,7 @@ const getPriceClass = (priceInCents: number) => {
             <div class="cart-seat-info">
               <span class="cart-seat-label">Row {{ seat.label.split('-')[0] }}, Seat {{ seat.label.split('-')[1] }}</span>
             </div>
-            <span class="cart-seat-price">{{ formatPrice(seat.priceInCents) }}</span>
+            <span class="cart-seat-price">{{ formatPrice(getSeatType(seat)?.priceInCents || 0) }}</span>
           </div>
         </div>
         <div class="cart-total">
@@ -173,19 +168,6 @@ const getPriceClass = (priceInCents: number) => {
   margin: 0 0.25rem;
 }
 
-/* Legend Colors - Neutral tones */
-.legend-color.price-front {
-  background: #6b7280; /* Neutral gray */
-}
-
-.legend-color.price-middle {
-  background: #9ca3af; /* Light gray */
-}
-
-.legend-color.price-back {
-  background: #4b5563; /* Dark gray */
-}
-
 .legend-color.booked {
   background: #ef4444; /* Red for booked */
 }
@@ -193,6 +175,8 @@ const getPriceClass = (priceInCents: number) => {
 .legend-color.selected {
   background: #42b983; /* Green for selected - accent color */
 }
+
+
 
 .main-container {
   display: flex;
@@ -225,17 +209,30 @@ const getPriceClass = (priceInCents: number) => {
 
 
 
-/* Price-based colors for FREE seats - Neutral tones */
-.seat.free.price-front {
-  background: #6b7280; /* Neutral gray */
+/* Type-based colors for FREE seats */
+.seat.free.type-standard {
+  background: #4a5568; /* Gray - default */
 }
 
-.seat.free.price-middle {
-  background: #9ca3af; /* Light gray */
+.seat.free.type-premium {
+  background: #3b82f6; /* Blue */
 }
 
-.seat.free.price-back {
-  background: #4b5563; /* Dark gray */
+.seat.free.type-vip {
+  background: #f59e0b; /* Gold */
+}
+
+/* Legend colors matching seat types */
+.legend-color.type-standard {
+  background: #4a5568;
+}
+
+.legend-color.type-premium {
+  background: #3b82f6;
+}
+
+.legend-color.type-vip {
+  background: #f59e0b;
 }
 
 /* Booked seats - red */

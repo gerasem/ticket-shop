@@ -21,9 +21,35 @@ const isStageSelected = ref(false);
 // Movement state
 const moveStep = ref(10);
 
-// Computed property to get current price of selected seat(s)
-// Returns price only if all selected seats have the same price
-const currentPrice = computed(() => {
+// Helper functions for seat types
+const getSeatType = (seat: Seat) => {
+  return venueStore.currentVenue?.seatTypes.find(t => t.id === seat.typeId);
+};
+
+const getSeatStyle = (seat: Seat) => {
+  const type = getSeatType(seat);
+  const defaultStyle = venueStore.currentVenue?.defaultSeatStyle;
+  
+  if (!defaultStyle) return {};
+  
+  // Merge default and type styles
+  const mergedStyle = {
+    ...defaultStyle,
+    ...type?.style
+  };
+  
+  // Map 'color' to 'backgroundColor' for CSS
+  return {
+    width: mergedStyle.width + 'px',
+    height: mergedStyle.height + 'px',
+    backgroundColor: mergedStyle.color,
+    borderRadius: mergedStyle.borderRadius
+  };
+};
+
+// Computed property to get current type of selected seat(s)
+// Returns type only if all selected seats have the same type
+const currentType = computed(() => {
   if (selectedSeats.value.size === 0 || !venueStore.currentVenue) return null;
   
   const seatsArray = Array.from(selectedSeats.value);
@@ -35,15 +61,14 @@ const currentPrice = computed(() => {
   
   if (seats.length === 0) return null;
   
-  // Check if all seats have the same price
-  const firstPrice = seats[0].priceInCents;
-  const allSamePrice = seats.every(seat => seat.priceInCents === firstPrice);
+  // Check if all seats have the same type
+  const firstTypeId = seats[0].typeId;
+  const allSameType = seats.every(seat => seat.typeId === firstTypeId);
   
-  // Only return price if all selected seats have the same price
-  if (!allSamePrice) return null;
+  // Only return type if all selected seats have the same type
+  if (!allSameType) return null;
   
-  // Convert cents to euros for display
-  return (firstPrice / 100).toFixed(2);
+  return firstTypeId;
 });
 
 // Area selection state
@@ -233,29 +258,17 @@ const deleteSelectedSeats = () => {
   clearSelection();
 };
 
-// Update price for selected seats
-const updateSelectedSeatsPrice = () => {
+// Update type for selected seats
+const updateSelectedSeatsType = (typeId: string) => {
   if (!venueStore.currentVenue || selectedSeats.value.size === 0) return;
-  
-  const priceValue = parseFloat(priceInput.value);
-  if (isNaN(priceValue) || priceValue < 0) {
-    alert('Please enter a valid price');
-    return;
-  }
-  
-  // Convert euros to cents
-  const priceInCents = Math.round(priceValue * 100);
   
   // Update all selected seats
   selectedSeats.value.forEach(seatId => {
     const seat = venueEditor.findSeatById(seatId);
     if (seat) {
-      seat.priceInCents = priceInCents;
+      seat.typeId = typeId;
     }
   });
-  
-  // Clear the input
-  priceInput.value = '';
 };
 
 const recalculateRows = () => {
@@ -355,7 +368,7 @@ const addSeat = (event: MouseEvent) => {
     y,
     status: 'free' as const,
     label: 'New',
-    priceInCents: 1200 // Default price
+    typeId: 'standard' // Default type
   };
 
   venueStore.currentVenue.seats.push(newSeat);
@@ -654,25 +667,27 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
               <button class="action-btn delete-btn" @click="deleteSelectedSeats">Delete</button>
               <button class="clear-btn" @click="clearSelection">Clear Selection</button>
               
-              <!-- Price Editing (only for seats, not stage) -->
-              <div v-if="!isStageSelected && selectedSeats.size > 0" class="price-edit-section">
-                <div class="current-price" v-if="currentPrice">
-                  <label>Current Price:</label>
-                  <span class="price-value">{{ currentPrice }}€</span>
+              <!-- Type Selection (only for seats, not stage) -->
+              <div v-if="!isStageSelected && selectedSeats.size > 0" class="type-edit-section">
+                <div class="current-type" v-if="currentType">
+                  <label>Current Type:</label>
+                  <span class="type-value">{{ venueStore.currentVenue.seatTypes.find(t => t.id === currentType)?.name }}</span>
                 </div>
-                <div class="price-input-group">
-                  <label>New Price (€)</label>
-                  <input 
-                    type="number" 
-                    v-model="priceInput" 
-                    class="price-input"
-                    placeholder="0.00"
-                    step="0.01"
-                    min="0"
-                  />
-                  <button class="action-btn price-btn" @click="updateSelectedSeatsPrice">
-                    Update Price
-                  </button>
+                <div class="type-select-group">
+                  <label>Change Type</label>
+                  <select 
+                    class="type-select"
+                    @change="updateSelectedSeatsType(($event.target as HTMLSelectElement).value)"
+                  >
+                    <option value="">-- Select Type --</option>
+                    <option 
+                      v-for="type in venueStore.currentVenue.seatTypes" 
+                      :key="type.id"
+                      :value="type.id"
+                    >
+                      {{ type.name }} ({{ formatPrice(type.priceInCents) }})
+                    </option>
+                  </select>
                 </div>
               </div>
             </div>
@@ -749,12 +764,9 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
             :style="{ 
               left: seat.x + 'px', 
               top: seat.y + 'px',
-              width: venueStore.currentVenue.defaultSeatStyle.width + 'px',
-              height: venueStore.currentVenue.defaultSeatStyle.height + 'px',
-              backgroundColor: venueStore.currentVenue.defaultSeatStyle.color,
-              borderRadius: venueStore.currentVenue.defaultSeatStyle.borderRadius
+              ...getSeatStyle(seat)
             }"
-            :title="formatPrice(seat.priceInCents)"
+            :title="`${seat.label} - ${getSeatType(seat)?.name || 'Unknown'}`"
             @mousedown.stop="handleSeatClick(seat.id, $event)"
           >
             {{ seat.label }}

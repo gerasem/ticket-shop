@@ -177,7 +177,7 @@ h1 {
 }
 
 .seat.selected {
-  background: #42b983;
+  background: #42b983 !important;
   border-color: #fff;
   box-shadow: 0 0 15px #42b983;
   z-index: 10;

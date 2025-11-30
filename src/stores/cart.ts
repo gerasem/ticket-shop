@@ -1,12 +1,17 @@
 import { defineStore } from 'pinia';
 import { ref, computed, watch } from 'vue';
 import { type Seat } from '../services/mockData';
+import { useVenueStore } from './venue';
 
 export const useCartStore = defineStore('cart', () => {
   const selectedSeats = ref<Seat[]>([]);
+  const venueStore = useVenueStore();
 
   const totalPriceInCents = computed(() => {
-    return selectedSeats.value.reduce((sum, seat) => sum + seat.priceInCents, 0);
+    return selectedSeats.value.reduce((sum, seat) => {
+      const seatType = venueStore.currentVenue?.seatTypes.find(t => t.id === seat.typeId);
+      return sum + (seatType?.priceInCents || 0);
+    }, 0);
   });
 
   const addSeat = (seat: Seat) => {

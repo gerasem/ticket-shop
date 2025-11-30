@@ -1,10 +1,22 @@
+export interface SeatType {
+  id: string;
+  name: string;
+  priceInCents: number;
+  style?: {
+    color?: string;
+    width?: number;
+    height?: number;
+    borderRadius?: string;
+  };
+}
+
 export interface Seat {
   id: string;
   x: number;
   y: number;
   status: 'free' | 'booked' | 'readyToBook';
   label: string;
-  priceInCents: number; // Price in euro cents
+  typeId: string; // Reference to SeatType.id
 }
 
 export interface Venue {
@@ -14,6 +26,7 @@ export interface Venue {
   width: number;
   height: number;
   seats: Seat[];
+  seatTypes: SeatType[]; // Available seat types
   stage: {
     x: number;
     y: number;
@@ -35,20 +48,15 @@ export const generateMockVenue = (): Venue => {
   const seatSize = 40;
   const gap = 10;
 
-  // Price tiers in euro cents
-  const PRICE_FRONT = 1500;  // 15.00€ - First 2 rows (premium)
-  const PRICE_MIDDLE = 1200; // 12.00€ - Middle rows
-  const PRICE_BACK = 1800;   // 18.00€ - Last 2 rows (VIP)
-
   for (let r = 0; r < rows; r++) {
-    // Determine price based on row
-    let price: number;
+    // Determine type based on row
+    let typeId: string;
     if (r < 2) {
-      price = PRICE_FRONT; // First 2 rows
+      typeId = 'premium'; // First 2 rows
     } else if (r >= rows - 2) {
-      price = PRICE_BACK; // Last 2 rows
+      typeId = 'vip'; // Last 2 rows
     } else {
-      price = PRICE_MIDDLE; // Middle rows
+      typeId = 'standard'; // Middle rows (default)
     }
 
     for (let c = 0; c < cols; c++) {
@@ -58,7 +66,7 @@ export const generateMockVenue = (): Venue => {
         y: r * (seatSize + gap) + 130,
         status: Math.random() > 0.8 ? 'booked' : 'free',
         label: `${r + 1}-${c + 1}`,
-        priceInCents: price
+        typeId: typeId
       });
     }
   }
@@ -70,6 +78,30 @@ export const generateMockVenue = (): Venue => {
     width: 800,
     height: 600,
     seats,
+    seatTypes: [
+      {
+        id: 'standard',
+        name: 'Standard',
+        priceInCents: 1000,
+        style: undefined  // Uses default venue styles
+      },
+      {
+        id: 'premium',
+        name: 'Premium',
+        priceInCents: 1500,
+        style: {
+          color: '#3b82f6'  // Blue
+        }
+      },
+      {
+        id: 'vip',
+        name: 'VIP',
+        priceInCents: 2500,
+        style: {
+          color: '#f59e0b'  // Gold
+        }
+      }
+    ],
     stage: {
       x: 100,
       y: 20,
