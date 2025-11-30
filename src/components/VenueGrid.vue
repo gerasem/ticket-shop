@@ -34,6 +34,40 @@ const zoomOut = () => {
     zoomLevel.value = Math.max(zoomLevel.value - ZOOM_STEP, MIN_ZOOM);
   }
 };
+
+// Drag-to-scroll state
+const isDragging = ref(false);
+const dragStart = ref({ x: 0, y: 0 });
+const wrapperRef = ref<HTMLElement | null>(null);
+
+const handleMouseDown = (event: MouseEvent) => {
+  if (!wrapperRef.value) return;
+  
+  isDragging.value = true;
+  dragStart.value = {
+    x: event.clientX + wrapperRef.value.scrollLeft,
+    y: event.clientY + wrapperRef.value.scrollTop
+  };
+  event.preventDefault();
+};
+
+const handleMouseMove = (event: MouseEvent) => {
+  if (!isDragging.value || !wrapperRef.value) return;
+  
+  const dx = dragStart.value.x - event.clientX;
+  const dy = dragStart.value.y - event.clientY;
+  
+  wrapperRef.value.scrollLeft = dx;
+  wrapperRef.value.scrollTop = dy;
+};
+
+const handleMouseUp = () => {
+  isDragging.value = false;
+};
+
+const handleMouseLeave = () => {
+  isDragging.value = false;
+};
 </script>
 
 <template>
@@ -47,70 +81,82 @@ const zoomOut = () => {
       <button @click="zoomIn" :disabled="zoomLevel >= MAX_ZOOM" title="Zoom In">+</button>
     </div>
 
+    <!-- Scrollable wrapper -->
     <div 
-      class="venue-scalable-content"
-      :style="{ 
-        transform: `scale(${zoomLevel})`,
-        width: venue.width + 'px',
-        height: venue.height + 'px'
-      }"
+      ref="wrapperRef"
+      class="venue-wrapper"
+      :class="{ 'dragging': isDragging }"
+      @mousedown="handleMouseDown"
+      @mousemove="handleMouseMove"
+      @mouseup="handleMouseUp"
+      @mouseleave="handleMouseLeave"
     >
       <div 
-        v-if="venue.stage"
-        class="stage"
-        :style="{
-          left: venue.stage.x + 'px',
-          top: venue.stage.y + 'px',
-          width: venue.stage.width + 'px',
-          height: venue.stage.height + 'px'
+        class="venue-scalable-content"
+        :style="{ 
+          transform: `scale(${zoomLevel})`,
+          transformOrigin: 'top left',
+          width: venue.width + 'px',
+          height: venue.height + 'px'
         }"
-        @mousedown.stop="emit('stage-mousedown', $event)"
-      >SCREEN / STAGE</div>
-      
-      <!-- Top column labels -->
-      <div class="column-labels-container">
-        <div class="column-spacer"></div>
-        <div class="column-labels">
-          <div 
-            v-for="col in venueEditor.getColumns.value" 
-            :key="'top-' + col"
-            class="column-label"
-            :class="{ 'clickable': enableLabelSelection }"
-            :style="{ left: venueEditor.getColX(col) + 'px' }"
-            @click="enableLabelSelection && emit('col-click', col)"
-          >
-            {{ col }}
-          </div>
-        </div>
-      </div>
-
-      <div class="seating-area">
-        <!-- Left row labels -->
-        <div class="row-labels row-labels-left">
-          <div 
-            v-for="row in venueEditor.getRows.value" 
-            :key="'left-' + row"
-            class="row-label"
-            :class="{ 'clickable': enableLabelSelection }"
-            :style="{ top: venueEditor.getRowY(row) + 'px' }"
-            @click="enableLabelSelection && emit('row-click', row)"
-          >
-            {{ row }}
-          </div>
-        </div>
-
-        <!-- Seats grid -->
+      >
         <div 
-          class="seats-grid"
-          @mousedown="emit('grid-mousedown', $event)"
-        >
-          <!-- Overlay Slot (for selection rectangle) -->
-          <slot name="overlay"></slot>
+          v-if="venue.stage"
+          class="stage"
+          :style="{
+            left: venue.stage.x + 'px',
+            top: venue.stage.y + 'px',
+            width: venue.stage.width + 'px',
+            height: venue.stage.height + 'px'
+          }"
+          @mousedown.stop="emit('stage-mousedown', $event)"
+        >SCREEN / STAGE</div>
+        
+        <!-- Top column labels -->
+        <div class="column-labels-container">
+          <div class="column-spacer"></div>
+          <div class="column-labels">
+            <div 
+              v-for="col in venueEditor.getColumns.value" 
+              :key="'top-' + col"
+              class="column-label"
+              :class="{ 'clickable': enableLabelSelection }"
+              :style="{ left: venueEditor.getColX(col) + 'px' }"
+              @click="enableLabelSelection && emit('col-click', col)"
+            >
+              {{ col }}
+            </div>
+          </div>
+        </div>
 
-          <!-- Seats -->
-          <template v-for="seat in venue.seats" :key="seat.id">
-            <slot name="seat" :seat="seat"></slot>
-          </template>
+        <div class="seating-area">
+          <!-- Left row labels -->
+          <div class="row-labels row-labels-left">
+            <div 
+              v-for="row in venueEditor.getRows.value" 
+              :key="'left-' + row"
+              class="row-label"
+              :class="{ 'clickable': enableLabelSelection }"
+              :style="{ top: venueEditor.getRowY(row) + 'px' }"
+              @click="enableLabelSelection && emit('row-click', row)"
+            >
+              {{ row }}
+            </div>
+          </div>
+
+          <!-- Seats grid -->
+          <div 
+            class="seats-grid"
+            @mousedown="emit('grid-mousedown', $event)"
+          >
+            <!-- Overlay Slot (for selection rectangle) -->
+            <slot name="overlay"></slot>
+
+            <!-- Seats -->
+            <template v-for="seat in venue.seats" :key="seat.id">
+              <slot name="seat" :seat="seat"></slot>
+            </template>
+          </div>
         </div>
       </div>
     </div>
@@ -118,16 +164,32 @@ const zoomOut = () => {
 </template>
 
 <style scoped>
-.venue-scalable-content {
-  transform-origin: top left;
-  transition: transform 0.2s ease-out;
-  /* Visual boundary */
-  background: #2a2a2a;
-  border: 1px solid #444;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-  /* Rigid binding */
-  overflow: auto;
+.venue-container {
   position: relative;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.venue-wrapper {
+  overflow: auto;
+  max-height: 80vh;
+  border: 2px solid #333;
+  border-radius: 8px;
+  background: #1a1a1a;
+  position: relative;
+  cursor: grab;
+  user-select: none;
+}
+
+.venue-wrapper.dragging {
+  cursor: grabbing;
+}
+
+.venue-scalable-content {
+  position: relative;
+  /* transform and transform-origin set inline via :style */
+  transition: transform 0.2s ease-out;
 }
 
 .zoom-controls {
@@ -145,8 +207,8 @@ const zoomOut = () => {
 }
 
 .zoom-controls button {
-  width: 20px;
-  height: 20px;
+  width: 28px;
+  height: 28px;
   border-radius: 4px;
   border: 1px solid rgba(255, 255, 255, 0.2);
   background: rgba(255, 255, 255, 0.1);
@@ -156,6 +218,7 @@ const zoomOut = () => {
   align-items: center;
   justify-content: center;
   font-weight: bold;
+  font-size: 1.2rem;
   transition: all 0.2s;
   padding: 0;
 }
@@ -171,10 +234,11 @@ const zoomOut = () => {
 }
 
 .zoom-level {
-  font-size: 0.7rem;
+  font-size: 0.85rem;
   color: #aaa;
   min-width: 40px;
   text-align: center;
   font-variant-numeric: tabular-nums;
 }
 </style>
+
