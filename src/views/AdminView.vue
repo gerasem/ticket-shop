@@ -571,6 +571,52 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
               Recalculate Rows
             </button>
           </div>
+
+          <!-- Seat Styling Settings -->
+          <div class="settings-divider"></div>
+          <div class="settings-subtitle">Default Seat Style</div>
+
+          <div class="settings-group">
+            <label>Color</label>
+            <input 
+              type="color" 
+              v-model="venueStore.currentVenue.defaultSeatStyle.color" 
+              class="settings-input color-input"
+            />
+          </div>
+
+          <div class="settings-group">
+            <label>Width (px)</label>
+            <input 
+              type="number" 
+              v-model.number="venueStore.currentVenue.defaultSeatStyle.width" 
+              class="settings-input"
+              min="10"
+              max="100"
+            />
+          </div>
+
+          <div class="settings-group">
+            <label>Height (px)</label>
+            <input 
+              type="number" 
+              v-model.number="venueStore.currentVenue.defaultSeatStyle.height" 
+              class="settings-input"
+              min="10"
+              max="100"
+            />
+          </div>
+
+          <div class="settings-group">
+            <label>Shape</label>
+            <select 
+              v-model="venueStore.currentVenue.defaultSeatStyle.borderRadius" 
+              class="settings-input"
+            >
+              <option value="8px">Square</option>
+              <option value="50%">Circle</option>
+            </select>
+          </div>
         </div>
 
         <!-- Select All Section (when select tool is active) -->
@@ -700,7 +746,14 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
             :class="{ 
               selected: selectedSeats.has(seat.id)
             }"
-            :style="{ left: seat.x + 'px', top: seat.y + 'px' }"
+            :style="{ 
+              left: seat.x + 'px', 
+              top: seat.y + 'px',
+              width: venueStore.currentVenue.defaultSeatStyle.width + 'px',
+              height: venueStore.currentVenue.defaultSeatStyle.height + 'px',
+              backgroundColor: venueStore.currentVenue.defaultSeatStyle.color,
+              borderRadius: venueStore.currentVenue.defaultSeatStyle.borderRadius
+            }"
             :title="formatPrice(seat.priceInCents)"
             @mousedown.stop="handleSeatClick(seat.id, $event)"
           >
@@ -1172,5 +1225,56 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
 
 .select-all-btn:hover {
   background: rgba(66, 185, 131, 0.4);
+}
+
+/* Settings Styles */
+.settings-divider {
+  width: 100%;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 1rem 0;
+}
+
+.settings-subtitle {
+  font-size: 0.75rem;
+  color: #42b983;
+  text-transform: uppercase;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.5px;
+}
+
+.settings-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.settings-group label {
+  font-size: 0.7rem;
+  color: #aaa;
+  text-transform: uppercase;
+}
+
+.settings-input {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  padding: 4px 6px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.settings-input:focus {
+  border-color: #42b983;
+  outline: none;
+}
+
+.color-input {
+  height: 32px;
+  padding: 2px;
+  cursor: pointer;
 }
 </style>

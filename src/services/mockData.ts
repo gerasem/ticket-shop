@@ -20,6 +20,12 @@ export interface Venue {
     width: number;
     height: number;
   };
+  defaultSeatStyle: {
+    color: string;        // Background color (hex)
+    width: number;        // Width in pixels
+    height: number;       // Height in pixels
+    borderRadius: string; // '8px' for square, '50%' for circle
+  };
 }
 
 export const generateMockVenue = (): Venue => {
@@ -69,6 +75,12 @@ export const generateMockVenue = (): Venue => {
       y: 20,
       width: 600,
       height: 40
+    },
+    defaultSeatStyle: {
+      color: '#4a5568',     // Default gray
+      width: 30,
+      height: 30,
+      borderRadius: '8px'   // Square by default
     }
   };
 };
