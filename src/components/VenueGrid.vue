@@ -194,7 +194,7 @@ const handleMouseLeave = () => {
 
 .zoom-controls {
   position: absolute;
-  top: 1rem;
+  top: 20px;
   right: 1rem;
   display: flex;
   align-items: center;
@@ -204,6 +204,19 @@ const handleMouseLeave = () => {
   border-radius: 8px;
   transition: all 0.2s;
   padding: 0;
+ }
+
+.zoom-controls button {
+  width: 25px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 3px 0;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #bdbdbd;
+  cursor: pointer;
+  transition: border-color 0.25s;
 }
 
 .zoom-controls button:hover:not(:disabled) {

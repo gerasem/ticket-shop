@@ -1,0 +1,44 @@
+{
+  "id": "default-venue",
+  "name": "Grand Cinema Hall 1",
+  "type": "cinema",
+  "width": 800,
+  "height": 600,
+  "curvature": 0,
+  "stage": {
+    "x": 100,
+    "y": 20,
+    "width": 600,
+    "height": 40
+  },
+  "defaultSeatStyle": {
+    "color": "#4a5568",
+    "width": 30,
+    "height": 30,
+    "borderRadius": "8px"
+  },
+  "seatTypes": [
+    {
+      "id": "standard",
+      "name": "Standard",
+      "priceInCents": 1000
+    },
+    {
+      "id": "premium",
+      "name": "Premium",
+      "priceInCents": 1500,
+      "style": {
+        "color": "#3b82f6"
+      }
+    },
+    {
+      "id": "vip",
+      "name": "VIP",
+      "priceInCents": 2500,
+      "style": {
+        "color": "#f59e0b"
+      }
+    }
+  ],
+  "seats": []
+}

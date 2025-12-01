@@ -1,0 +1,9 @@
+{
+  "venues": [
+    {
+      "id": "default-venue",
+      "name": "Grand Cinema Hall 1",
+      "file": "default-venue.json"
+    }
+  ]
+}

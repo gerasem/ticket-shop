@@ -359,6 +359,7 @@ const getSeatTypeClass = (seat: any) => {
   font-size: 0.75rem;
   cursor: pointer;
   transition: all 0.2s;
+  width: fit-content;
 }
 
 .clear-cart-btn:hover {
