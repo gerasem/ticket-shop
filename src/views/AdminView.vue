@@ -44,7 +44,8 @@ const getSeatStyle = (seat: Seat) => {
     width: mergedStyle.width + 'px',
     height: mergedStyle.height + 'px',
     backgroundColor: mergedStyle.color,
-    borderRadius: mergedStyle.borderRadius
+    borderRadius: mergedStyle.borderRadius,
+    transform: seat.rotation ? `rotate(${seat.rotation}deg)` : undefined
   };
 };
 
@@ -299,6 +300,63 @@ const moveSelection = (dx: number, dy: number) => {
       }
     });
   }
+};
+
+// Rotation Logic
+const rotateAngle = 15; // Degrees per click
+
+const rotateClockwise = () => {
+  if (selectedSeats.value.size === 0) return;
+  
+  // Find center of selected seats
+  const seats = Array.from(selectedSeats.value)
+    .map(id => venueEditor.findSeatById(id))
+    .filter((s): s is Seat => s !== undefined);
+  if (seats.length === 0) return;
+  
+  const centerX = seats.reduce((sum, seat) => sum + seat.x, 0) / seats.length;
+  const centerY = seats.reduce((sum, seat) => sum + seat.y, 0) / seats.length;
+  
+  const angleRad = (rotateAngle * Math.PI) / 180;
+  const cos = Math.cos(angleRad);
+  const sin = Math.sin(angleRad);
+  
+  // Rotate each seat around the common center
+  seats.forEach(seat => {
+    const dx = seat.x - centerX;
+    const dy = seat.y - centerY;
+    
+    seat.x = centerX + dx * cos - dy * sin;
+    seat.y = centerY + dx * sin + dy * cos;
+    seat.rotation = ((seat.rotation || 0) + rotateAngle) % 360;
+  });
+};
+
+const rotateCounterClockwise = () => {
+  if (selectedSeats.value.size === 0) return;
+  
+  // Find center of selected seats
+  const seats = Array.from(selectedSeats.value)
+    .map(id => venueEditor.findSeatById(id))
+    .filter((s): s is Seat => s !== undefined);
+  if (seats.length === 0) return;
+  
+  const centerX = seats.reduce((sum, seat) => sum + seat.x, 0) / seats.length;
+  const centerY = seats.reduce((sum, seat) => sum + seat.y, 0) / seats.length;
+  
+  const angleRad = (-rotateAngle * Math.PI) / 180;
+  const cos = Math.cos(angleRad);
+  const sin = Math.sin(angleRad);
+  
+  // Rotate each seat around the common center
+  seats.forEach(seat => {
+    const dx = seat.x - centerX;
+    const dy = seat.y - centerY;
+    
+    seat.x = centerX + dx * cos - dy * sin;
+    seat.y = centerY + dx * sin + dy * cos;
+    seat.rotation = ((seat.rotation || 0) - rotateAngle + 360) % 360;
+  });
 };
 
 const deleteSelectedSeats = () => {
@@ -752,6 +810,15 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
                 <button class="arrow-btn right" @click="moveSelection(1, 0)">→</button>
               </div>
               <button class="arrow-btn down" @click="moveSelection(0, 1)">↓</button>
+            </div>
+
+            <!-- Rotation Controls -->
+            <div class="rotation-controls" v-if="!isStageSelected">
+              <label>Rotate</label>
+              <div class="rotation-buttons">
+                <button class="rotate-btn" @click="rotateCounterClockwise" title="Rotate Counter-Clockwise">↶</button>
+                <button class="rotate-btn" @click="rotateClockwise" title="Rotate Clockwise">↷</button>
+              </div>
             </div>
 
             <!-- Selection Info (Vertical) -->
@@ -1382,6 +1449,55 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
   text-align: center;
   font-weight: 600;
 }
+
+/* Rotation Controls */
+.rotation-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.rotation-controls label {
+  font-size: 0.65rem;
+  color: #aaa;
+  text-transform: uppercase;
+}
+
+.rotation-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.rotate-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  cursor: pointer;
+  font-size: 1.6rem;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 1;
+}
+
+.rotate-btn:hover {
+  background: rgba(66, 185, 131, 0.5);
+  border-color: #42b983;
+}
+
+.rotate-btn:active {
+  transform: scale(0.95);
+}
+
 
 
 /* Settings Styles */

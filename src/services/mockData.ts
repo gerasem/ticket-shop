@@ -16,6 +16,7 @@ export interface Seat {
   y: number;
   originalX?: number; // Store original position for curvature reset
   originalY?: number;
+  rotation?: number; // Rotation angle in degrees (0-360)
   status: 'free' | 'booked' | 'readyToBook';
   label: string;
   typeId: string; // Reference to SeatType.id
