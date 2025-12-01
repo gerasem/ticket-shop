@@ -99,6 +99,52 @@ const handleTypesUpdate = (types: SeatType[]) => {
   }
 };
 
+// Curvature controls
+const increaseCurvature = () => {
+  if (!venueStore.currentVenue) return;
+  const newCurvature = Math.min(venueStore.currentVenue.curvature + 10, 100);
+  venueStore.currentVenue.curvature = newCurvature;
+  applyCurvature();
+};
+
+const decreaseCurvature = () => {
+  if (!venueStore.currentVenue) return;
+  const newCurvature = Math.max(venueStore.currentVenue.curvature - 10, -100);
+  venueStore.currentVenue.curvature = newCurvature;
+  applyCurvature();
+};
+
+const applyCurvature = () => {
+  if (!venueStore.currentVenue) return;
+  
+  const venue = venueStore.currentVenue;
+  const curvature = venue.curvature / 100; // -1 to 1
+  const stageCenter = {
+    x: venue.stage.x + venue.stage.width / 2,
+    y: venue.stage.y + venue.stage.height
+  };
+  
+  venue.seats.forEach(seat => {
+    if (seat.originalX === undefined || seat.originalY === undefined) {
+      seat.originalX = seat.x;
+      seat.originalY = seat.y;
+    }
+    
+    // Calculate distance from center horizontally
+    const offsetX = seat.originalX - stageCenter.x;
+    
+    // Uniform curvature for ALL rows - use normalized offset squared
+    // This creates a parabolic curve that's the same for every row
+    const normalizedOffset = offsetX / (venue.width / 2); // -1 to 1
+    const arcOffset = normalizedOffset * normalizedOffset * curvature * 150;
+    
+    // Apply transformation - only move Y, keep X the same
+    seat.x = seat.originalX;
+    seat.y = seat.originalY + arcOffset;
+  });
+};
+
+
 // Keyboard event handler
 const handleKeydown = (event: KeyboardEvent) => {
   if (selectedSeats.value.size === 0 && !isStageSelected.value) return;
@@ -647,6 +693,27 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
                 min="10"
                 max="100"
               />
+            </div>
+          </div>
+          
+          <!-- Focal Point Curvature -->
+          <div class="settings-divider"></div>
+          <div class="settings-subtitle">Focal Point Curvature</div>
+          
+          <div class="settings-group">
+            <label>Row Arc Towards Stage</label>
+            <div class="curvature-controls">
+              <button 
+                class="curvature-btn" 
+                @click="decreaseCurvature"
+                :disabled="venueStore.currentVenue.curvature === -100"
+              >↓</button>
+              <span class="curvature-value">{{ venueStore.currentVenue.curvature }}%</span>
+              <button 
+                class="curvature-btn" 
+                @click="increaseCurvature"
+                :disabled="venueStore.currentVenue.curvature === 100"
+              >↑</button>
             </div>
           </div>
           
@@ -1271,6 +1338,51 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
 .manage-types-btn:hover {
   background: rgba(66, 185, 131, 0.4);
 }
+
+/* Curvature Controls */
+.curvature-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.curvature-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  cursor: pointer;
+  font-size: 1.2rem;
+  font-weight: bold;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.curvature-btn:hover:not(:disabled) {
+  background: rgba(66, 185, 131, 0.5);
+  border-color: #42b983;
+}
+
+.curvature-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.curvature-value {
+  font-size: 1rem;
+  color: #42b983;
+  min-width: 45px;
+  text-align: center;
+  font-weight: 600;
+}
+
 
 /* Settings Styles */
 .settings-divider {

@@ -14,6 +14,8 @@ export interface Seat {
   id: string;
   x: number;
   y: number;
+  originalX?: number; // Store original position for curvature reset
+  originalY?: number;
   status: 'free' | 'booked' | 'readyToBook';
   label: string;
   typeId: string; // Reference to SeatType.id
@@ -27,6 +29,7 @@ export interface Venue {
   height: number;
   seats: Seat[];
   seatTypes: SeatType[]; // Available seat types
+  curvature: number; // 0-100, percentage of arc curvature towards stage
   stage: {
     x: number;
     y: number;
@@ -102,6 +105,7 @@ export const generateMockVenue = (): Venue => {
         }
       }
     ],
+    curvature: 0, // Default: straight rows
     stage: {
       x: 100,
       y: 20,
