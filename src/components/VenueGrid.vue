@@ -174,9 +174,9 @@ const handleMouseLeave = () => {
 .venue-wrapper {
   overflow: auto;
   max-height: 80vh;
-  border: 2px solid #333;
+  border: 2px solid var(--color-border);
   border-radius: 8px;
-  background: #1a1a1a;
+  background: var(--color-bg-primary);
   position: relative;
   cursor: grab;
   user-select: none;
@@ -202,30 +202,13 @@ const handleMouseLeave = () => {
   background: rgba(0, 0, 0, 0.6);
   padding: 0.5rem;
   border-radius: 8px;
-  z-index: 100;
-  backdrop-filter: blur(4px);
-}
-
-.zoom-controls button {
-  width: 28px;
-  height: 28px;
-  border-radius: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  font-size: 1.2rem;
   transition: all 0.2s;
   padding: 0;
 }
 
 .zoom-controls button:hover:not(:disabled) {
-  background: rgba(66, 185, 131, 0.5);
-  border-color: #42b983;
+  background: var(--color-accent-strong);
+  border-color: var(--color-accent);
 }
 
 .zoom-controls button:disabled {
@@ -235,7 +218,7 @@ const handleMouseLeave = () => {
 
 .zoom-level {
   font-size: 0.85rem;
-  color: #aaa;
+  color: var(--color-text-tertiary);
   min-width: 40px;
   text-align: center;
   font-variant-numeric: tabular-nums;

@@ -28,8 +28,8 @@
 .btn {
   display: inline-block;
   padding: 0.75rem 1.5rem;
-  background-color: #42b983;
-  color: white;
+  background-color: var(--color-accent);
+  color: var(--color-text-white);
   text-decoration: none;
   border-radius: 4px;
   font-weight: bold;
@@ -37,14 +37,14 @@
 }
 
 .btn:hover {
-  background-color: #3aa876;
+  background-color: var(--color-accent-hover);
 }
 
 .btn-secondary {
-  background-color: #2c3e50;
+  background-color: var(--color-bg-tertiary);
 }
 
 .btn-secondary:hover {
-  background-color: #243442;
+  background-color: var(--color-border);
 }
 </style>

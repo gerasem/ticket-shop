@@ -1,0 +1,97 @@
+/* ===== Reusable Button Styles ===== */
+
+/* Base button */
+.btn {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Primary button (accent color) */
+.btn-primary {
+  background: var(--color-accent);
+  color: white;
+  border: none;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--color-accent-hover);
+}
+
+/* Secondary button (outline) */
+.btn-secondary {
+  background: transparent;
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: var(--color-bg-hover);
+}
+
+/* Danger button */
+.btn-danger {
+  background: var(--color-danger-light);
+  color: var(--color-danger);
+  border: 1px solid var(--color-danger-medium);
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: var(--color-danger-medium);
+}
+
+/* Accent light button */
+.btn-accent-light {
+  background: var(--color-accent-light);
+  color: var(--color-accent);
+  border: 1px solid var(--color-accent-medium);
+}
+
+.btn-accent-light:hover:not(:disabled) {
+  background: var(--color-accent-medium);
+}
+
+/* Icon button (small, square) */
+.btn-icon {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: 4px;
+  background: var(--color-bg-panel);
+  border: 1px solid var(--color-border-light);
+  color: var(--color-text-primary);
+}
+
+.btn-icon:hover:not(:disabled) {
+  background: var(--color-bg-hover);
+  border-color: var(--color-accent);
+}
+
+/* Button sizes */
+.btn-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+}
+
+.btn-lg {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+}
+
+/* Full width button */
+.btn-block {
+  width: 100%;
+}
