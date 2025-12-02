@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed, toRef } from 'vue';
+import { ref, onMounted, onUnmounted, computed, toRef, watch } from 'vue';
 import { useVenueStore } from '../stores/venue';
 import { useVenueEditor } from '../composables/useVenueEditor';
 import { useGeometry, type Point } from '../composables/useGeometry';
@@ -174,6 +174,14 @@ const handleKeydown = (event: KeyboardEvent) => {
       break;
   }
 };
+
+// Watch activeTool and clear selection when switching away from select tool
+watch(activeTool, (newTool, oldTool) => {
+  // Clear selection when switching from select to any other tool
+  if (oldTool === 'select' && newTool !== 'select') {
+    clearSelection();
+  }
+});
 
 onMounted(() => {
   venueStore.loadVenue();
