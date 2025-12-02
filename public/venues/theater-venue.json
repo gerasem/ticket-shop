@@ -1,0 +1,87 @@
+{
+  "id": "theater-venue",
+  "name": "Royal Theater",
+  "type": "cinema",
+  "width": 700,
+  "height": 500,
+  "curvature": 30,
+  "stage": {
+    "x": 150,
+    "y": 30,
+    "width": 400,
+    "height": 50
+  },
+  "defaultSeatStyle": {
+    "color": "#2d3748",
+    "width": 35,
+    "height": 35,
+    "borderRadius": "50%"
+  },
+  "seatTypes": [
+    {
+      "id": "standard",
+      "name": "Standard",
+      "priceInCents": 1200
+    },
+    {
+      "id": "premium",
+      "name": "Premium",
+      "priceInCents": 1800,
+      "style": {
+        "color": "#9333ea"
+      }
+    },
+    {
+      "id": "vip",
+      "name": "VIP",
+      "priceInCents": 2800,
+      "style": {
+        "color": "#dc2626"
+      }
+    }
+  ],
+  "seats": [
+    {"id": "seat-1", "x": 250, "y": 150, "status": "free", "row": 1, "place": 1, "typeId": "premium"},
+    {"id": "seat-2", "x": 300, "y": 150, "status": "free", "row": 1, "place": 2, "typeId": "premium"},
+    {"id": "seat-3", "x": 350, "y": 150, "status": "free", "row": 1, "place": 3, "typeId": "premium"},
+    {"id": "seat-4", "x": 400, "y": 150, "status": "free", "row": 1, "place": 4, "typeId": "premium"},
+    
+    {"id": "seat-5", "x": 200, "y": 200, "status": "free", "row": 2, "place": 1, "typeId": "vip"},
+    {"id": "seat-6", "x": 250, "y": 200, "status": "free", "row": 2, "place": 2, "typeId": "vip"},
+    {"id": "seat-7", "x": 300, "y": 200, "status": "free", "row": 2, "place": 3, "typeId": "vip"},
+    {"id": "seat-8", "x": 350, "y": 200, "status": "free", "row": 2, "place": 4, "typeId": "vip"},
+    {"id": "seat-9", "x": 400, "y": 200, "status": "free", "row": 2, "place": 5, "typeId": "vip"},
+    {"id": "seat-10", "x": 450, "y": 200, "status": "free", "row": 2, "place": 6, "typeId": "vip"},
+    
+    {"id": "seat-11", "x": 150, "y": 250, "status": "free", "row": 3, "place": 1, "typeId": "standard"},
+    {"id": "seat-12", "x": 200, "y": 250, "status": "free", "row": 3, "place": 2, "typeId": "standard"},
+    {"id": "seat-13", "x": 250, "y": 250, "status": "free", "row": 3, "place": 3, "typeId": "standard"},
+    {"id": "seat-14", "x": 300, "y": 250, "status": "booked", "row": 3, "place": 4, "typeId": "standard"},
+    {"id": "seat-15", "x": 350, "y": 250, "status": "booked", "row": 3, "place": 5, "typeId": "standard"},
+    {"id": "seat-16", "x": 400, "y": 250, "status": "free", "row": 3, "place": 6, "typeId": "standard"},
+    {"id": "seat-17", "x": 450, "y": 250, "status": "free", "row": 3, "place": 7, "typeId": "standard"},
+    {"id": "seat-18", "x": 500, "y": 250, "status": "free", "row": 3, "place": 8, "typeId": "standard"},
+    
+    {"id": "seat-19", "x": 100, "y": 300, "status": "free", "row": 4, "place": 1, "typeId": "standard"},
+    {"id": "seat-20", "x": 150, "y": 300, "status": "free", "row": 4, "place": 2, "typeId": "standard"},
+    {"id": "seat-21", "x": 200, "y": 300, "status": "free", "row": 4, "place": 3, "typeId": "standard"},
+    {"id": "seat-22", "x": 250, "y": 300, "status": "free", "row": 4, "place": 4, "typeId": "standard"},
+    {"id": "seat-23", "x": 300, "y": 300, "status": "free", "row": 4, "place": 5, "typeId": "standard"},
+    {"id": "seat-24", "x": 350, "y": 300, "status": "free", "row": 4, "place": 6, "typeId": "standard"},
+    {"id": "seat-25", "x": 400, "y": 300, "status": "free", "row": 4, "place": 7, "typeId": "standard"},
+    {"id": "seat-26", "x": 450, "y": 300, "status": "free", "row": 4, "place": 8, "typeId": "standard"},
+    {"id": "seat-27", "x": 500, "y": 300, "status": "free", "row": 4, "place": 9, "typeId": "standard"},
+    {"id": "seat-28", "x": 550, "y": 300, "status": "free", "row": 4, "place": 10, "typeId": "standard"},
+    
+    {"id": "seat-29", "x": 100, "y": 350, "status": "free", "row": 5, "place": 1, "typeId": "standard"},
+    {"id": "seat-30", "x": 150, "y": 350, "status": "free", "row": 5, "place": 2, "typeId": "standard"},
+    {"id": "seat-31", "x": 200, "y": 350, "status": "booked", "row": 5, "place": 3, "typeId": "standard"},
+    {"id": "seat-32", "x": 250, "y": 350, "status": "free", "row": 5, "place": 4, "typeId": "standard"},
+    {"id": "seat-33", "x": 300, "y": 350, "status": "free", "row": 5, "place": 5, "typeId": "standard"},
+    {"id": "seat-34", "x": 350, "y": 350, "status": "free", "row": 5, "place": 6, "typeId": "standard"},
+    {"id": "seat-35", "x": 400, "y": 350, "status": "free", "row": 5, "place": 7, "typeId": "standard"},
+    {"id": "seat-36", "x": 450, "y": 350, "status": "free", "row": 5, "place": 8, "typeId": "standard"},
+    {"id": "seat-37", "x": 500, "y": 350, "status": "free", "row": 5, "place": 9, "typeId": "standard"},
+    {"id": "seat-38", "x": 550, "y": 350, "status": "free", "row": 5, "place": 10, "typeId": "standard"}
+  ]
+}
