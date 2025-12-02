@@ -835,19 +835,34 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
             Select All Seats
           </button>        </div>
 
-        <!-- TEST: Select tool with no seats selected -->
-        <div v-if="activeTool === 'select' && selectedSeats.size === 0" style="background: red; padding: 10px; color: white;">
-          Select Tool - No Selection
+        <!-- Help: Select tool with no seats selected -->
+        <div v-if="activeTool === 'select' && selectedSeats.size === 0" style="padding: 10px; font-size: 0.75rem; color: #aaa;">
+          <p style="margin: 0 0 8px 0;"><strong>Selection Tool</strong></p>
+          <ul style="margin: 0; padding-left: 20px;">
+            <li>Click seat to toggle select</li>
+            <li>Drag to area select</li>
+            <li>Click row/col label to select all</li>
+            <li>Use arrows to move</li>
+          </ul>
         </div>
 
-        <!-- TEST: Pan tool -->
-        <div v-if="activeTool === 'pan'" style="background: red; padding: 10px; color: white;">
-          Pan Tool Active
+        <!-- Help: Pan tool -->
+        <div v-if="activeTool === 'pan'" style="padding: 10px; font-size: 0.75rem; color: #aaa;">
+          <p style="margin: 0 0 8px 0;"><strong>Pan Tool</strong></p>
+          <ul style="margin: 0; padding-left: 20px;">
+            <li>Drag to move view</li>
+            <li>Navigate around the venue</li>
+          </ul>
         </div>
 
-        <!-- TEST: Add Seat tool -->
-        <div v-if="activeTool === 'add-seat'" style="background: red; padding: 10px; color: white;">
-          Add Seat Tool Active
+        <!-- Help: Add Seat tool -->
+        <div v-if="activeTool === 'add-seat'" style="padding: 10px; font-size: 0.75rem; color: #aaa;">
+          <p style="margin: 0 0 8px 0;"><strong>Add Seat Tool</strong></p>
+          <ul style="margin: 0; padding-left: 20px;">
+            <li>Click anywhere to add a seat</li>
+            <li>Seats snap to 10px grid</li>
+            <li>Use Recalculate Rows to update numbering</li>
+          </ul>
         </div>
 
         <!-- Movement Section (Conditional) -->
@@ -912,32 +927,7 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
               </div>
             </div>
           </div>
-        </div>
-
-        <!-- Help Section -->
-        <div class="sidebar-footer">
-          <div class="help-container">
-            <button class="help-btn">?</button>
-            <div class="help-tooltip">
-              <p><strong>Selection Tool</strong></p>
-              <ul>
-                <li>Click seat to toggle select</li>
-                <li>Drag to area select</li>
-                <li>Click row/col label to select all</li>
-                <li>Use arrows to move</li>
-              </ul>
-              <p><strong>Pan Tool</strong></p>
-              <ul>
-                <li>Drag to move view</li>
-              </ul>
-              <p><strong>Settings</strong></p>
-              <ul>
-                <li>Edit venue props</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
+        </div></div>
 
       <!-- Venue Editor -->
       <VenueGrid 
