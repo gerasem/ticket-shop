@@ -120,10 +120,13 @@ const applyCurvature = () => {
   
   const venue = venueStore.currentVenue;
   const curvature = venue.curvature / 100; // -1 to 1
-  const stageCenter = {
-    x: venue.stage.x + venue.stage.width / 2,
-    y: venue.stage.y + venue.stage.height
-  };
+  
+  // Calculate the actual horizontal center of all seats for symmetry
+  const allSeatsX = venue.seats.map(s => s.originalX ?? s.x);
+  const minX = Math.min(...allSeatsX);
+  const maxX = Math.max(...allSeatsX);
+  const seatsCenter = (minX + maxX) / 2;
+  const seatsWidth = maxX - minX;
   
   venue.seats.forEach(seat => {
     if (seat.originalX === undefined || seat.originalY === undefined) {
@@ -131,17 +134,23 @@ const applyCurvature = () => {
       seat.originalY = seat.y;
     }
     
-    // Calculate distance from center horizontally
-    const offsetX = seat.originalX - stageCenter.x;
+    // Calculate distance from seats center (for symmetry)
+    const offsetX = seat.originalX - seatsCenter;
     
-    // Uniform curvature for ALL rows - use normalized offset squared
-    // This creates a parabolic curve that's the same for every row
-    const normalizedOffset = offsetX / (venue.width / 2); // -1 to 1
+    // Normalized offset from center: -1 (left edge) to 1 (right edge)
+    const normalizedOffset = offsetX / (seatsWidth / 2);
+    
+    // Parabolic curve - same for all rows
     const arcOffset = normalizedOffset * normalizedOffset * curvature * 150;
     
-    // Apply transformation - only move Y, keep X the same
+    // Rotation towards stage - increased from 8 to 20 for more visibility
+    // Left seats rotate inward (right), right seats rotate inward (left)
+    const rotationAmount = normalizedOffset * curvature * 20; // degrees
+    
+    // Apply transformation
     seat.x = seat.originalX;
     seat.y = seat.originalY + arcOffset;
+    seat.rotation = rotationAmount;
   });
 };
 
@@ -516,7 +525,8 @@ const addSeat = (event: MouseEvent) => {
     status: 'free' as const,
     row: 0,
     place: 0,
-    typeId: 'standard' // Default type
+    typeId: 'standard', // Default type
+    rotation: 0
   };
 
   venueStore.currentVenue.seats.push(newSeat);

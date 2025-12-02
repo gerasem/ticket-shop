@@ -93,7 +93,8 @@ function generateSeatsForVenue(venue: Partial<Venue>) {
         status: Math.random() > 0.8 ? 'booked' : 'free',
         row: r + 1,
         place: c + 1,
-        typeId: typeId
+        typeId: typeId,
+        rotation: 0
       });
     }
   }
