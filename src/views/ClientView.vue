@@ -93,9 +93,9 @@ const getSeatTypeClass = (seat: any) => {
             @click="handleSeatClick(seat.id)"
           >
             <span class="seat-tooltip">
-              <span class="row-number">Row {{ seat.label.split('-')[0] }}</span>
+              <span class="row-number">Row {{ seat.row }}</span>
               <span class="seat-separator">·</span>
-              <span class="seat-number">Seat {{ seat.label.split('-')[1] }}</span>
+              <span class="seat-number">Seat {{ seat.place }}</span>
               <br>
               <span class="price-info">{{ formatPrice(getSeatType(seat)?.priceInCents || 0) }}</span>
             </span>
@@ -126,7 +126,7 @@ const getSeatTypeClass = (seat: any) => {
             class="cart-item"
           >
             <div class="cart-seat-info">
-              <span class="cart-seat-label">Row {{ seat.label.split('-')[0] }}, Seat {{ seat.label.split('-')[1] }}</span>
+              <span class="cart-seat-label">Row {{ seat.row }}, Seat {{ seat.place }}</span>
             </div>
             <div class="cart-item-right">
               <span class="cart-seat-price">{{ formatPrice(getSeatType(seat)?.priceInCents || 0) }}</span>

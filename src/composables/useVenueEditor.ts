@@ -7,23 +7,6 @@ import type { Venue, Seat } from '../services/mockData';
  */
 export function useVenueEditor(venue: Ref<Venue | null>) {
   /**
-   * Parse seat label into row and column numbers
-   * @param label - Seat label in format "row-col" (e.g., "1-5")
-   * @returns Object with row and col numbers, or null if invalid
-   */
-  const parseSeatLabel = (label: string): { row: number; col: number } | null => {
-    const parts = label.split('-');
-    if (parts.length !== 2 || !parts[0] || !parts[1]) return null;
-    
-    const row = parseInt(parts[0]);
-    const col = parseInt(parts[1]);
-    
-    if (isNaN(row) || isNaN(col)) return null;
-    
-    return { row, col };
-  };
-
-  /**
    * Get all unique row numbers from venue seats
    */
   const getRows = computed(() => {
@@ -31,10 +14,7 @@ export function useVenueEditor(venue: Ref<Venue | null>) {
     
     const rows = new Set<number>();
     venue.value.seats.forEach(seat => {
-      const parsed = parseSeatLabel(seat.label);
-      if (parsed) {
-        rows.add(parsed.row);
-      }
+      rows.add(seat.row);
     });
     
     return Array.from(rows).sort((a, b) => a - b);
@@ -48,10 +28,7 @@ export function useVenueEditor(venue: Ref<Venue | null>) {
     
     const cols = new Set<number>();
     venue.value.seats.forEach(seat => {
-      const parsed = parseSeatLabel(seat.label);
-      if (parsed) {
-        cols.add(parsed.col);
-      }
+      cols.add(seat.place);
     });
     
     return Array.from(cols).sort((a, b) => a - b);
@@ -62,7 +39,7 @@ export function useVenueEditor(venue: Ref<Venue | null>) {
    */
   const getRowY = (row: number): number => {
     if (!venue.value) return 0;
-    const seat = venue.value.seats.find(s => s.label.startsWith(`${row}-`));
+    const seat = venue.value.seats.find(s => s.row === row);
     return seat?.y ?? 0;
   };
 
@@ -71,7 +48,7 @@ export function useVenueEditor(venue: Ref<Venue | null>) {
    */
   const getColX = (col: number): number => {
     if (!venue.value) return 0;
-    const seat = venue.value.seats.find(s => s.label.endsWith(`-${col}`));
+    const seat = venue.value.seats.find(s => s.place === col);
     return seat?.x ?? 0;
   };
 
@@ -94,7 +71,6 @@ export function useVenueEditor(venue: Ref<Venue | null>) {
   };
 
   return {
-    parseSeatLabel,
     getRows,
     getColumns,
     getRowY,

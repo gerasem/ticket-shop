@@ -18,7 +18,8 @@ export interface Seat {
   originalY?: number;
   rotation?: number; // Rotation angle in degrees (0-360)
   status: 'free' | 'booked' | 'readyToBook';
-  label: string;
+  row: number; // Row number (1-indexed)
+  place: number; // Place/column number (1-indexed)
   typeId: string; // Reference to SeatType.id
 }
 
@@ -51,6 +52,7 @@ export const generateMockVenue = (): Venue => {
   const cols = 15;
   const seatSize = 40;
   const gap = 10;
+  let seatCounter = 1;
 
   for (let r = 0; r < rows; r++) {
     // Determine type based on row
@@ -65,11 +67,12 @@ export const generateMockVenue = (): Venue => {
 
     for (let c = 0; c < cols; c++) {
       seats.push({
-        id: `r${r}-c${c}`,
+        id: `seat-${seatCounter++}`,
         x: c * (seatSize + gap) + 50,
         y: r * (seatSize + gap) + 130,
         status: Math.random() > 0.8 ? 'booked' : 'free',
-        label: `${r + 1}-${c + 1}`,
+        row: r + 1,
+        place: c + 1,
         typeId: typeId
       });
     }

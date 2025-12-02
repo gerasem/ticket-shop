@@ -73,6 +73,7 @@ function generateSeatsForVenue(venue: Partial<Venue>) {
   const cols = 15;
   const seatSize = venue.defaultSeatStyle?.width || 30;
   const gap = 10;
+  let seatCounter = 1;
 
   for (let r = 0; r < rows; r++) {
     let typeId: string;
@@ -86,11 +87,12 @@ function generateSeatsForVenue(venue: Partial<Venue>) {
 
     for (let c = 0; c < cols; c++) {
       seats.push({
-        id: `r${r}-c${c}`,
+        id: `seat-${seatCounter++}`,
         x: c * (seatSize + gap) + 50,
         y: r * (seatSize + gap) + 130,
         status: Math.random() > 0.8 ? 'booked' : 'free',
-        label: `${r + 1}-${c + 1}`,
+        row: r + 1,
+        place: c + 1,
         typeId: typeId
       });
     }

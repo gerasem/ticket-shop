@@ -235,7 +235,7 @@ const selectRow = (rowNumber: number) => {
   
   // Get all seats in this row
   const rowSeats = venueStore.currentVenue.seats.filter(seat =>
-    seat.label.startsWith(`${rowNumber}-`)
+    seat.row === rowNumber
   );
   
   // Check if all seats in this row are already selected
@@ -262,7 +262,7 @@ const selectColumn = (colNumber: number) => {
   
   // Get all seats in this column
   const colSeats = venueStore.currentVenue.seats.filter(seat =>
-    seat.label.endsWith(`-${colNumber}`)
+    seat.place === colNumber
   );
   
   // Check if all seats in this column are already selected
@@ -391,28 +391,36 @@ const recalculateRows = () => {
 
   const seats = [...venueStore.currentVenue.seats];
 
-  // 1. Sort by Y, then X
+  // 1. Sort by originalY (or Y if original not set), then originalX (or X)
+  // This ensures row calculation is based on actual seat position, not curved position
   seats.sort((a, b) => {
+    const aY = a.originalY ?? a.y;
+    const bY = b.originalY ?? b.y;
+    const aX = a.originalX ?? a.x;
+    const bX = b.originalX ?? b.x;
+    
     // Tolerance for same row (e.g. 10px)
-    if (Math.abs(a.y - b.y) < 10) {
-      return a.x - b.x;
+    if (Math.abs(aY - bY) < 10) {
+      return aX - bX;
     }
-    return a.y - b.y;
+    return aY - bY;
   });
 
-  // 2. Group seats by rows (based on Y coordinate)
+  // 2. Group seats by rows (based on originalY or Y coordinate)
   const rows: { y: number; seats: typeof seats }[] = [];
   let currentRowY = -1000;
   let currentRow: typeof seats = [];
 
   seats.forEach(seat => {
-    if (Math.abs(seat.y - currentRowY) > 10) {
+    const seatY = seat.originalY ?? seat.y;
+    
+    if (Math.abs(seatY - currentRowY) > 10) {
       // New row
       if (currentRow.length > 0) {
         rows.push({ y: currentRowY, seats: currentRow });
       }
       currentRow = [seat];
-      currentRowY = seat.y;
+      currentRowY = seatY;
     } else {
       // Same row
       currentRow.push(seat);
@@ -424,12 +432,28 @@ const recalculateRows = () => {
     rows.push({ y: currentRowY, seats: currentRow });
   }
 
-  // 3. Assign labels: row number and column number
+  // 3. Assign row and place: row number and column number
   rows.forEach((row, rowIndex) => {
     row.seats.forEach((seat, colIndex) => {
-      seat.label = `${rowIndex + 1}-${colIndex + 1}`;
+      seat.row = rowIndex + 1;
+      seat.place = colIndex + 1;
+      // Clean up old label field if it exists
+      delete (seat as any).label;
     });
   });
+};
+
+const migrateData = () => {
+  if (!venueStore.currentVenue) return;
+  
+  // Remove label field from all seats and run recalculate
+  venueStore.currentVenue.seats.forEach(seat => {
+    delete (seat as any).label;
+  });
+  
+  recalculateRows();
+  
+  alert('Data migrated successfully! Old label fields removed and row/place values recalculated based on position.');
 };
 
 const handleStageMouseDown = (event?: MouseEvent) => {
@@ -482,7 +506,8 @@ const addSeat = (event: MouseEvent) => {
     x,
     y,
     status: 'free' as const,
-    label: 'New',
+    row: 0,
+    place: 0,
     typeId: 'standard' // Default type
   };
 
@@ -701,6 +726,8 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
               Recalculate Rows
             </button>
           </div>
+
+
 
           <!-- Seat Styling Settings -->
           <div class="settings-divider"></div>
@@ -927,10 +954,9 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
               top: seat.y + 'px',
               ...getSeatStyle(seat)
             }"
-            :title="`${seat.label} - ${getSeatType(seat)?.name || 'Unknown'}`"
+            :title="`Row: ${seat.row}, Place: ${seat.place} | Type: ${getSeatType(seat)?.name || 'Unknown'} | Price: ${formatPrice(getSeatType(seat)?.priceInCents || 0)}`"
             @mousedown.stop="handleSeatClick(seat.id, $event)"
           >
-            {{ seat.label }}
           </div>
         </template>
       </VenueGrid>
@@ -1096,19 +1122,6 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
 .delete-btn {
   background: rgba(239, 68, 68, 0.2);
   color: #ef4444;
-  border: 1px solid rgba(239, 68, 68, 0.5);
-}
-
-.delete-btn:hover {
-  background: rgba(239, 68, 68, 0.4);
-}
-
-.delete-btn:hover {
-  background: rgba(239, 68, 68, 0.4);
-}
-
-.recalc-btn {
-  background: rgba(66, 185, 131, 0.2);
   color: #42b983;
   border: 1px solid rgba(66, 185, 131, 0.5);
   margin-top: 0.5rem;
