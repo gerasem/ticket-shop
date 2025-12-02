@@ -740,7 +740,7 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
           </div>
 
           <div class="settings-group">
-            <button class="action-btn recalc-btn" @click="recalculateRows">
+            <button class="action-btn select-all-btn" @click="recalculateRows">
               Recalculate Rows
             </button>
           </div>
