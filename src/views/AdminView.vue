@@ -833,7 +833,21 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
         <div v-if="activeTool === 'select'" class="sidebar-section select-all-section">
           <button class="action-btn select-all-btn" @click="selectAllSeats">
             Select All Seats
-          </button>
+          </button>        </div>
+
+        <!-- TEST: Select tool with no seats selected -->
+        <div v-if="activeTool === 'select' && selectedSeats.size === 0" style="background: red; padding: 10px; color: white;">
+          Select Tool - No Selection
+        </div>
+
+        <!-- TEST: Pan tool -->
+        <div v-if="activeTool === 'pan'" style="background: red; padding: 10px; color: white;">
+          Pan Tool Active
+        </div>
+
+        <!-- TEST: Add Seat tool -->
+        <div v-if="activeTool === 'add-seat'" style="background: red; padding: 10px; color: white;">
+          Add Seat Tool Active
         </div>
 
         <!-- Movement Section (Conditional) -->
