@@ -6,6 +6,7 @@ import { useGeometry, type Point } from '../composables/useGeometry';
 import { usePrice } from '../composables/usePrice';
 import VenueGrid from '../components/VenueGrid.vue';
 import SeatTypeModal from '../components/SeatTypeModal.vue';
+import ToolBar from '../components/ToolBar.vue';
 import type { Seat, SeatType } from '../services/mockData';
 
 const venueStore = useVenueStore();
@@ -710,48 +711,10 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
       @mousedown="handleContainerMouseDown"
     >
       <!-- Main Toolbar -->
-      <div class="main-toolbar">
-        <button 
-          class="tool-btn" 
-          :class="{ active: activeTool === 'pan' }"
-          @click="activeTool = 'pan'"
-          title="Pan Tool"
-        >
-          <span class="tool-icon">✋</span>
-        </button>
-        <button 
-          class="tool-btn" 
-          :class="{ active: activeTool === 'select' }"
-          @click="activeTool = 'select'"
-          title="Selection Tool"
-        >
-          <span class="tool-icon">⬚</span>
-        </button>
-        <button 
-          class="tool-btn" 
-          :class="{ active: activeTool === 'settings' }"
-          @click="activeTool = 'settings'"
-          title="Settings"
-        >
-          <span class="tool-icon">⚙️</span>
-        </button>
-        <button 
-          class="tool-btn" 
-          :class="{ active: activeTool === 'add-seat' }"
-          @click="activeTool = 'add-seat'"
-          title="Add Seat"
-        >
-          <span class="tool-icon">➕</span>
-        </button>
-        <button 
-          class="tool-btn" 
-          :class="{ active: activeTool === 'background' }"
-          @click="activeTool = 'background'"
-          title="Background"
-        >
-          <span class="tool-icon">🖼️</span>
-        </button>
-      </div>
+      <ToolBar 
+        :activeTool="activeTool" 
+        @update:activeTool="activeTool = $event"
+      />
 
       <!-- Properties Panel (Sidebar) -->
       <div class="sidebar">
@@ -1171,35 +1134,6 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
   width: 100%;
 }
 
-/* Tools */
-.tool-btn {
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-  border: 1px solid transparent;
-  color: #aaa;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.tool-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-}
-
-.tool-btn.active {
-  background: rgba(66, 185, 131, 0.2);
-  border-color: #42b983;
-  color: #42b983;
-}
-
-.tool-icon {
-  font-size: 1.4rem;
-}
 
 /* Vertical Movement Controls */
 .movement-controls-vertical {
