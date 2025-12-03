@@ -785,13 +785,13 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
                 class="curvature-btn" 
                 @click="decreaseCurvature"
                 :disabled="venueStore.currentVenue.curvature === -100"
-              >↓</button>
+              >↶</button>
               <span class="curvature-value">{{ venueStore.currentVenue.curvature }}%</span>
               <button 
                 class="curvature-btn" 
                 @click="increaseCurvature"
                 :disabled="venueStore.currentVenue.curvature === 100"
-              >↑</button>
+              >↷</button>
             </div>
           </div>
           
@@ -809,11 +809,16 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
           <!-- Upload Background -->
           <div class="settings-group">
             <label>Background Image</label>
+            <label for="background-upload" class="upload-button">
+              <span class="upload-icon">📁</span>
+              <span class="upload-text">Choose Image</span>
+            </label>
             <input 
+              id="background-upload"
               type="file" 
               accept="image/*"
               @change="handleBackgroundUpload"
-              class="settings-input"
+              style="display: none;"
             />
           </div>
 
@@ -1337,13 +1342,6 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
   padding: 0 0.25rem;
 }
 
-.settings-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  width: 100%;
-}
-
 .settings-group label {
   font-size: 0.7rem;
   color: #aaa;
@@ -1468,25 +1466,30 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
 }
 
 .curvature-btn {
-  width: 32px;
-  height: 32px;
-  border-radius: 4px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
   border: 1px solid rgba(255, 255, 255, 0.2);
   background: rgba(255, 255, 255, 0.1);
   color: white;
   cursor: pointer;
-  font-size: 1.2rem;
+  font-size: 1.6rem;
   font-weight: bold;
   transition: all 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0;
+  line-height: 1;
 }
 
 .curvature-btn:hover:not(:disabled) {
   background: rgba(66, 185, 131, 0.5);
   border-color: #42b983;
+}
+
+.curvature-btn:active:not(:disabled) {
+  transform: scale(0.95);
 }
 
 .curvature-btn:disabled {
@@ -1588,12 +1591,6 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
   margin-bottom: 0;
 }
 
-.settings-group label {
-  font-size: 0.7rem;
-  color: #aaa;
-  text-transform: uppercase;
-}
-
 .settings-input {
   background: rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -1630,5 +1627,44 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
   width: 100%;
   padding: 2px;
   cursor: pointer;
+}
+
+/* Upload Button */
+.upload-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 8px 12px;
+  background: rgba(66, 185, 131, 0.2);
+  border: 1px solid rgba(66, 185, 131, 0.5);
+  border-radius: 6px;
+  color: #42b983;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 0.25rem;
+}
+
+.upload-button:hover {
+  background: rgba(66, 185, 131, 0.4);
+  border-color: #42b983;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(66, 185, 131, 0.3);
+}
+
+.upload-button:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 4px rgba(66, 185, 131, 0.2);
+}
+
+.upload-icon {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.upload-text {
+  line-height: 1;
 }
 </style>
