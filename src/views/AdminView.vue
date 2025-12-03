@@ -831,24 +831,23 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
           <!-- Scale Control -->
           <div v-if="venueStore.currentVenue?.backgroundImage" class="settings-group">
             <label>Scale (%)</label>
-            <div class="settings-row">
-              <input 
-                type="number" 
-                v-model.number="venueStore.currentVenue.backgroundImage.scale" 
-                class="settings-input"
-                min="10"
-                max="200"
-                step="5"
-              />
-              <input 
-                type="range" 
-                v-model.number="venueStore.currentVenue.backgroundImage.scale" 
-                min="10"
-                max="200"
-                step="5"
-                style="flex: 1; margin-left: 8px;"
-              />
-            </div>
+            <input 
+              type="number" 
+              v-model.number="venueStore.currentVenue.backgroundImage.scale" 
+              class="settings-input"
+              min="10"
+              max="200"
+              step="5"
+              style="width: 100%; margin-bottom: 8px;"
+            />
+            <input 
+              type="range" 
+              v-model.number="venueStore.currentVenue.backgroundImage.scale" 
+              min="10"
+              max="200"
+              step="5"
+              style="width: 100%;"
+            />
           </div>
 
           <!-- Position Controls -->
