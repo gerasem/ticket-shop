@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed, toRef, watch } from 'vue';
 import { useVenueStore } from '../stores/venue';
 import { useVenueEditor } from '../composables/useVenueEditor';
@@ -80,7 +80,7 @@ const areaEnd = ref<Point>({ x: 0, y: 0 });
 
 // Tool state
 // Tool state
-type Tool = 'select' | 'pan' | 'settings' | 'add-seat';
+type Tool = 'select' | 'pan' | 'settings' | 'add-seat' | 'background';
 const activeTool = ref<Tool>('pan');
 
 // Panning state
@@ -90,8 +90,54 @@ const lastMousePos = ref<Point>({ x: 0, y: 0 });
 // Add seat preview state
 const previewSeatPos = ref<Point | null>(null);
 
+// Background tool - movement step
+const backgroundMoveStep = ref(10);
+
 // Modal state
 const showTypeModal = ref(false);
+
+// Background image handlers
+const handleBackgroundUpload = (event: Event) => {
+  const input = event.target as HTMLInputElement;
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      if (venueStore.currentVenue && e.target?.result) {
+        if (!venueStore.currentVenue.backgroundImage) {
+          venueStore.currentVenue.backgroundImage = {
+            url: e.target.result as string,
+            scale: 100,
+            x: 0,
+            y: 0,
+            rotation: 0
+          };
+        } else {
+          venueStore.currentVenue.backgroundImage.url = e.target.result as string;
+        }
+      }
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+};
+
+const moveBackground = (dx: number, dy: number) => {
+  if (venueStore.currentVenue?.backgroundImage) {
+    venueStore.currentVenue.backgroundImage.x += dx * backgroundMoveStep.value;
+    venueStore.currentVenue.backgroundImage.y += dy * backgroundMoveStep.value;
+  }
+};
+
+const rotateBackground = (delta: number) => {
+  if (venueStore.currentVenue?.backgroundImage) {
+    venueStore.currentVenue.backgroundImage.rotation += delta;
+  }
+};
+
+const removeBackground = () => {
+  if (venueStore.currentVenue) {
+    venueStore.currentVenue.backgroundImage = undefined;
+  }
+};
 
 // Handle seat types update from modal
 const handleTypesUpdate = (types: SeatType[]) => {
@@ -697,6 +743,14 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
         >
           <span class="tool-icon">➕</span>
         </button>
+        <button 
+          class="tool-btn" 
+          :class="{ active: activeTool === 'background' }"
+          @click="activeTool = 'background'"
+          title="Background"
+        >
+          <span class="tool-icon">🖼️</span>
+        </button>
       </div>
 
       <!-- Properties Panel (Sidebar) -->
@@ -828,6 +882,77 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
             </button>
           </div>
         </div>
+
+        <!-- Background Settings Section -->
+        <div v-if="activeTool === 'background'" class="sidebar-section settings-section">
+          <!-- Upload Background -->
+          <div class="settings-group">
+            <label>Background Image</label>
+            <input 
+              type="file" 
+              accept="image/*"
+              @change="handleBackgroundUpload"
+              class="settings-input"
+            />
+          </div>
+
+          <div v-if="venueStore.currentVenue?.backgroundImage" class="settings-group">
+            <button class="action-btn select-all-btn" @click="removeBackground">
+              Remove Background
+            </button>
+          </div>
+
+          <!-- Scale Control -->
+          <div v-if="venueStore.currentVenue?.backgroundImage" class="settings-group">
+            <label>Scale (%)</label>
+            <div class="settings-row">
+              <input 
+                type="number" 
+                v-model.number="venueStore.currentVenue.backgroundImage.scale" 
+                class="settings-input"
+                min="10"
+                max="200"
+                step="5"
+              />
+              <input 
+                type="range" 
+                v-model.number="venueStore.currentVenue.backgroundImage.scale" 
+                min="10"
+                max="200"
+                step="5"
+                style="flex: 1; margin-left: 8px;"
+              />
+            </div>
+          </div>
+
+          <!-- Position Controls -->
+          <div v-if="venueStore.currentVenue?.backgroundImage" class="settings-group">
+            <label>Position</label>
+            <div class="arrow-buttons">
+              <button class="arrow-btn up" @click="moveBackground(0, -1)">↑</button>
+              <div class="horizontal-arrows">
+                <button class="arrow-btn left" @click="moveBackground(-1, 0)">←</button>
+                <div class="step-control-compact">
+                  <label>Step</label>
+                  <input type="number" v-model.number="backgroundMoveStep" min="1" class="step-input" />
+                </div>
+                <button class="arrow-btn right" @click="moveBackground(1, 0)">→</button>
+              </div>
+              <button class="arrow-btn down" @click="moveBackground(0, 1)">↓</button>
+            </div>
+          </div>
+
+          <!-- Rotation Control -->
+          <div v-if="venueStore.currentVenue?.backgroundImage" class="settings-group">
+            <label>Rotation</label>
+            <div class="curvature-controls">
+              <button class="curvature-btn" @click="rotateBackground(-5)">↓</button>
+              <span class="curvature-value">{{ venueStore.currentVenue.backgroundImage.rotation }}°</span>
+              <button class="curvature-btn" @click="rotateBackground(5)">↑</button>
+            </div>
+          </div>
+        </div>
+
 
         <!-- Select All Section (when select tool is active) -->
         <div v-if="activeTool === 'select'" class="sidebar-section select-all-section">

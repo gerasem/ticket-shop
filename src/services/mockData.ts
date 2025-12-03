@@ -44,6 +44,13 @@ export interface Venue {
     height: number;       // Height in pixels
     borderRadius: string; // '8px' for square, '50%' for circle
   };
+  backgroundImage?: {
+    url: string;          // Image URL or Data URL
+    scale: number;        // Scale percentage (e.g., 100 = 100%)
+    x: number;            // Horizontal position in pixels
+    y: number;            // Vertical position in pixels
+    rotation: number;     // Rotation in degrees
+  };
 }
 
 export const generateMockVenue = (): Venue => {

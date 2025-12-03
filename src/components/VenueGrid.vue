@@ -148,7 +148,17 @@ const handleMouseLeave = () => {
           <div 
             class="seats-grid"
             @mousedown="emit('grid-mousedown', $event)"
-          >
+          >            <!-- Background Image -->
+            <img 
+              v-if="venue.backgroundImage?.url" 
+              :src="venue.backgroundImage.url"
+              class="background-image"
+              :style="{
+                transform: `translate(${venue.backgroundImage.x}px, ${venue.backgroundImage.y}px) scale(${venue.backgroundImage.scale / 100}) rotate(${venue.backgroundImage.rotation}deg)`,
+                transformOrigin: 'center center'
+              }"
+            />
+
             <!-- Overlay Slot (for selection rectangle) -->
             <slot name="overlay"></slot>
 
@@ -190,6 +200,18 @@ const handleMouseLeave = () => {
   position: relative;
   /* transform and transform-origin set inline via :style */
   transition: transform 0.2s ease-out;
+}
+
+.background-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.7;
 }
 
 .zoom-controls {
