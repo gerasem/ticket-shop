@@ -236,7 +236,7 @@ const handleMouseLeave = () => {
   font-size: 13px;
   font-weight: 500;
   font-family: inherit;
-  background-color: #bdbdbd;
+  background-color: var(--color-text-secondary);
   cursor: pointer;
   transition: border-color 0.25s;
 }

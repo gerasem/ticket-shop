@@ -247,9 +247,9 @@ if (isOpen.value) {
 }
 
 .modal-container {
-  background: #2a2a2a;
+  background: var(--color-bg-modal);
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--color-border-light);
   width: 90%;
   max-width: 600px;
   max-height: 80vh;
@@ -263,19 +263,19 @@ if (isOpen.value) {
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--color-border-light);
 }
 
 .modal-header h2 {
   margin: 0;
   font-size: 1.25rem;
-  color: #42b983;
+  color: var(--color-accent);
 }
 
 .close-btn {
   background: none;
   border: none;
-  color: #aaa;
+  color: var(--color-text-tertiary);
   font-size: 1.5rem;
   cursor: pointer;
   padding: 0;
@@ -289,8 +289,8 @@ if (isOpen.value) {
 }
 
 .close-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
+  background: var(--color-border-light);
+  color: var(--color-text-white);
 }
 
 .modal-content {
@@ -307,8 +307,8 @@ if (isOpen.value) {
 }
 
 .type-card {
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--color-bg-input);
+  border: 1px solid var(--color-border-light);
   border-radius: 8px;
   padding: 1rem;
   display: flex;
@@ -324,15 +324,15 @@ if (isOpen.value) {
 
 .type-field label {
   font-size: 0.75rem;
-  color: #aaa;
+  color: var(--color-text-tertiary);
   text-transform: uppercase;
   font-weight: 500;
 }
 
 .type-input {
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: white;
+  background: var(--color-bg-input);
+  border: 1px solid var(--color-border-light);
+  color: var(--color-text-white);
   padding: 0.5rem;
   border-radius: 4px;
   font-size: 0.9rem;
@@ -340,7 +340,7 @@ if (isOpen.value) {
 
 .type-input:focus {
   outline: none;
-  border-color: #42b983;
+  border-color: var(--color-accent);
 }
 
 .type-field-row {
@@ -358,7 +358,7 @@ if (isOpen.value) {
 .color-picker {
   width: 50px;
   height: 38px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--color-border-light);
   border-radius: 4px;
   cursor: pointer;
   background: transparent;
@@ -366,9 +366,9 @@ if (isOpen.value) {
 
 .color-text {
   flex: 1;
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: white;
+  background: var(--color-bg-input);
+  border: 1px solid var(--color-border-light);
+  color: var(--color-text-white);
   padding: 0.5rem;
   border-radius: 4px;
   font-size: 0.9rem;
@@ -376,9 +376,9 @@ if (isOpen.value) {
 }
 
 .delete-type-btn {
-  background: rgba(239, 68, 68, 0.2);
-  color: #ef4444;
-  border: 1px solid rgba(239, 68, 68, 0.5);
+  background: var(--color-danger-light);
+  color: var(--color-danger);
+  border: 1px solid var(--color-danger-strong);
   padding: 0.5rem;
   border-radius: 4px;
   cursor: pointer;
@@ -388,7 +388,7 @@ if (isOpen.value) {
 }
 
 .delete-type-btn:hover:not(:disabled) {
-  background: rgba(239, 68, 68, 0.3);
+  background: var(--color-danger-medium);
 }
 
 .delete-type-btn:disabled {
@@ -398,9 +398,9 @@ if (isOpen.value) {
 
 .add-type-btn {
   width: 100%;
-  background: rgba(66, 185, 131, 0.2);
-  color: #42b983;
-  border: 1px dashed rgba(66, 185, 131, 0.5);
+  background: var(--color-accent-light);
+  color: var(--color-accent);
+  border: 1px dashed var(--color-accent-strong);
   padding: 0.75rem;
   border-radius: 8px;
   cursor: pointer;
@@ -410,7 +410,7 @@ if (isOpen.value) {
 }
 
 .add-type-btn:hover {
-  background: rgba(66, 185, 131, 0.3);
+  background: var(--color-accent-medium);
   border-style: solid;
 }
 
@@ -419,13 +419,13 @@ if (isOpen.value) {
   justify-content: flex-end;
   gap: 0.75rem;
   padding: 1.5rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid var(--color-border-light);
 }
 
 .cancel-btn {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--color-border-light);
+  color: var(--color-text-white);
+  border: 1px solid var(--color-border-medium);
   padding: 0.5rem 1.5rem;
   border-radius: 4px;
   cursor: pointer;
@@ -434,12 +434,12 @@ if (isOpen.value) {
 }
 
 .cancel-btn:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--color-border-medium);
 }
 
 .save-btn {
-  background: #42b983;
-  color: white;
+  background: var(--color-accent);
+  color: var(--color-text-white);
   border: none;
   padding: 0.5rem 1.5rem;
   border-radius: 4px;
@@ -450,7 +450,7 @@ if (isOpen.value) {
 }
 
 .save-btn:hover {
-  background: #38a171;
+  background: var(--color-accent-hover);
 }
 
 /* Transition */

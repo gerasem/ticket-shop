@@ -1057,7 +1057,7 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
 .main-toolbar {
   width: 60px;
   flex-shrink: 0;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--color-bg-panel);
   border-radius: 8px;
   padding: 1rem 0;
   display: flex;
@@ -1071,7 +1071,7 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
 .sidebar {
   width: 160px; /* Wider for properties */
   flex-shrink: 0;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--color-bg-panel);
   border-radius: 8px;
   padding: 1rem;
   display: flex;
@@ -1084,7 +1084,7 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
 .sidebar-header h3 {
   margin: 0;
   font-size: 1rem;
-  color: #42b983;
+  color: var(--color-accent);
   text-transform: uppercase;
   letter-spacing: 1px;
 }
@@ -1116,7 +1116,7 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
 
 .step-control-compact label {
   font-size: 0.65rem;
-  color: #aaa;
+  color: var(--color-text-tertiary);
   text-transform: uppercase;
   line-height: 1;
 }
@@ -1127,7 +1127,7 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
   align-items: center;
   gap: 0.5rem;
   margin-top: 0.5rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid var(--color-border-light);
   padding-top: 0.5rem;
   width: 100%;
 }
@@ -1136,8 +1136,8 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
 
 .clear-btn {
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #aaa;
+  border: 1px solid var(--color-border-medium);
+  color: var(--color-text-tertiary);
   padding: 2px 8px;
   border-radius: 4px;
   font-size: 0.7rem;
@@ -1147,8 +1147,8 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
 }
 
 .clear-btn:hover {
-  border-color: #ef4444;
-  color: #ef4444;
+  border-color: var(--color-danger);
+  color: var(--color-danger);
 }
 
 .action-btn {
@@ -1163,15 +1163,15 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
 }
 
 .delete-btn {
-  background: rgba(239, 68, 68, 0.2);
-  color: #ef4444;
-  color: #42b983;
-  border: 1px solid rgba(66, 185, 131, 0.5);
+  background: var(--color-danger-light);
+  color: var(--color-danger);
+  color: var(--color-accent);
+  border: 1px solid var(--color-accent-strong);
   margin-top: 0.5rem;
 }
 
 .recalc-btn:hover {
-  background: rgba(66, 185, 131, 0.4);
+  background: var(--color-accent-medium);
 }
 
 /* Footer / Help */
@@ -1187,9 +1187,9 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--color-border-light);
   border: none;
-  color: #aaa;
+  color: var(--color-text-tertiary);
   font-weight: bold;
   cursor: help;
   display: flex;
@@ -1201,7 +1201,7 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
 
 .help-btn:hover {
   background: rgba(255, 255, 255, 0.2);
-  color: white;
+  color: var(--color-text-white);
 }
 
 .help-tooltip {
@@ -1210,13 +1210,13 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
   left: 100%;
   bottom: 0;
   margin-left: 10px;
-  background: rgba(0, 0, 0, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--color-bg-tooltip);
+  border: 1px solid var(--color-border-light);
   padding: 1rem;
   border-radius: 6px;
   width: 180px;
   z-index: 100;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--shadow-tooltip);
   font-size: 0.8rem;
   text-align: left;
 }
@@ -1227,7 +1227,7 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
 
 .help-tooltip p {
   margin: 0 0 0.5rem 0;
-  color: #42b983;
+  color: var(--color-accent);
 }
 
 .help-tooltip ul {
@@ -1238,7 +1238,7 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
 
 .help-tooltip li {
   margin-bottom: 0.25rem;
-  color: #ccc;
+  color: var(--color-text-muted);
   line-height: 1.3;
 }
 
@@ -1246,9 +1246,9 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
 
 .step-input {
   width: 36px;
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: white;
+  background: var(--color-bg-input);
+  border: 1px solid var(--color-border-light);
+  color: var(--color-text-white);
   padding: 2px 0;
   border-radius: 4px;
   text-align: center;
@@ -1279,10 +1279,10 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
 .arrow-btn {
   width: 30px;
   height: 30px;
-  background: #42b983;
+  background: var(--color-accent);
   border: none;
   border-radius: 4px;
-  color: white;
+  color: var(--color-text-white);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -1292,7 +1292,7 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
 }
 
 .arrow-btn:hover {
-  background: #3aa876;
+  background: var(--color-accent-hover);
 }
 
 .arrow-btn:active {
@@ -1302,7 +1302,7 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
 /* Admin Specific Seat Styles */
 .seat {
   cursor: pointer;
-  background: #9b59b6;
+  background: var(--color-seat-admin);
 }
 
 .cursor-grab :deep(.seats-grid),
@@ -1330,7 +1330,7 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
 
 .settings-group label {
   font-size: 0.7rem;
-  color: #aaa;
+  color: var(--color-text-tertiary);
   text-transform: uppercase;
 }
 
@@ -1340,10 +1340,10 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
 .preview-seat {
   opacity: 0.5;
   background: #42b983 !important;
-  border: 2px dashed #42b983;
+  border: 2px dashed var(--color-accent);
   pointer-events: none;
   font-size: 16px;
-  color: white;
+  color: var(--color-text-white);
 }
 
 /* Price Editing Styles */
@@ -1351,7 +1351,7 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
   width: 100%;
   margin-top: 0.75rem;
   padding-top: 0.75rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid var(--color-border-light);
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -1366,13 +1366,13 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
 
 .current-price label {
   font-size: 0.65rem;
-  color: #aaa;
+  color: var(--color-text-tertiary);
   text-transform: uppercase;
 }
 
 .price-value {
   font-size: 0.9rem;
-  color: #42b983;
+  color: var(--color-accent);
   font-weight: bold;
 }
 
@@ -1385,15 +1385,15 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
 
 .price-input-group label {
   font-size: 0.65rem;
-  color: #aaa;
+  color: var(--color-text-tertiary);
   text-transform: uppercase;
 }
 
 .price-input {
   width: 100%;
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: white;
+  background: var(--color-bg-input);
+  border: 1px solid var(--color-border-light);
+  color: var(--color-text-white);
   padding: 4px 6px;
   border-radius: 4px;
   font-size: 0.8rem;
@@ -1401,19 +1401,19 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
 }
 
 .price-input:focus {
-  border-color: #42b983;
+  border-color: var(--color-accent);
   outline: none;
 }
 
 .price-btn {
-  background: rgba(66, 185, 131, 0.2);
-  color: #42b983;
-  border: 1px solid rgba(66, 185, 131, 0.5);
+  background: var(--color-accent-light);
+  color: var(--color-accent);
+  border: 1px solid var(--color-accent-strong);
   margin-top: 0.25rem;
 }
 
 .price-btn:hover {
-  background: rgba(66, 185, 131, 0.4);
+  background: var(--color-accent-medium);
 }
 
 /* Select All Button */
@@ -1422,24 +1422,24 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
 }
 
 .select-all-btn {
-  background: rgba(66, 185, 131, 0.2);
-  color: #42b983;
-  border: 1px solid rgba(66, 185, 131, 0.5);
+  background: var(--color-accent-light);
+  color: var(--color-accent);
+  border: 1px solid var(--color-accent-strong);
 }
 
 .select-all-btn:hover {
-  background: rgba(66, 185, 131, 0.4);
+  background: var(--color-accent-medium);
 }
 
 .manage-types-btn {
-  background: rgba(66, 185, 131, 0.2);
-  color: #42b983;
-  border: 1px solid rgba(66, 185, 131, 0.5);
+  background: var(--color-accent-light);
+  color: var(--color-accent);
+  border: 1px solid var(--color-accent-strong);
   width: 100%;
 }
 
 .manage-types-btn:hover {
-  background: rgba(66, 185, 131, 0.4);
+  background: var(--color-accent-medium);
 }
 
 /* Curvature Controls */
@@ -1455,9 +1455,9 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
+  border: 1px solid var(--color-border-medium);
+  background: var(--color-border-light);
+  color: var(--color-text-white);
   cursor: pointer;
   font-size: 1.6rem;
   font-weight: bold;
@@ -1470,8 +1470,8 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
 }
 
 .curvature-btn:hover:not(:disabled) {
-  background: rgba(66, 185, 131, 0.5);
-  border-color: #42b983;
+  background: var(--color-accent-strong);
+  border-color: var(--color-accent);
 }
 
 .curvature-btn:active:not(:disabled) {
@@ -1485,7 +1485,7 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
 
 .curvature-value {
   font-size: 1rem;
-  color: #42b983;
+  color: var(--color-accent);
   min-width: 45px;
   text-align: center;
   font-weight: 600;
@@ -1499,12 +1499,12 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
   gap: 0.25rem;
   margin-top: 0.5rem;
   padding-top: 0.5rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid var(--color-border-light);
 }
 
 .rotation-controls label {
   font-size: 0.65rem;
-  color: #aaa;
+  color: var(--color-text-tertiary);
   text-transform: uppercase;
 }
 
@@ -1517,9 +1517,9 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
+  border: 1px solid var(--color-border-medium);
+  background: var(--color-border-light);
+  color: var(--color-text-white);
   cursor: pointer;
   font-size: 1.6rem;
   transition: all 0.2s;
@@ -1531,8 +1531,8 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
 }
 
 .rotate-btn:hover {
-  background: rgba(66, 185, 131, 0.5);
-  border-color: #42b983;
+  background: var(--color-accent-strong);
+  border-color: var(--color-accent);
 }
 
 .rotate-btn:active {
@@ -1545,13 +1545,13 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
 .settings-divider {
   width: 100%;
   height: 1px;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--color-border-light);
   margin: 1rem 0;
 }
 
 .settings-subtitle {
   font-size: 0.75rem;
-  color: #42b983;
+  color: var(--color-accent);
   text-transform: uppercase;
   font-weight: bold;
   margin-bottom: 0.5rem;
@@ -1578,9 +1578,9 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
 }
 
 .settings-input {
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: white;
+  background: var(--color-bg-input);
+  border: 1px solid var(--color-border-light);
+  color: var(--color-text-white);
   padding: 4px 6px;
   border-radius: 4px;
   font-size: 0.8rem;
@@ -1595,16 +1595,16 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
 }
 
 .current-type-info .label {
-  color: #aaa;
+  color: var(--color-text-tertiary);
 }
 
 .current-type-info .value {
-  color: #42b983;
+  color: var(--color-accent);
   font-weight: bold;
 }
 
 .settings-input:focus {
-  border-color: #42b983;
+  border-color: var(--color-accent);
   outline: none;
 }
 
@@ -1622,10 +1622,10 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
   justify-content: center;
   gap: 0.5rem;
   padding: 8px 12px;
-  background: rgba(66, 185, 131, 0.2);
-  border: 1px solid rgba(66, 185, 131, 0.5);
+  background: var(--color-accent-light);
+  border: 1px solid var(--color-accent-strong);
   border-radius: 6px;
-  color: #42b983;
+  color: var(--color-accent);
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
@@ -1634,15 +1634,15 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
 }
 
 .upload-button:hover {
-  background: rgba(66, 185, 131, 0.4);
-  border-color: #42b983;
+  background: var(--color-accent-medium);
+  border-color: var(--color-accent);
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(66, 185, 131, 0.3);
+  box-shadow: 0 2px 8px var(--color-accent-medium);
 }
 
 .upload-button:active {
   transform: translateY(0);
-  box-shadow: 0 1px 4px rgba(66, 185, 131, 0.2);
+  box-shadow: 0 1px 4px var(--color-accent-light);
 }
 
 .upload-icon {

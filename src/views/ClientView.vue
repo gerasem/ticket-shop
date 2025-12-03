@@ -155,7 +155,7 @@ const getSeatTypeClass = (seat: any) => {
 
 .client-view {
   padding: 2rem;
-  background: #1a1a1a;
+  background: var(--color-bg-primary);
   min-height: 100vh;
   color: white;
 }
@@ -177,7 +177,7 @@ const getSeatTypeClass = (seat: any) => {
   display: flex;
   align-items: center;
   gap: 1.5rem;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--color-bg-panel);
   padding: 0.75rem 1.5rem;
   border-radius: 8px;
   font-size: 0.85rem;
@@ -199,16 +199,16 @@ const getSeatTypeClass = (seat: any) => {
 .legend-separator {
   width: 1px;
   height: 20px;
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--color-border-medium);
   margin: 0 0.25rem;
 }
 
 .legend-color.booked {
-  background: #ef4444; /* Red for booked */
+  background: var(--color-danger); /* Red for booked */
 }
 
 .legend-color.selected {
-  background: #42b983; /* Green for selected - accent color */
+  background: var(--color-accent); /* Green for selected - accent color */
 }
 
 
@@ -246,28 +246,28 @@ const getSeatTypeClass = (seat: any) => {
 
 /* Type-based colors for FREE seats */
 .seat.free.type-standard {
-  background: #4a5568; /* Gray - default */
+  background: var(--color-seat-standard); /* Gray - default */
 }
 
 .seat.free.type-premium {
-  background: #3b82f6; /* Blue */
+  background: var(--color-seat-premium); /* Blue */
 }
 
 .seat.free.type-vip {
-  background: #f59e0b; /* Gold */
+  background: var(--color-seat-vip); /* Gold */
 }
 
 /* Legend colors matching seat types */
 .legend-color.type-standard {
-  background: #4a5568;
+  background: var(--color-seat-standard);
 }
 
 .legend-color.type-premium {
-  background: #3b82f6;
+  background: var(--color-seat-premium);
 }
 
 .legend-color.type-vip {
-  background: #f59e0b;
+  background: var(--color-seat-vip);
 }
 
 /* Booked seats - red */
@@ -279,7 +279,7 @@ const getSeatTypeClass = (seat: any) => {
 /* Selected seats - green accent */
 .seat.readyToBook {
   background: #42b983 !important;
-  box-shadow: 0 0 15px #42b983;
+  box-shadow: 0 0 15px var(--color-accent);
 }
 
 
@@ -292,14 +292,14 @@ const getSeatTypeClass = (seat: any) => {
   transform: translateX(-50%);
   margin-bottom: 8px;
   padding: 8px 12px;
-  background: rgba(0, 0, 0, 0.95);
+  background: var(--color-bg-tooltip);
   border-radius: 6px;
   white-space: nowrap;
   font-size: 12px;
   z-index: 1000;
   pointer-events: none;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: var(--shadow-tooltip);
+  border: 1px solid var(--color-border-light);
 }
 
 .seat:hover .seat-tooltip {
@@ -307,21 +307,21 @@ const getSeatTypeClass = (seat: any) => {
 }
 
 .row-number {
-  color: #42b983;
+  color: var(--color-accent);
   font-weight: bold;
 }
 
 .seat-separator {
   margin: 0 6px;
-  color: #666;
+  color: var(--color-text-muted);
 }
 
 .seat-number {
-  color: #fff;
+  color: var(--color-text-white);
 }
 
 .price-info {
-  color: #f39c12;
+  color: var(--color-seat-price);
   font-weight: bold;
   font-size: 13px;
 }
@@ -329,7 +329,7 @@ const getSeatTypeClass = (seat: any) => {
 /* Shopping Cart */
 .shopping-cart {
   width: 250px;
-  background: #2a2a2a;
+  background: var(--color-bg-secondary);
   padding: 1.5rem;
   border-radius: 12px;
   height: fit-content;
@@ -347,13 +347,13 @@ const getSeatTypeClass = (seat: any) => {
 .shopping-cart h3 {
   margin: 0;
   font-size: 1.1rem;
-  color: #42b983;
+  color: var(--color-accent);
 }
 
 .clear-cart-btn {
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #888;
+  border: 1px solid var(--color-border-medium);
+  color: var(--color-text-tertiary);
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   font-size: 0.75rem;
@@ -363,13 +363,13 @@ const getSeatTypeClass = (seat: any) => {
 }
 
 .clear-cart-btn:hover {
-  background: rgba(239, 68, 68, 0.2);
-  border-color: rgba(239, 68, 68, 0.5);
-  color: #ef4444;
+  background: var(--color-danger-light);
+  border-color: var(--color-danger-strong);
+  color: var(--color-danger);
 }
 
 .empty-cart {
-  color: #888;
+  color: var(--color-text-tertiary);
   font-style: italic;
   text-align: center;
   padding: 2rem 0;
@@ -389,7 +389,7 @@ const getSeatTypeClass = (seat: any) => {
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--color-bg-panel);
   border-radius: 6px;
   font-size: 0.9rem;
   gap: 0.5rem;
@@ -400,7 +400,7 @@ const getSeatTypeClass = (seat: any) => {
 }
 
 .cart-seat-label {
-  color: #42b983;
+  color: var(--color-accent);
   font-weight: 500;
   display: block;
 }
@@ -412,13 +412,13 @@ const getSeatTypeClass = (seat: any) => {
 }
 
 .cart-seat-price {
-  color: #f39c12;
+  color: var(--color-seat-price);
 }
 
 .remove-seat-btn {
   background: transparent;
   border: none;
-  color: #888;
+  color: var(--color-text-tertiary);
   font-size: 1rem;
   cursor: pointer;
   padding: 0.25rem;
@@ -432,20 +432,20 @@ const getSeatTypeClass = (seat: any) => {
 }
 
 .remove-seat-btn:hover {
-  background: rgba(239, 68, 68, 0.2);
-  color: #ef4444;
+  background: var(--color-danger-light);
+  color: var(--color-danger);
 }
 
 .cart-total {
   display: flex;
   justify-content: space-between;
   padding-top: 1rem;
-  border-top: 2px solid rgba(255, 255, 255, 0.1);
+  border-top: 2px solid var(--color-border-light);
   font-size: 1.1rem;
 }
 
 .total-price {
-  color: #42b983;
+  color: var(--color-accent);
   font-size: 1.3rem;
 }
 </style>
