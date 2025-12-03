@@ -1,9 +1,10 @@
 ﻿<script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed, toRef, watch } from 'vue';
+import { ref, onMounted, computed, toRef, watch } from 'vue';
 import { useVenueStore } from '../stores/venue';
 import { useVenueEditor } from '../composables/useVenueEditor';
 import { useGeometry, type Point } from '../composables/useGeometry';
 import { usePrice } from '../composables/usePrice';
+import { useKeyboardControls } from '../composables/useKeyboardControls';
 import VenueGrid from '../components/VenueGrid.vue';
 import SeatTypeModal from '../components/SeatTypeModal.vue';
 import ToolBar from '../components/ToolBar.vue';
@@ -202,35 +203,6 @@ const applyCurvature = () => {
 };
 
 
-// Keyboard event handler
-const handleKeydown = (event: KeyboardEvent) => {
-  if (selectedSeats.value.size === 0 && !isStageSelected.value) return;
-  
-  // Prevent default scrolling for arrow keys
-  if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
-    event.preventDefault();
-  }
-
-  switch (event.key) {
-    case 'ArrowUp':
-      moveSelection(0, -1);
-      break;
-    case 'ArrowDown':
-      moveSelection(0, 1);
-      break;
-    case 'ArrowLeft':
-      moveSelection(-1, 0);
-      break;
-    case 'ArrowRight':
-      moveSelection(1, 0);
-      break;
-    case 'Delete':
-    case 'Backspace':
-      deleteSelectedSeats();
-      break;
-  }
-};
-
 // Watch activeTool and clear selection when switching away from select tool
 watch(activeTool, (newTool, oldTool) => {
   // Clear selection when switching from select to any other tool
@@ -241,11 +213,6 @@ watch(activeTool, (newTool, oldTool) => {
 
 onMounted(() => {
   venueStore.loadVenue();
-  window.addEventListener('keydown', handleKeydown);
-});
-
-onUnmounted(() => {
-  window.removeEventListener('keydown', handleKeydown);
 });
 
 // Helper to get seats grid container
@@ -449,6 +416,13 @@ const updateSelectedSeatsType = (typeId: string) => {
   // Clear selection after updating type
   clearSelection();
 };
+
+// Setup keyboard controls after function declarations
+useKeyboardControls({
+  enabled: computed(() => selectedSeats.value.size > 0 || isStageSelected.value),
+  onArrowKey: moveSelection,
+  onDelete: deleteSelectedSeats
+});
 
 const recalculateRows = () => {
   if (!venueStore.currentVenue) return;
