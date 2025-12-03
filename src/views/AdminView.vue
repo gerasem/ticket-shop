@@ -9,6 +9,8 @@ import VenueGrid from '../components/VenueGrid.vue';
 import SeatTypeModal from '../components/SeatTypeModal.vue';
 import ToolBar from '../components/ToolBar.vue';
 import type { Seat, SeatType } from '../services/mockData';
+import type { VenueObject } from '../types/venueObjects';
+import { OBJECT_TEMPLATES } from '../types/venueObjects';
 
 const venueStore = useVenueStore();
 
@@ -81,8 +83,7 @@ const areaStart = ref<Point>({ x: 0, y: 0 });
 const areaEnd = ref<Point>({ x: 0, y: 0 });
 
 // Tool state
-// Tool state
-type Tool = 'select' | 'pan' | 'settings' | 'add-seat' | 'background';
+type Tool = 'select' | 'pan' | 'settings' | 'add-seat' | 'background' | 'objects';
 const activeTool = ref<Tool>('pan');
 
 // Panning state
@@ -97,6 +98,13 @@ const backgroundMoveStep = ref(10);
 
 // Modal state
 const showTypeModal = ref(false);
+
+// Objects tool state
+const selectedObjectId = ref<string | null>(null);
+const isDraggingObject = ref(false);
+const objectDragStart = ref<Point>({ x: 0, y: 0 });
+const objectTemplates = OBJECT_TEMPLATES;
+
 
 // Background image handlers
 const handleBackgroundUpload = (event: Event) => {
@@ -657,6 +665,100 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
   toggleSeatSelection(seatId);
 };
 
+// Objects tool handlers
+const addObjectFromTemplate = (templateType: VenueObject['type'], x: number, y: number) => {
+  if (!venueStore.currentVenue) return;
+  
+  const template = objectTemplates.find(t => t.type === templateType);
+  if (!template) return;
+  
+  const newObject: VenueObject = {
+    id: `object-${Date.now()}`,
+    type: templateType,
+    x,
+    y,
+    width: template.defaultWidth,
+    height: template.defaultHeight,
+    rotation: 0,
+    label: template.label,
+    attachedSeatIds: []
+  };
+  
+  if (!venueStore.currentVenue.objects) {
+    venueStore.currentVenue.objects = [];
+  }
+  
+  venueStore.currentVenue.objects.push(newObject);
+  selectedObjectId.value = newObject.id;
+};
+
+const handleObjectClick = (objectId: string, event: MouseEvent) => {
+  event.stopPropagation();
+  selectedObjectId.value = objectId;
+};
+
+const handleObjectDragStart = (objectId: string, event: MouseEvent) => {
+  if (activeTool.value !== 'objects') return;
+  
+  selectedObjectId.value = objectId;
+  isDraggingObject.value = true;
+  objectDragStart.value = { x: event.clientX, y: event.clientY };
+  
+  event.preventDefault();
+};
+
+const handleObjectDragMove = (event: MouseEvent) => {
+  if (!isDraggingObject.value || !selectedObjectId.value || !venueStore.currentVenue) return;
+  
+  const dx = event.clientX - objectDragStart.value.x;
+  const dy = event.clientY - objectDragStart.value.y;
+  
+  const object = venueStore.currentVenue.objects?.find(o => o.id === selectedObjectId.value);
+  if (object) {
+    object.x += dx;
+    object.y += dy;
+  }
+  
+  objectDragStart.value = { x: event.clientX, y: event.clientY };
+};
+
+const handleObjectDragEnd = () => {
+  isDraggingObject.value = false;
+};
+
+const deleteSelectedObject = () => {
+  if (!selectedObjectId.value || !venueStore.currentVenue) return;
+  
+  if (venueStore.currentVenue.objects) {
+    venueStore.currentVenue.objects = venueStore.currentVenue.objects.filter(
+      o => o.id !== selectedObjectId.value
+    );
+  }
+  
+  selectedObjectId.value = null;
+};
+
+const updateObjectProperty = (property: keyof VenueObject, value: any) => {
+  if (!selectedObjectId.value || !venueStore.currentVenue) return;
+  
+  const object = venueStore.currentVenue.objects?.find(o => o.id === selectedObjectId.value);
+  if (object) {
+    (object as any)[property] = value;
+  }
+};
+
+const getSelectedObject = computed(() => {
+  if (!selectedObjectId.value || !venueStore.currentVenue) return null;
+  return venueStore.currentVenue.objects?.find(o => o.id === selectedObjectId.value) || null;
+});
+
+// Clear object selection when switching tools
+watch(activeTool, (newTool) => {
+  if (newTool !== 'objects') {
+    selectedObjectId.value = null;
+  }
+});
+
 </script>
 
 <template>
@@ -678,7 +780,7 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
       <div class="sidebar">
         <!-- Tool Title -->
         <div class="sidebar-header">
-          <h3>{{ activeTool === 'pan' ? 'Pan' : activeTool === 'select' ? 'Select' : activeTool === 'add-seat' ? 'Add Seat' : 'Settings' }}</h3>
+          <h3>{{ activeTool === 'pan' ? 'Pan' : activeTool === 'select' ? 'Select' : activeTool === 'add-seat' ? 'Add Seat' : activeTool === 'background' ? 'Background' : activeTool === 'objects' ? 'Objects' : 'Settings' }}</h3>
         </div>
 
         <!-- Settings Section -->
@@ -879,6 +981,103 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
         </div>
 
 
+        <!-- Objects Tool Section -->
+        <div v-if="activeTool === 'objects'" class="sidebar-section objects-section">
+          <!-- Object Templates -->
+          <div class="objects-templates">
+            <div class="settings-subtitle">Add Object</div>
+            <div 
+              v-for="template in objectTemplates" 
+              :key="template.type"
+              class="object-template-item"
+              @click="addObjectFromTemplate(template.type, 100, 100)"
+            >
+              <span class="object-icon">{{ template.icon }}</span>
+              <span class="object-label">{{ template.label }}</span>
+            </div>
+          </div>
+
+          <!-- Selected Object Settings -->
+          <div v-if="getSelectedObject" class="settings-divider"></div>
+          <div v-if="getSelectedObject" class="object-settings">
+            <div class="settings-subtitle">Object Settings</div>
+            
+            <!-- Label -->
+            <div class="settings-group">
+              <label>Label</label>
+              <input 
+                type="text" 
+                :value="getSelectedObject.label"
+                @input="updateObjectProperty('label', ($event.target as HTMLInputElement).value)"
+                class="settings-input"
+              />
+            </div>
+
+            <!-- Width & Height -->
+            <div class="settings-row">
+              <div class="settings-group">
+                <label>Width (px)</label>
+                <input 
+                  type="number" 
+                  :value="getSelectedObject.width"
+                  @input="updateObjectProperty('width', Number(($event.target as HTMLInputElement).value))"
+                  class="settings-input"
+                  min="20"
+                  max="500"
+                />
+              </div>
+              
+              <div class="settings-group">
+                <label>Height (px)</label>
+                <input 
+                  type="number" 
+                  :value="getSelectedObject.height"
+                  @input="updateObjectProperty('height', Number(($event.target as HTMLInputElement).value))"
+                  class="settings-input"
+                  min="20"
+                  max="500"
+                />
+              </div>
+            </div>
+
+            <!-- Rotation -->
+            <div class="settings-group">
+              <label>Rotation (°)</label>
+              <div class="curvature-controls">
+                <button 
+                  class="curvature-btn" 
+                  @click="updateObjectProperty('rotation', getSelectedObject.rotation - 15)"
+                >↶</button>
+                <span class="curvature-value">{{ getSelectedObject.rotation }}°</span>
+                <button 
+                  class="curvature-btn" 
+                  @click="updateObjectProperty('rotation', getSelectedObject.rotation + 15)"
+                >↷</button>
+              </div>
+            </div>
+
+            <!-- Delete Button -->
+            <div class="settings-group">
+              <button class="action-btn delete-btn" @click="deleteSelectedObject">
+                Delete Object
+              </button>
+            </div>
+          </div>
+
+          <!-- Help Text -->
+          <div v-if="!getSelectedObject" class="settings-divider"></div>
+          <div v-if="!getSelectedObject" style="padding: 10px; font-size: 0.75rem; color: var(--color-text-tertiary);">
+            <p style="margin: 0 0 8px 0;"><strong>Objects Tool</strong></p>
+            <ul style="margin: 0; padding-left: 20px;">
+              <li>Click template to add object</li>
+              <li>Click object to select</li>
+              <li>Drag object to move</li>
+              <li>Adjust properties in panel</li>
+            </ul>
+          </div>
+        </div>
+
+
         <!-- Select All Section (when select tool is active) -->
         <div v-if="activeTool === 'select'" class="sidebar-section select-all-section">
           <button class="action-btn select-all-btn" @click="selectAllSeats">
@@ -983,6 +1182,7 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
       <VenueGrid 
         :venue="venueStore.currentVenue"
         :enable-label-selection="activeTool === 'select'"
+        :hide-seats="activeTool === 'objects'"
         :class="{ 
           'cursor-grab': activeTool === 'pan',
           'cursor-add': activeTool === 'add-seat'
@@ -992,6 +1192,10 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
         @mousemove="handleMouseMoveForPreview"
         @row-click="selectRow"
         @col-click="selectColumn"
+        @object-click="handleObjectClick"
+        @object-mousedown="handleObjectDragStart"
+        @object-mousemove="handleObjectDragMove"
+        @object-mouseup="handleObjectDragEnd"
       >
         <template #overlay>
           <div 
@@ -1652,5 +1856,52 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
 
 .upload-text {
   line-height: 1;
+}
+
+/* Objects Tool Styles */
+.objects-section {
+  width: 100%;
+  padding: 0 0.25rem;
+}
+
+.objects-templates {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.object-template-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: var(--color-bg-input);
+  border: 1px solid var(--color-border-light);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.object-template-item:hover {
+  background: var(--color-accent-light);
+  border-color: var(--color-accent);
+}
+
+.object-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.object-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-text-white);
+}
+
+.object-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
 }
 </style>

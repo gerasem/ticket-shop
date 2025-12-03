@@ -6,6 +6,7 @@ import { useVenueEditor } from '../composables/useVenueEditor';
 const props = defineProps<{
   venue: Venue;
   enableLabelSelection?: boolean; // Enable row/column selection by clicking labels
+  hideSeats?: boolean; // Hide seats when using objects tool
 }>();
 
 const emit = defineEmits<{
@@ -159,11 +160,39 @@ const handleMouseLeave = () => {
               }"
             />
 
+            <!-- Objects Layer (between background and seats) -->
+            <div 
+              v-for="obj in venue.objects" 
+              :key="obj.id"
+              class="venue-object"
+              :style="{
+                position: 'absolute',
+                left: obj.x + 'px',
+                top: obj.y + 'px',
+                width: obj.width + 'px',
+                height: obj.height + 'px',
+                transform: `rotate(${obj.rotation}deg)`,
+                backgroundColor: obj.type === 'stage' ? '#555555' : obj.type === 'wall' ? '#2c3e50' : '#8b4513',
+                borderRadius: obj.type === 'table-round' ? '50%' : '4px',
+                zIndex: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'white',
+                fontSize: '0.85rem',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                userSelect: 'none'
+              }"
+            >
+              <span>{{ obj.label }}</span>
+            </div>
+
             <!-- Overlay Slot (for selection rectangle) -->
             <slot name="overlay"></slot>
 
             <!-- Seats -->
-            <template v-for="seat in venue.seats" :key="seat.id">
+            <template v-if="!hideSeats" v-for="seat in venue.seats" :key="seat.id">
               <slot name="seat" :seat="seat"></slot>
             </template>
           </div>

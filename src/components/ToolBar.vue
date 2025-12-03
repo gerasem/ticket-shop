@@ -1,5 +1,5 @@
 <script setup lang="ts">
-type Tool = 'select' | 'pan' | 'settings' | 'add-seat' | 'background';
+type Tool = 'select' | 'pan' | 'settings' | 'add-seat' | 'background' | 'objects';
 
 defineProps<{
   activeTool: Tool;
@@ -52,6 +52,14 @@ const emit = defineEmits<{
       title="Background"
     >
       <span class="tool-icon">🖼️</span>
+    </button>
+    <button 
+      class="tool-btn" 
+      :class="{ active: activeTool === 'objects' }"
+      @click="emit('update:activeTool', 'objects')"
+      title="Objects"
+    >
+      <span class="tool-icon">📦</span>
     </button>
   </div>
 </template>

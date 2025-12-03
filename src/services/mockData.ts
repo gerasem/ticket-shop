@@ -51,6 +51,17 @@ export interface Venue {
     y: number;            // Vertical position in pixels
     rotation: number;     // Rotation in degrees
   };
+  objects?: Array<{
+    id: string;
+    type: 'stage' | 'table-round' | 'table-rect' | 'wall';
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    rotation: number;
+    label?: string;
+    attachedSeatIds?: string[];
+  }>;
 }
 
 export const generateMockVenue = (): Venue => {
