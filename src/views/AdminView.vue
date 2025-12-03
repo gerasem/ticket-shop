@@ -234,10 +234,6 @@ const toggleSeatSelection = (seatId: string) => {
   }
 };
 
-const setSingleSelection = (seatId: string) => {
-  clearSelection();
-  selectedSeats.value.add(seatId);
-};
 
 // Select all seats (toggle: if all selected, deselect all)
 const selectAllSeats = () => {
@@ -481,18 +477,6 @@ const recalculateRows = () => {
   });
 };
 
-const migrateData = () => {
-  if (!venueStore.currentVenue) return;
-  
-  // Remove label field from all seats and run recalculate
-  venueStore.currentVenue.seats.forEach(seat => {
-    delete (seat as any).label;
-  });
-  
-  recalculateRows();
-  
-  alert('Data migrated successfully! Old label fields removed and row/place values recalculated based on position.');
-};
 
 const handleStageMouseDown = (event?: MouseEvent) => {
   if (activeTool.value === 'pan' && event) {
