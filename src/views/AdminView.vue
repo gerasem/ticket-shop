@@ -1242,20 +1242,7 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
   line-height: 1.3;
 }
 
-.step-control-compact {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-}
 
-.step-control-compact label {
-  font-size: 0.65rem;
-  color: #aaa;
-  text-transform: uppercase;
-  line-height: 1;
-}
 
 .step-input {
   width: 36px;
