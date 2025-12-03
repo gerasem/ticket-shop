@@ -7,6 +7,7 @@ const props = defineProps<{
   venue: Venue;
   enableLabelSelection?: boolean; // Enable row/column selection by clicking labels
   hideSeats?: boolean; // Hide seats when using objects tool
+  selectedObjectId?: string | null; // Currently selected object ID
 }>();
 
 const emit = defineEmits<{
@@ -165,6 +166,7 @@ const handleMouseLeave = () => {
               v-for="obj in venue.objects" 
               :key="obj.id"
               class="venue-object"
+              @click.stop="emit('object-click', obj.id, $event)"
               :style="{
                 position: 'absolute',
                 left: obj.x + 'px',

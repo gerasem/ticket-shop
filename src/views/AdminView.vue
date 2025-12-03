@@ -598,6 +598,16 @@ const handleCanvasMouseDown = (event: MouseEvent) => {
     return;
   }
 
+  // Objects tool: deselect when clicking empty space
+  if (activeTool.value === 'objects') {
+    const target = event.target as HTMLElement;
+    // Only deselect if clicking on the grid itself, not on an object
+    if (!target.classList.contains('venue-object')) {
+      selectedObjectId.value = null;
+    }
+    return;
+  }
+
   const target = event.target as HTMLElement;
   
   // If we clicked a seat, do nothing (let the seat's own handlers work)
@@ -983,8 +993,8 @@ watch(activeTool, (newTool) => {
 
         <!-- Objects Tool Section -->
         <div v-if="activeTool === 'objects'" class="sidebar-section objects-section">
-          <!-- Object Templates -->
-          <div class="objects-templates">
+          <!-- Object Templates (show only when nothing is selected) -->
+          <div v-if="!getSelectedObject" class="objects-templates">
             <div class="settings-subtitle">Add Object</div>
             <div 
               v-for="template in objectTemplates" 
@@ -997,8 +1007,7 @@ watch(activeTool, (newTool) => {
             </div>
           </div>
 
-          <!-- Selected Object Settings -->
-          <div v-if="getSelectedObject" class="settings-divider"></div>
+          <!-- Selected Object Settings (show only when object is selected) -->
           <div v-if="getSelectedObject" class="object-settings">
             <div class="settings-subtitle">Object Settings</div>
             
@@ -1056,23 +1065,25 @@ watch(activeTool, (newTool) => {
               </div>
             </div>
 
-            <!-- Delete Button -->
+            <!-- Delete and Deselect Buttons -->
             <div class="settings-group">
               <button class="action-btn delete-btn" @click="deleteSelectedObject">
                 Delete Object
               </button>
+              <button class="clear-btn" @click="selectedObjectId = null" style="margin-top: 0.5rem;">
+                Deselect
+              </button>
             </div>
           </div>
 
-          <!-- Help Text -->
+          <!-- Help Text (show only when nothing is selected) -->
           <div v-if="!getSelectedObject" class="settings-divider"></div>
           <div v-if="!getSelectedObject" style="padding: 10px; font-size: 0.75rem; color: var(--color-text-tertiary);">
             <p style="margin: 0 0 8px 0;"><strong>Objects Tool</strong></p>
             <ul style="margin: 0; padding-left: 20px;">
               <li>Click template to add object</li>
-              <li>Click object to select</li>
-              <li>Drag object to move</li>
-              <li>Adjust properties in panel</li>
+              <li>Click object to select & edit</li>
+              <li>Click empty space to deselect</li>
             </ul>
           </div>
         </div>
