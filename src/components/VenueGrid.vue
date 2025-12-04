@@ -9,6 +9,8 @@ const props = defineProps<{
   transparentSeats?: boolean; // Make seats semi-transparent when using objects tool
   selectedObjectId?: string | null; // Currently selected object ID
   activeTool?: string; // Current active tool
+  showLeftRowLabels?: boolean; // Show row labels on the left
+  showRightRowLabels?: boolean; // Show row labels on the right
 }>();
 
 const emit = defineEmits<{
@@ -119,7 +121,10 @@ const handleMouseLeave = () => {
 
         <div class="seating-area">
           <!-- Left row labels -->
-          <div class="row-labels row-labels-left">
+          <div 
+            v-if="showLeftRowLabels !== false"
+            class="row-labels row-labels-left"
+          >
             <div 
               v-for="row in venueEditor.getRows.value" 
               :key="'left-' + row"
@@ -160,30 +165,36 @@ const handleMouseLeave = () => {
                 top: obj.y + 'px',
                 width: obj.width + 'px',
                 height: obj.height + 'px',
-                transform: `rotate(${obj.rotation}deg)`,
-                backgroundColor: obj.type === 'stage' ? '#555555' : obj.type === 'wall' ? '#2c3e50' : '#8b4513',
-                borderRadius: obj.type === 'table-round' ? '50%' : '4px',
-                zIndex: 0,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'white',
-                fontSize: '0.85rem',
-                fontWeight: 'bold',
-                cursor: 'pointer',
-                userSelect: 'none'
+                transform: `rotate(${obj.rotation || 0}deg)`
               }"
             >
-              <span>{{ obj.label }}</span>
+              <div class="object-content" :class="obj.type">
+                {{ obj.label || obj.type }}
+              </div>
             </div>
 
             <!-- Overlay Slot (for selection rectangle) -->
             <slot name="overlay"></slot>
 
-            <!-- Seats -->
-            <template v-for="seat in venue.seats" :key="seat.id">
-              <slot name="seat" :seat="seat"></slot>
-            </template>
+            <!-- Seats Slot -->
+            <slot name="seat" v-for="seat in venue.seats" :seat="seat"></slot>
+          </div>
+
+          <!-- Right row labels -->
+          <div 
+            v-if="showRightRowLabels"
+            class="row-labels-right"
+          >
+            <div 
+              v-for="row in venueEditor.getRows.value" 
+              :key="'right-' + row"
+              class="row-label"
+              :class="{ 'clickable': enableLabelSelection }"
+              :style="{ top: venueEditor.getRowY(row) + 'px' }"
+              @click="enableLabelSelection && emit('row-click', row)"
+            >
+              {{ row }}
+            </div>
           </div>
         </div>
       </div>
@@ -201,7 +212,6 @@ const handleMouseLeave = () => {
 
 .venue-wrapper {
   overflow: auto;
-  max-height: 80vh;
   border: 2px solid var(--color-border);
   border-radius: 8px;
   background: var(--color-bg-primary);

@@ -105,6 +105,10 @@ const isDraggingObject = ref(false);
 const objectDragStart = ref<Point>({ x: 0, y: 0 });
 const objectTemplates = OBJECT_TEMPLATES;
 
+// Row labels visibility
+const showLeftRowLabels = ref(true);
+const showRightRowLabels = ref(false);
+
 
 // Background image handlers
 const handleBackgroundUpload = (event: Event) => {
@@ -940,6 +944,26 @@ watch(activeTool, (newTool) => {
             </div>
           </div>
           
+          <!-- Row Labels Visibility -->
+          <div class="settings-divider"></div>
+          <div class="settings-subtitle">Row Labels</div>
+          
+          <div class="settings-row">
+            <div class="settings-group checkbox-group">
+              <label>
+                <input type="checkbox" v-model="showLeftRowLabels">
+                Left Labels
+              </label>
+            </div>
+            
+            <div class="settings-group checkbox-group">
+              <label>
+                <input type="checkbox" v-model="showRightRowLabels">
+                Right Labels
+              </label>
+            </div>
+          </div>
+          
           <!-- Manage Seat Types Button -->
           <div class="settings-divider"></div>
           <div class="settings-group">
@@ -1269,6 +1293,9 @@ watch(activeTool, (newTool) => {
         :enable-label-selection="activeTool === 'select'"
         :transparent-seats="activeTool === 'objects'"
         :selected-object-id="selectedObjectId"
+        :active-tool="activeTool"
+        :show-left-row-labels="showLeftRowLabels"
+        :show-right-row-labels="showRightRowLabels"
         :class="{ 
           'cursor-grab': activeTool === 'pan',
           'cursor-add': activeTool === 'add-seat'
