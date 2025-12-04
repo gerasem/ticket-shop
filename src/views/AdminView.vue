@@ -326,6 +326,13 @@ const moveSelection = (dx: number, dy: number) => {
   if (isStageSelected.value && venueStore.currentVenue) {
     venueStore.currentVenue.stage.x += stepX;
     venueStore.currentVenue.stage.y += stepY;
+  } else if (selectedObjectId.value && venueStore.currentVenue) {
+    // Move selected object
+    const object = venueStore.currentVenue.objects?.find(o => o.id === selectedObjectId.value);
+    if (object) {
+      object.x += stepX;
+      object.y += stepY;
+    }
   } else {
     selectedSeats.value.forEach(seatId => {
       const seat = venueEditor.findSeatById(seatId);
@@ -341,6 +348,15 @@ const moveSelection = (dx: number, dy: number) => {
 const rotateAngle = 15; // Degrees per click
 
 const rotateClockwise = () => {
+  // Rotate selected object
+  if (selectedObjectId.value && venueStore.currentVenue) {
+    const object = venueStore.currentVenue.objects?.find(o => o.id === selectedObjectId.value);
+    if (object) {
+      object.rotation = ((object.rotation || 0) + rotateAngle) % 360;
+    }
+    return;
+  }
+  
   if (selectedSeats.value.size === 0) return;
   
   // Find center of selected seats
@@ -368,6 +384,15 @@ const rotateClockwise = () => {
 };
 
 const rotateCounterClockwise = () => {
+  // Rotate selected object
+  if (selectedObjectId.value && venueStore.currentVenue) {
+    const object = venueStore.currentVenue.objects?.find(o => o.id === selectedObjectId.value);
+    if (object) {
+      object.rotation = ((object.rotation || 0) - rotateAngle + 360) % 360;
+    }
+    return;
+  }
+  
   if (selectedSeats.value.size === 0) return;
   
   // Find center of selected seats
@@ -394,10 +419,18 @@ const rotateCounterClockwise = () => {
   });
 };
 
-const deleteSelectedSeats = () => {
-  if (!venueStore.currentVenue || selectedSeats.value.size === 0) return;
+const deleteSelection = () => {
+  if (!venueStore.currentVenue) return;
   
-  // Filter out selected seats
+  // Delete selected object
+  if (selectedObjectId.value) {
+    deleteSelectedObject();
+    return;
+  }
+  
+  // Delete selected seats
+  if (selectedSeats.value.size === 0) return;
+  
   venueStore.currentVenue.seats = venueStore.currentVenue.seats.filter(
     seat => !selectedSeats.value.has(seat.id)
   );
@@ -423,9 +456,9 @@ const updateSelectedSeatsType = (typeId: string) => {
 
 // Setup keyboard controls after function declarations
 useKeyboardControls({
-  enabled: computed(() => selectedSeats.value.size > 0 || isStageSelected.value),
+  enabled: computed(() => selectedSeats.value.size > 0 || isStageSelected.value || selectedObjectId.value !== null),
   onArrowKey: moveSelection,
-  onDelete: deleteSelectedSeats
+  onDelete: deleteSelection
 });
 
 const recalculateRows = () => {
@@ -1065,6 +1098,31 @@ watch(activeTool, (newTool) => {
               </div>
             </div>
 
+            <!-- Movement Controls -->
+            <div class="settings-group">
+              <label>Movement</label>
+              <div class="movement-controls">
+                <div class="arrow-grid">
+                  <button class="arrow-btn" @click="moveSelection(0, -1)">↑</button>
+                  <div class="arrow-row">
+                    <button class="arrow-btn" @click="moveSelection(-1, 0)">←</button>
+                    <div class="step-control">
+                      <label>STEP</label>
+                      <input 
+                        type="number" 
+                        v-model.number="moveStep" 
+                        class="step-input"
+                        min="1"
+                        max="100"
+                      />
+                    </div>
+                    <button class="arrow-btn" @click="moveSelection(1, 0)">→</button>
+                  </div>
+                  <button class="arrow-btn" @click="moveSelection(0, 1)">↓</button>
+                </div>
+              </div>
+            </div>
+
             <!-- Delete and Deselect Buttons -->
             <div class="settings-group">
               <button class="action-btn delete-btn" @click="deleteSelectedObject">
@@ -1490,6 +1548,60 @@ watch(activeTool, (newTool) => {
   display: flex;
   gap: 4px;
   align-items: center;
+}
+
+.movement-controls {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.5rem;
+}
+
+.arrow-grid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.arrow-row {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.step-control {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-width: 50px;
+}
+
+.step-control label {
+  font-size: 0.6rem;
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.step-input {
+  width: 48px;
+  background: var(--color-bg-input);
+  border: 1px solid var(--color-border-light);
+  color: var(--color-text-white);
+  padding: 4px 2px;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 0.8rem;
+  /* Hide spinner buttons for number input */
+  -moz-appearance: textfield;
+}
+
+.step-input::-webkit-outer-spin-button,
+.step-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 .arrow-btn {
