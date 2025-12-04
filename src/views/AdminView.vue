@@ -1251,7 +1251,7 @@ watch(activeTool, (newTool) => {
       <VenueGrid 
         :venue="venueStore.currentVenue"
         :enable-label-selection="activeTool === 'select'"
-        :hide-seats="activeTool === 'objects'"
+        :transparent-seats="activeTool === 'objects'"
         :selected-object-id="selectedObjectId"
         :class="{ 
           'cursor-grab': activeTool === 'pan',
@@ -1293,7 +1293,8 @@ watch(activeTool, (newTool) => {
           <div
             class="seat"
             :class="{ 
-              selected: selectedSeats.has(seat.id)
+              selected: selectedSeats.has(seat.id),
+              transparent: activeTool === 'objects'
             }"
             :style="{ 
               left: seat.x + 'px', 
@@ -1637,6 +1638,11 @@ watch(activeTool, (newTool) => {
 
 .seat.selected {
   box-shadow: 0 0 0 3px var(--color-accent);
+}
+
+.seat.transparent {
+  opacity: 0.2;
+  pointer-events: none; /* Disable interaction when transparent */
 }
 
 .cursor-grab :deep(.seats-grid),

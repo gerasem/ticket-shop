@@ -6,7 +6,7 @@ import { useVenueEditor } from '../composables/useVenueEditor';
 const props = defineProps<{
   venue: Venue;
   enableLabelSelection?: boolean; // Enable row/column selection by clicking labels
-  hideSeats?: boolean; // Hide seats when using objects tool
+  transparentSeats?: boolean; // Make seats semi-transparent when using objects tool
   selectedObjectId?: string | null; // Currently selected object ID
 }>();
 
@@ -196,7 +196,7 @@ const handleMouseLeave = () => {
             <slot name="overlay"></slot>
 
             <!-- Seats -->
-            <template v-if="!hideSeats" v-for="seat in venue.seats" :key="seat.id">
+            <template v-for="seat in venue.seats" :key="seat.id">
               <slot name="seat" :seat="seat"></slot>
             </template>
           </div>
@@ -291,11 +291,10 @@ const handleMouseLeave = () => {
   text-align: center;
   font-variant-numeric: tabular-nums;
 }
-</style>
 
-<style>
 /* Selected object highlighting - not scoped to work with dynamic elements */
 .venue-object.selected {
+  z-index: 2!important;
   box-shadow: 0 0 0 3px var(--color-accent) !important;
 }
 </style>
