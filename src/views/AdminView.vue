@@ -1151,7 +1151,23 @@ watch(activeTool, (newTool) => {
         <div v-if="activeTool === 'select'" class="sidebar-section select-all-section">
           <button class="action-btn select-all-btn" @click="selectAllSeats">
             Select All Seats
-          </button>        </div>
+          </button>
+          
+          <!-- Selected Seats Controls -->
+          <div v-if="selectedSeats.size > 0" style="margin-top: 1rem;">
+            <div class="settings-divider"></div>
+            <div class="settings-subtitle">Selected: {{ selectedSeats.size }} seat(s)</div>
+            
+            <div class="settings-group">
+              <button class="action-btn delete-btn" @click="deleteSelection">
+                Delete Selected
+              </button>
+              <button class="clear-btn" @click="clearSelection" style="margin-top: 0.5rem;">
+                Deselect All
+              </button>
+            </div>
+          </div>
+        </div>
 
         <!-- Help: Select tool with no seats selected -->
         <div v-if="activeTool === 'select' && selectedSeats.size === 0" style="padding: 10px; font-size: 0.75rem; color: #aaa;">
