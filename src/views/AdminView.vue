@@ -1194,6 +1194,7 @@ watch(activeTool, (newTool) => {
         :venue="venueStore.currentVenue"
         :enable-label-selection="activeTool === 'select'"
         :hide-seats="activeTool === 'objects'"
+        :selected-object-id="selectedObjectId"
         :class="{ 
           'cursor-grab': activeTool === 'pan',
           'cursor-add': activeTool === 'add-seat'
@@ -1518,6 +1519,10 @@ watch(activeTool, (newTool) => {
 .seat {
   cursor: pointer;
   background: var(--color-seat-admin);
+}
+
+.seat.selected {
+  box-shadow: 0 0 0 3px var(--color-accent);
 }
 
 .cursor-grab :deep(.seats-grid),

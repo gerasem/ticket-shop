@@ -15,6 +15,7 @@ const emit = defineEmits<{
   (e: 'stage-mousedown', event: MouseEvent): void;
   (e: 'row-click', row: number): void;
   (e: 'col-click', col: number): void;
+  (e: 'object-click', objectId: string, event: MouseEvent): void;
 }>();
 
 const venueEditor = useVenueEditor(toRef(props, 'venue'));
@@ -163,9 +164,11 @@ const handleMouseLeave = () => {
 
             <!-- Objects Layer (between background and seats) -->
             <div 
+              :title="obj.id + ' ' + selectedObjectId"
               v-for="obj in venue.objects" 
               :key="obj.id"
               class="venue-object"
+              :class="{ selected: selectedObjectId === obj.id }"
               @click.stop="emit('object-click', obj.id, $event)"
               :style="{
                 position: 'absolute',
@@ -288,6 +291,13 @@ const handleMouseLeave = () => {
   min-width: 40px;
   text-align: center;
   font-variant-numeric: tabular-nums;
+}
+</style>
+
+<style>
+/* Selected object highlighting - not scoped to work with dynamic elements */
+.venue-object.selected {
+  box-shadow: 0 0 0 3px var(--color-accent) !important;
 }
 </style>
 
