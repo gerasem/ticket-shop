@@ -1319,7 +1319,7 @@ watch(activeTool, (newTool) => {
               ...getSeatStyle(seat)
             }"
             :title="`Row: ${seat.row}, Place: ${seat.place} | Type: ${getSeatType(seat)?.name || 'Unknown'} | Price: ${formatPrice(getSeatType(seat)?.priceInCents || 0)}`"
-            @mousedown="(e) => { if (activeTool === 'select') { e.stopPropagation(); toggleSeatSelection(seat.id); } }"
+            @mousedown="(e) => { if (activeTool !== 'pan') { e.stopPropagation(); } if (activeTool === 'select') { toggleSeatSelection(seat.id); } }"
           >
           </div>
         </template>
