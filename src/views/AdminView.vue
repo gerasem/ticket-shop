@@ -1321,6 +1321,7 @@ watch(activeTool, (newTool) => {
             :title="`Row: ${seat.row}, Place: ${seat.place} | Type: ${getSeatType(seat)?.name || 'Unknown'} | Price: ${formatPrice(getSeatType(seat)?.priceInCents || 0)}`"
             @mousedown="(e) => { if (activeTool !== 'pan') { e.stopPropagation(); } if (activeTool === 'select') { toggleSeatSelection(seat.id); } }"
           >
+            {{ seat.place }}
           </div>
         </template>
       </VenueGrid>
@@ -1650,6 +1651,13 @@ watch(activeTool, (newTool) => {
   cursor: pointer;
   background: var(--color-seat-admin);
   z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .seat.selected {

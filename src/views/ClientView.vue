@@ -92,6 +92,7 @@ const getSeatTypeClass = (seat: any) => {
             :style="{ left: seat.x + 'px', top: seat.y + 'px' }"
             @click="handleSeatClick(seat.id)"
           >
+            <span class="seat-number-display">{{ seat.place }}</span>
             <span class="seat-tooltip">
               <span class="row-number">Row {{ seat.row }}</span>
               <span class="seat-separator">·</span>
@@ -282,6 +283,13 @@ const getSeatTypeClass = (seat: any) => {
   box-shadow: 0 0 15px var(--color-accent);
 }
 
+/* Seat number display inside seat */
+.seat-number-display {
+  font-size: 12px;
+  font-weight: 600;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
 
 
 .seat-tooltip {

@@ -116,22 +116,6 @@ const handleMouseLeave = () => {
           @mousedown.stop="emit('stage-mousedown', $event)"
         >SCREEN / STAGE</div>
         
-        <!-- Top column labels -->
-        <div class="column-labels-container">
-          <div class="column-spacer"></div>
-          <div class="column-labels">
-            <div 
-              v-for="col in venueEditor.getColumns.value" 
-              :key="'top-' + col"
-              class="column-label"
-              :class="{ 'clickable': enableLabelSelection }"
-              :style="{ left: venueEditor.getColX(col) + 'px' }"
-              @click="enableLabelSelection && emit('col-click', col)"
-            >
-              {{ col }}
-            </div>
-          </div>
-        </div>
 
         <div class="seating-area">
           <!-- Left row labels -->
