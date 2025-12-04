@@ -1298,6 +1298,7 @@ watch(activeTool, (newTool) => {
             :style="{ 
               left: seat.x + 'px', 
               top: seat.y + 'px',
+              zIndex: 1,
               ...getSeatStyle(seat)
             }"
             :title="`Row: ${seat.row}, Place: ${seat.place} | Type: ${getSeatType(seat)?.name || 'Unknown'} | Price: ${formatPrice(getSeatType(seat)?.priceInCents || 0)}`"
@@ -1631,6 +1632,7 @@ watch(activeTool, (newTool) => {
 .seat {
   cursor: pointer;
   background: var(--color-seat-admin);
+  z-index: 1;
 }
 
 .seat.selected {

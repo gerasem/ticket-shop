@@ -164,7 +164,6 @@ const handleMouseLeave = () => {
 
             <!-- Objects Layer (between background and seats) -->
             <div 
-              :title="obj.id + ' ' + selectedObjectId"
               v-for="obj in venue.objects" 
               :key="obj.id"
               class="venue-object"
@@ -179,7 +178,7 @@ const handleMouseLeave = () => {
                 transform: `rotate(${obj.rotation}deg)`,
                 backgroundColor: obj.type === 'stage' ? '#555555' : obj.type === 'wall' ? '#2c3e50' : '#8b4513',
                 borderRadius: obj.type === 'table-round' ? '50%' : '4px',
-                zIndex: 1,
+                zIndex: 0,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
