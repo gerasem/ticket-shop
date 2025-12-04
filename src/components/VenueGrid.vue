@@ -8,6 +8,7 @@ const props = defineProps<{
   enableLabelSelection?: boolean; // Enable row/column selection by clicking labels
   transparentSeats?: boolean; // Make seats semi-transparent when using objects tool
   selectedObjectId?: string | null; // Currently selected object ID
+  activeTool?: string; // Current active tool
 }>();
 
 const emit = defineEmits<{
@@ -168,7 +169,7 @@ const handleMouseLeave = () => {
               :key="obj.id"
               class="venue-object"
               :class="{ selected: selectedObjectId === obj.id }"
-              @click.stop="emit('object-click', obj.id, $event)"
+              @click="(e) => { if (activeTool !== 'pan') { e.stopPropagation(); emit('object-click', obj.id, e); } }"
               :style="{
                 position: 'absolute',
                 left: obj.x + 'px',
