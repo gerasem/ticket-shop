@@ -32,12 +32,6 @@ export interface Venue {
   seats: Seat[];
   seatTypes: SeatType[]; // Available seat types
   curvature: number; // 0-100, percentage of arc curvature towards stage
-  stage: {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-  };
   defaultSeatStyle: {
     color: string;        // Background color (hex)
     width: number;        // Width in pixels
@@ -129,12 +123,18 @@ export const generateMockVenue = (): Venue => {
       }
     ],
     curvature: 0, // Default: straight rows
-    stage: {
-      x: 100,
-      y: 20,
-      width: 600,
-      height: 40
-    },
+    objects: [
+      {
+        id: 'stage-1',
+        type: 'stage',
+        x: 100,
+        y: 20,
+        width: 600,
+        height: 40,
+        rotation: 0,
+        label: 'SCREEN / STAGE'
+      }
+    ],
     defaultSeatStyle: {
       color: '#4a5568',     // Default gray
       width: 30,

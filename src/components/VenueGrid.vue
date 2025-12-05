@@ -15,7 +15,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'grid-mousedown', event: MouseEvent): void;
-  (e: 'stage-mousedown', event: MouseEvent): void;
+
   (e: 'row-click', row: number): void;
   (e: 'col-click', col: number): void;
   (e: 'object-click', objectId: string, event: MouseEvent): void;
@@ -106,17 +106,7 @@ const handleMouseLeave = () => {
           height: venue.height + 'px'
         }"
       >
-        <div 
-          v-if="venue.stage"
-          class="stage"
-          :style="{
-            left: venue.stage.x + 'px',
-            top: venue.stage.y + 'px',
-            width: venue.stage.width + 'px',
-            height: venue.stage.height + 'px'
-          }"
-          @mousedown.stop="emit('stage-mousedown', $event)"
-        >SCREEN / STAGE</div>
+
         
 
         <div class="seating-area">

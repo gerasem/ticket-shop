@@ -22,7 +22,6 @@ const { formatPrice } = usePrice();
 
 // Edit mode state
 const selectedSeats = ref<Set<string>>(new Set());
-const isStageSelected = ref(false);
 
 // Movement state
 const moveStep = ref(10);
@@ -142,18 +141,6 @@ const moveBackground = (dx: number, dy: number) => {
   }
 };
 
-const rotateBackground = (delta: number) => {
-  if (venueStore.currentVenue?.backgroundImage) {
-    venueStore.currentVenue.backgroundImage.rotation += delta;
-  }
-};
-
-const removeBackground = () => {
-  if (venueStore.currentVenue) {
-    venueStore.currentVenue.backgroundImage = undefined;
-  }
-};
-
 // Handle seat types update from modal
 const handleTypesUpdate = (types: SeatType[]) => {
   if (venueStore.currentVenue) {
@@ -236,7 +223,6 @@ const getSeatsGridContainer = (): HTMLElement | null => {
 // Selection management
 const clearSelection = () => {
   selectedSeats.value.clear();
-  isStageSelected.value = false;
 };
 
 const toggleSeatSelection = (seatId: string) => {
@@ -328,10 +314,7 @@ const moveSelection = (dx: number, dy: number) => {
   const stepX = dx * moveStep.value;
   const stepY = dy * moveStep.value;
 
-  if (isStageSelected.value && venueStore.currentVenue) {
-    venueStore.currentVenue.stage.x += stepX;
-    venueStore.currentVenue.stage.y += stepY;
-  } else if (selectedObjectId.value && venueStore.currentVenue) {
+  if (selectedObjectId.value && venueStore.currentVenue) {
     // Move selected object
     const object = venueStore.currentVenue.objects?.find(o => o.id === selectedObjectId.value);
     if (object) {
@@ -524,14 +507,7 @@ const recalculateRows = () => {
 };
 
 
-const handleStageMouseDown = (event?: MouseEvent) => {
-  if (activeTool.value === 'pan' && event) {
-    startPanning(event);
-    return;
-  }
-  clearSelection();
-  isStageSelected.value = true;
-};
+
 
 const handleMouseMoveForPreview = (event: MouseEvent) => {
   if (activeTool.value !== 'add-seat') {
@@ -709,9 +685,22 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
     return;
   }
 
-  // Always toggle selection (multi-select by default)
-  toggleSeatSelection(seatId);
+  if (activeTool.value !== 'objects') return;
+  
+  selectedObjectId.value = objectId;
+  isDraggingObject.value = true;
+  objectDragStart.value = { x: event.clientX, y: event.clientY };
+  
+  event.preventDefault();
 };
+
+
+// Clear object selection when switching tools
+watch(activeTool, (newTool) => {
+  if (newTool !== 'objects') {
+    selectedObjectId.value = null;
+  }
+});
 
 // Objects tool handlers
 const addObjectFromTemplate = (templateType: VenueObject['type'], x: number, y: number) => {
@@ -806,7 +795,6 @@ watch(activeTool, (newTool) => {
     selectedObjectId.value = null;
   }
 });
-
 </script>
 
 <template>
@@ -1225,7 +1213,7 @@ watch(activeTool, (newTool) => {
         </div>
 
         <!-- Movement Section (Conditional) -->
-        <div v-if="(selectedSeats.size > 0 || isStageSelected) && activeTool === 'select'" class="sidebar-section movement-section">
+        <div v-if="selectedSeats.size > 0 && activeTool === 'select'" class="sidebar-section movement-section">
           <div class="movement-controls-vertical">
             
             <!-- Arrow Controls -->
@@ -1246,7 +1234,7 @@ watch(activeTool, (newTool) => {
             </div>
 
             <!-- Rotation Controls -->
-            <div class="rotation-controls" v-if="!isStageSelected">
+            <div class="rotation-controls">
               <label>Rotate</label>
               <div class="rotation-buttons">
                 <button class="rotate-btn" @click="rotateCounterClockwise" title="Rotate Counter-Clockwise">↶</button>
@@ -1256,13 +1244,12 @@ watch(activeTool, (newTool) => {
 
             <!-- Selection Info (Vertical) -->
             <div class="selection-info-vertical">
-              <span class="selected-count" v-if="isStageSelected">Stage Selected</span>
-              <span class="selected-count" v-else>Selected: {{ selectedSeats.size }}</span>
+              <span class="selected-count">Selected: {{ selectedSeats.size }}</span>
               <button class="action-btn delete-btn" @click="deleteSelection">Delete</button>
               <button class="clear-btn" @click="clearSelection">Clear Selection</button>
               
               <!-- Type Selection (only for seats, not stage) -->
-              <div v-if="!isStageSelected && selectedSeats.size > 0" class="settings-group type-edit-section">
+              <div v-if="selectedSeats.size > 0" class="settings-group type-edit-section">
                 <div class="settings-subtitle">Seat Type</div>
                 
                 <div class="current-type-info" v-if="currentType">
@@ -1302,7 +1289,7 @@ watch(activeTool, (newTool) => {
           'cursor-add': activeTool === 'add-seat'
         }"
         @grid-mousedown="handleCanvasMouseDown"
-        @stage-mousedown="handleStageMouseDown"
+
         @mousemove="handleMouseMoveForPreview"
         @row-click="selectRow"
         @col-click="selectColumn"
