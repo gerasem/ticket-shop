@@ -1,12 +1,14 @@
 export interface VenueObject {
   id: string;
-  type: 'stage' | 'table-round' | 'table-rect' | 'wall';
+  type: 'stage' | 'table-round' | 'table-rect' | 'wall' | 'text';
   x: number;
   y: number;
   width: number;
   height: number;
   rotation: number; // degrees
   label?: string;
+  color?: string;
+  fontSize?: number;
   attachedSeatIds?: string[]; // For future seat binding
 }
 
@@ -51,5 +53,13 @@ export const OBJECT_TEMPLATES: ObjectTemplate[] = [
     label: 'Wall',
     icon: 'minus',
     color: '#2c3e50'
+  },
+  {
+    type: 'text',
+    defaultWidth: 100,
+    defaultHeight: 30,
+    label: 'Text',
+    icon: 'text',
+    color: '#000000'
   }
 ];

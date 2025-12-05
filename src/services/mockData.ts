@@ -1,3 +1,5 @@
+import type { VenueObject } from '../types/venueObjects';
+
 export interface SeatType {
   id: string;
   name: string;
@@ -45,17 +47,7 @@ export interface Venue {
     y: number;            // Vertical position in pixels
     rotation: number;     // Rotation in degrees
   };
-  objects?: Array<{
-    id: string;
-    type: 'stage' | 'table-round' | 'table-rect' | 'wall';
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-    rotation: number;
-    label?: string;
-    attachedSeatIds?: string[];
-  }>;
+  objects?: VenueObject[];
 }
 
 export const generateMockVenue = (): Venue => {

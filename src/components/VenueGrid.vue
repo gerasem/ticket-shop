@@ -153,13 +153,20 @@ const handleMouseLeave = () => {
                 position: 'absolute',
                 left: obj.x + 'px',
                 top: obj.y + 'px',
-                width: obj.width + 'px',
-                height: obj.height + 'px',
+                width: obj.type === 'text' ? 'auto' : obj.width + 'px',
+                height: obj.type === 'text' ? 'auto' : obj.height + 'px',
                 transform: `rotate(${obj.rotation || 0}deg)`
               }"
             >
-              <div class="object-content" :class="obj.type">
-                {{ obj.label || obj.type }}
+              <div 
+                class="object-content" 
+                :class="obj.type"
+                :style="obj.type === 'text' ? { 
+                  color: obj.color || '#000000',
+                  fontSize: (obj.fontSize || 16) + 'px'
+                } : {}"
+              >
+                {{ obj.label || (obj.type === 'text' ? 'Text' : obj.type) }}
               </div>
             </div>
 

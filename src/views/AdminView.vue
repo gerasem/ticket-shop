@@ -684,14 +684,11 @@ const handleSeatClick = (seatId: string, event: MouseEvent) => {
     startPanning(event);
     return;
   }
-
-  if (activeTool.value !== 'objects') return;
   
-  selectedObjectId.value = objectId;
-  isDraggingObject.value = true;
-  objectDragStart.value = { x: event.clientX, y: event.clientY };
-  
-  event.preventDefault();
+  // Normal seat selection logic
+  if (activeTool.value === 'select') {
+    toggleSeatSelection(seatId);
+  }
 };
 
 
@@ -1069,7 +1066,7 @@ watch(activeTool, (newTool) => {
             </div>
 
             <!-- Width & Height -->
-            <div class="settings-row">
+            <div class="settings-row" v-if="getSelectedObject.type !== 'text'">
               <div class="settings-group">
                 <label>Width (px)</label>
                 <input 
@@ -1094,20 +1091,38 @@ watch(activeTool, (newTool) => {
                 />
               </div>
             </div>
-
             <!-- Rotation -->
             <div class="settings-group">
               <label>Rotation (°)</label>
               <div class="curvature-controls">
-                <button 
-                  class="curvature-btn" 
-                  @click="updateObjectProperty('rotation', getSelectedObject.rotation - 15)"
-                ><IconImage name="rotate-ccw" size="20px" /></button>
-                <span class="curvature-value">{{ getSelectedObject.rotation }}°</span>
-                <button 
-                  class="curvature-btn" 
-                  @click="updateObjectProperty('rotation', getSelectedObject.rotation + 15)"
-                ><IconImage name="rotate-cw" size="20px" /></button>
+                <button class="curvature-btn" @click="updateObjectProperty('rotation', ((getSelectedObject.rotation || 0) - 15 + 360) % 360)"><IconImage name="rotate-ccw" size="20px" /></button>
+                <span class="curvature-value">{{ getSelectedObject.rotation || 0 }}°</span>
+                <button class="curvature-btn" @click="updateObjectProperty('rotation', ((getSelectedObject.rotation || 0) + 15) % 360)"><IconImage name="rotate-cw" size="20px" /></button>
+              </div>
+            </div>
+
+            <!-- Text Specific Settings -->
+            <div v-if="getSelectedObject.type === 'text'" class="text-settings">
+              <div class="settings-group">
+                <label>Font Size (px)</label>
+                <input 
+                  type="number" 
+                  :value="getSelectedObject.fontSize || 16"
+                  @input="updateObjectProperty('fontSize', Number(($event.target as HTMLInputElement).value))"
+                  class="settings-input"
+                  min="8"
+                  max="72"
+                />
+              </div>
+              
+              <div class="settings-group">
+                <label>Color</label>
+                <input 
+                  type="color" 
+                  :value="getSelectedObject.color || '#000000'"
+                  @input="updateObjectProperty('color', ($event.target as HTMLInputElement).value)"
+                  class="settings-input color-input"
+                />
               </div>
             </div>
 

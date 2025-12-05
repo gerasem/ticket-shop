@@ -263,3 +263,18 @@ h1 {
   border-radius: 2px;
 }
 
+
+.object-content.text {
+  background: transparent;
+  border: 1px dashed transparent; /* Invisible border for selection area */
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.venue-object.selected .object-content.text {
+  border-color: #42b983;
+  background: rgba(66, 185, 131, 0.1);
+}
+
