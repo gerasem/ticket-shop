@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import type { Venue, SeatType } from '../services/mockData';
+import IconImage from './ui/IconImage.vue';
 
 const props = defineProps<{
   modelValue: boolean;
@@ -118,7 +119,7 @@ if (isOpen.value) {
           <!-- Header -->
           <div class="modal-header">
             <h2>Manage Seat Types</h2>
-            <button class="close-btn" @click="closeModal">✕</button>
+            <button class="close-btn" @click="closeModal"><IconImage name="x" size="20px" /></button>
           </div>
           
           <!-- Content -->

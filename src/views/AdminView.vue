@@ -11,6 +11,7 @@ import ToolBar from '../components/ToolBar.vue';
 import type { Seat, SeatType } from '../services/mockData';
 import type { VenueObject } from '../types/venueObjects';
 import { OBJECT_TEMPLATES } from '../types/venueObjects';
+import IconImage from '../components/ui/IconImage.vue';
 
 const venueStore = useVenueStore();
 
@@ -934,13 +935,13 @@ watch(activeTool, (newTool) => {
                 class="curvature-btn" 
                 @click="decreaseCurvature"
                 :disabled="venueStore.currentVenue.curvature === -100"
-              >↶</button>
+              ><IconImage name="rotate-ccw" size="20px" /></button>
               <span class="curvature-value">{{ venueStore.currentVenue.curvature }}%</span>
               <button 
                 class="curvature-btn" 
                 @click="increaseCurvature"
                 :disabled="venueStore.currentVenue.curvature === 100"
-              >↷</button>
+              ><IconImage name="rotate-cw" size="20px" /></button>
             </div>
           </div>
           
@@ -979,7 +980,7 @@ watch(activeTool, (newTool) => {
           <div class="settings-group">
             <label>Background Image</label>
             <label for="background-upload" class="upload-button">
-              <span class="upload-icon">📁</span>
+              <span class="upload-icon"><IconImage name="upload" size="18px" /></span>
               <span class="upload-text">Choose Image</span>
             </label>
             <input 
@@ -1023,16 +1024,16 @@ watch(activeTool, (newTool) => {
           <div v-if="venueStore.currentVenue?.backgroundImage" class="settings-group">
             <label>Position</label>
             <div class="arrow-buttons">
-              <button class="arrow-btn up" @click="moveBackground(0, -1)">↑</button>
+              <button class="arrow-btn up" @click="moveBackground(0, -1)"><IconImage name="arrow-up" size="18px" /></button>
               <div class="horizontal-arrows">
-                <button class="arrow-btn left" @click="moveBackground(-1, 0)">←</button>
+                <button class="arrow-btn left" @click="moveBackground(-1, 0)"><IconImage name="arrow-left" size="18px" /></button>
                 <div class="step-control-compact">
                   <label>Step</label>
                   <input type="number" v-model.number="backgroundMoveStep" min="1" class="step-input" />
                 </div>
-                <button class="arrow-btn right" @click="moveBackground(1, 0)">→</button>
+                <button class="arrow-btn right" @click="moveBackground(1, 0)"><IconImage name="arrow-right" size="18px" /></button>
               </div>
-              <button class="arrow-btn down" @click="moveBackground(0, 1)">↓</button>
+              <button class="arrow-btn down" @click="moveBackground(0, 1)"><IconImage name="arrow-down" size="18px" /></button>
             </div>
           </div>
 
@@ -1040,9 +1041,9 @@ watch(activeTool, (newTool) => {
           <div v-if="venueStore.currentVenue?.backgroundImage" class="settings-group">
             <label>Rotation</label>
             <div class="curvature-controls">
-              <button class="curvature-btn" @click="rotateBackground(-5)">↓</button>
+              <button class="curvature-btn" @click="rotateBackground(-5)"><IconImage name="rotate-ccw" size="20px" /></button>
               <span class="curvature-value">{{ venueStore.currentVenue.backgroundImage.rotation }}°</span>
-              <button class="curvature-btn" @click="rotateBackground(5)">↑</button>
+              <button class="curvature-btn" @click="rotateBackground(5)"><IconImage name="rotate-cw" size="20px" /></button>
             </div>
           </div>
         </div>
@@ -1059,7 +1060,7 @@ watch(activeTool, (newTool) => {
               class="object-template-item"
               @click="addObjectFromTemplate(template.type, 100, 100)"
             >
-              <span class="object-icon">{{ template.icon }}</span>
+              <span class="object-icon"><IconImage :name="template.icon" size="24px" /></span>
               <span class="object-label">{{ template.label }}</span>
             </div>
           </div>
@@ -1113,12 +1114,12 @@ watch(activeTool, (newTool) => {
                 <button 
                   class="curvature-btn" 
                   @click="updateObjectProperty('rotation', getSelectedObject.rotation - 15)"
-                >↶</button>
+                ><IconImage name="rotate-ccw" size="20px" /></button>
                 <span class="curvature-value">{{ getSelectedObject.rotation }}°</span>
                 <button 
                   class="curvature-btn" 
                   @click="updateObjectProperty('rotation', getSelectedObject.rotation + 15)"
-                >↷</button>
+                ><IconImage name="rotate-cw" size="20px" /></button>
               </div>
             </div>
 
@@ -1127,9 +1128,9 @@ watch(activeTool, (newTool) => {
               <label>Movement</label>
               <div class="movement-controls">
                 <div class="arrow-grid">
-                  <button class="arrow-btn" @click="moveSelection(0, -1)">↑</button>
+                  <button class="arrow-btn" @click="moveSelection(0, -1)"><IconImage name="arrow-up" size="18px" /></button>
                   <div class="arrow-row">
-                    <button class="arrow-btn" @click="moveSelection(-1, 0)">←</button>
+                    <button class="arrow-btn" @click="moveSelection(-1, 0)"><IconImage name="arrow-left" size="18px" /></button>
                     <div class="step-control">
                       <label>STEP</label>
                       <input 
@@ -1140,9 +1141,9 @@ watch(activeTool, (newTool) => {
                         max="100"
                       />
                     </div>
-                    <button class="arrow-btn" @click="moveSelection(1, 0)">→</button>
+                    <button class="arrow-btn" @click="moveSelection(1, 0)"><IconImage name="arrow-right" size="18px" /></button>
                   </div>
-                  <button class="arrow-btn" @click="moveSelection(0, 1)">↓</button>
+                  <button class="arrow-btn" @click="moveSelection(0, 1)"><IconImage name="arrow-down" size="18px" /></button>
                 </div>
               </div>
             </div>
@@ -1257,7 +1258,7 @@ watch(activeTool, (newTool) => {
             <div class="selection-info-vertical">
               <span class="selected-count" v-if="isStageSelected">Stage Selected</span>
               <span class="selected-count" v-else>Selected: {{ selectedSeats.size }}</span>
-              <button class="action-btn delete-btn" @click="deleteSelectedSeats">Delete</button>
+              <button class="action-btn delete-btn" @click="deleteSelection">Delete</button>
               <button class="clear-btn" @click="clearSelection">Clear Selection</button>
               
               <!-- Type Selection (only for seats, not stage) -->

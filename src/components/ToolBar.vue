@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import IconImage from './ui/IconImage.vue';
+
 type Tool = 'select' | 'pan' | 'settings' | 'add-seat' | 'background' | 'objects';
 
 defineProps<{
@@ -19,7 +21,7 @@ const emit = defineEmits<{
       @click="emit('update:activeTool', 'pan')"
       title="Pan Tool"
     >
-      <span class="tool-icon">✋</span>
+      <IconImage name="pan" size="24px" />
     </button>
     <button 
       class="tool-btn" 
@@ -27,7 +29,7 @@ const emit = defineEmits<{
       @click="emit('update:activeTool', 'select')"
       title="Selection Tool"
     >
-      <span class="tool-icon">⬚</span>
+      <IconImage name="select" size="24px" />
     </button>
     <button 
       class="tool-btn" 
@@ -35,7 +37,7 @@ const emit = defineEmits<{
       @click="emit('update:activeTool', 'settings')"
       title="Settings"
     >
-      <span class="tool-icon">⚙️</span>
+      <IconImage name="settings" size="24px" />
     </button>
     <button 
       class="tool-btn" 
@@ -43,7 +45,7 @@ const emit = defineEmits<{
       @click="emit('update:activeTool', 'add-seat')"
       title="Add Seat"
     >
-      <span class="tool-icon">➕</span>
+      <IconImage name="plus" size="24px" />
     </button>
     <button 
       class="tool-btn" 
@@ -51,7 +53,7 @@ const emit = defineEmits<{
       @click="emit('update:activeTool', 'background')"
       title="Background"
     >
-      <span class="tool-icon">🖼️</span>
+      <IconImage name="image" size="24px" />
     </button>
     <button 
       class="tool-btn" 
@@ -59,7 +61,7 @@ const emit = defineEmits<{
       @click="emit('update:activeTool', 'objects')"
       title="Objects"
     >
-      <span class="tool-icon">📦</span>
+      <IconImage name="box" size="24px" />
     </button>
   </div>
 </template>

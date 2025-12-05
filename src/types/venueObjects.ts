@@ -25,7 +25,7 @@ export const OBJECT_TEMPLATES: ObjectTemplate[] = [
     defaultWidth: 300,
     defaultHeight: 100,
     label: 'SCREEN / STAGE',
-    icon: '🎭',
+    icon: 'stage',
     color: '#555555'
   },
   {
@@ -33,7 +33,7 @@ export const OBJECT_TEMPLATES: ObjectTemplate[] = [
     defaultWidth: 80,
     defaultHeight: 80,
     label: 'Table',
-    icon: '⚪',
+    icon: 'circle',
     color: '#8b4513'
   },
   {
@@ -41,7 +41,7 @@ export const OBJECT_TEMPLATES: ObjectTemplate[] = [
     defaultWidth: 120,
     defaultHeight: 60,
     label: 'Table',
-    icon: '▭',
+    icon: 'square',
     color: '#8b4513'
   },
   {
@@ -49,7 +49,7 @@ export const OBJECT_TEMPLATES: ObjectTemplate[] = [
     defaultWidth: 200,
     defaultHeight: 20,
     label: 'Wall',
-    icon: '▬',
+    icon: 'minus',
     color: '#2c3e50'
   }
 ];
