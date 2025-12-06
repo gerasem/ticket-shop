@@ -14,6 +14,7 @@ import { OBJECT_TEMPLATES } from '../types/venueObjects';
 import IconImage from '../components/ui/IconImage.vue';
 import AdminVenueSettings from '../components/admin/AdminVenueSettings.vue';
 import AdminBackgroundSettings from '../components/admin/AdminBackgroundSettings.vue';
+import AdminObjectSettings from '../components/admin/AdminObjectSettings.vue';
 
 const venueStore = useVenueStore();
 
@@ -97,6 +98,7 @@ const lastMousePos = ref<Point>({ x: 0, y: 0 });
 
 // Add seat preview state
 const previewSeatPos = ref<Point | null>(null);
+
 
 
 
@@ -671,17 +673,21 @@ watch(activeTool, (newTool) => {
 });
 
 // Objects tool handlers
-const addObjectFromTemplate = (templateType: VenueObject['type'], x: number, y: number) => {
+const addObjectFromTemplate = (templateType: VenueObject['type'], x?: number, y?: number) => {
   if (!venueStore.currentVenue) return;
   
   const template = objectTemplates.find(t => t.type === templateType);
   if (!template) return;
   
+  // Default to center of view or a fixed position if x/y not provided
+  const defaultX = 100;
+  const defaultY = 100;
+
   const newObject: VenueObject = {
     id: `object-${Date.now()}`,
     type: templateType,
-    x,
-    y,
+    x: x ?? defaultX,
+    y: y ?? defaultY,
     width: template.defaultWidth,
     height: template.defaultHeight,
     rotation: 0,
@@ -811,144 +817,16 @@ watch(activeTool, (newTool) => {
 
 
         <!-- Objects Tool Section -->
-        <div v-if="activeTool === 'objects'" class="sidebar-section objects-section">
-          <!-- Object Templates (show only when nothing is selected) -->
-          <div v-if="!getSelectedObject" class="objects-templates">
-            <div class="settings-subtitle">Add Object</div>
-            <div 
-              v-for="template in objectTemplates" 
-              :key="template.type"
-              class="object-template-item"
-              @click="addObjectFromTemplate(template.type, 100, 100)"
-            >
-              <span class="object-icon"><IconImage :name="template.icon" size="24px" /></span>
-              <span class="object-label">{{ template.label }}</span>
-            </div>
-          </div>
-
-          <!-- Selected Object Settings (show only when object is selected) -->
-          <div v-if="getSelectedObject" class="object-settings">
-            <div class="settings-subtitle">Object Settings</div>
-            
-            <!-- Label -->
-            <div class="settings-group">
-              <label>Label</label>
-              <input 
-                type="text" 
-                :value="getSelectedObject.label"
-                @input="updateObjectProperty('label', ($event.target as HTMLInputElement).value)"
-                class="settings-input"
-              />
-            </div>
-
-            <!-- Width & Height -->
-            <div class="settings-row" v-if="getSelectedObject.type !== 'text'">
-              <div class="settings-group">
-                <label>Width (px)</label>
-                <input 
-                  type="number" 
-                  :value="getSelectedObject.width"
-                  @input="updateObjectProperty('width', Number(($event.target as HTMLInputElement).value))"
-                  class="settings-input"
-                  min="20"
-                  max="500"
-                />
-              </div>
-              
-              <div class="settings-group">
-                <label>Height (px)</label>
-                <input 
-                  type="number" 
-                  :value="getSelectedObject.height"
-                  @input="updateObjectProperty('height', Number(($event.target as HTMLInputElement).value))"
-                  class="settings-input"
-                  min="20"
-                  max="500"
-                />
-              </div>
-            </div>
-            <!-- Rotation -->
-            <div class="settings-group">
-              <label>Rotation (°)</label>
-              <div class="curvature-controls">
-                <button class="curvature-btn" @click="updateObjectProperty('rotation', ((getSelectedObject.rotation || 0) - 15 + 360) % 360)"><IconImage name="rotate-ccw" size="20px" /></button>
-                <span class="curvature-value">{{ getSelectedObject.rotation || 0 }}°</span>
-                <button class="curvature-btn" @click="updateObjectProperty('rotation', ((getSelectedObject.rotation || 0) + 15) % 360)"><IconImage name="rotate-cw" size="20px" /></button>
-              </div>
-            </div>
-
-            <!-- Text Specific Settings -->
-            <div v-if="getSelectedObject.type === 'text'" class="text-settings">
-              <div class="settings-group">
-                <label>Font Size (px)</label>
-                <input 
-                  type="number" 
-                  :value="getSelectedObject.fontSize || 16"
-                  @input="updateObjectProperty('fontSize', Number(($event.target as HTMLInputElement).value))"
-                  class="settings-input"
-                  min="8"
-                  max="72"
-                />
-              </div>
-              
-              <div class="settings-group">
-                <label>Color</label>
-                <input 
-                  type="color" 
-                  :value="getSelectedObject.color || '#000000'"
-                  @input="updateObjectProperty('color', ($event.target as HTMLInputElement).value)"
-                  class="settings-input color-input"
-                />
-              </div>
-            </div>
-
-            <!-- Movement Controls -->
-            <div class="settings-group">
-              <label>Movement</label>
-              <div class="movement-controls">
-                <div class="arrow-grid">
-                  <button class="arrow-btn" @click="moveSelection(0, -1)"><IconImage name="arrow-up" size="18px" /></button>
-                  <div class="arrow-row">
-                    <button class="arrow-btn" @click="moveSelection(-1, 0)"><IconImage name="arrow-left" size="18px" /></button>
-                    <div class="step-control">
-                      <label>STEP</label>
-                      <input 
-                        type="number" 
-                        v-model.number="moveStep" 
-                        class="step-input"
-                        min="1"
-                        max="100"
-                      />
-                    </div>
-                    <button class="arrow-btn" @click="moveSelection(1, 0)"><IconImage name="arrow-right" size="18px" /></button>
-                  </div>
-                  <button class="arrow-btn" @click="moveSelection(0, 1)"><IconImage name="arrow-down" size="18px" /></button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Delete and Deselect Buttons -->
-            <div class="settings-group">
-              <button class="action-btn delete-btn" @click="deleteSelectedObject">
-                Delete Object
-              </button>
-              <button class="clear-btn" @click="selectedObjectId = null" style="margin-top: 0.5rem;">
-                Deselect
-              </button>
-            </div>
-          </div>
-
-          <!-- Help Text (show only when nothing is selected) -->
-          <div v-if="!getSelectedObject" class="settings-divider"></div>
-          <div v-if="!getSelectedObject" style="padding: 10px; font-size: 0.75rem; color: var(--color-text-tertiary);">
-            <p style="margin: 0 0 8px 0;"><strong>Objects Tool</strong></p>
-            <ul style="margin: 0; padding-left: 20px;">
-              <li>Click template to add object</li>
-              <li>Click object to select & edit</li>
-              <li>Click empty space to deselect</li>
-            </ul>
-          </div>
-        </div>
+        <AdminObjectSettings
+          v-if="activeTool === 'objects'"
+          :selectedObject="getSelectedObject"
+          v-model:moveStep="moveStep"
+          @add-object="addObjectFromTemplate"
+          @update-property="updateObjectProperty"
+          @move-selection="moveSelection"
+          @delete-object="deleteSelectedObject"
+          @deselect="selectedObjectId = null"
+        />
 
 
         <!-- Select All Section (when select tool is active) -->
