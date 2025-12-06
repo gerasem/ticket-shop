@@ -13,6 +13,7 @@ import type { VenueObject } from '../types/venueObjects';
 import { OBJECT_TEMPLATES } from '../types/venueObjects';
 import IconImage from '../components/ui/IconImage.vue';
 import AdminVenueSettings from '../components/admin/AdminVenueSettings.vue';
+import AdminBackgroundSettings from '../components/admin/AdminBackgroundSettings.vue';
 
 const venueStore = useVenueStore();
 
@@ -83,6 +84,9 @@ const isAreaSelecting = ref(false);
 const areaStart = ref<Point>({ x: 0, y: 0 });
 const areaEnd = ref<Point>({ x: 0, y: 0 });
 
+// Background tool state
+const backgroundMoveStep = ref(10);
+
 // Tool state
 type Tool = 'select' | 'pan' | 'settings' | 'add-seat' | 'background' | 'objects';
 const activeTool = ref<Tool>('pan');
@@ -94,8 +98,7 @@ const lastMousePos = ref<Point>({ x: 0, y: 0 });
 // Add seat preview state
 const previewSeatPos = ref<Point | null>(null);
 
-// Background tool - movement step
-const backgroundMoveStep = ref(10);
+
 
 // Modal state
 const showTypeModal = ref(false);
@@ -135,12 +138,7 @@ const handleBackgroundUpload = (event: Event) => {
   }
 };
 
-const moveBackground = (dx: number, dy: number) => {
-  if (venueStore.currentVenue?.backgroundImage) {
-    venueStore.currentVenue.backgroundImage.x += dx * backgroundMoveStep.value;
-    venueStore.currentVenue.backgroundImage.y += dy * backgroundMoveStep.value;
-  }
-};
+
 
 // Handle seat types update from modal
 const handleTypesUpdate = (types: SeatType[]) => {
@@ -399,6 +397,28 @@ useKeyboardControls({
   onArrowKey: moveSelection,
   onDelete: deleteSelection
 });
+
+// Background handlers
+const removeBackground = () => {
+  if (venueStore.currentVenue) {
+    venueStore.currentVenue.backgroundImage = undefined;
+  }
+};
+
+const moveBackground = (dx: number, dy: number) => {
+  if (!venueStore.currentVenue?.backgroundImage) return;
+  
+  const step = backgroundMoveStep.value;
+  venueStore.currentVenue.backgroundImage.x += dx * step;
+  venueStore.currentVenue.backgroundImage.y += dy * step;
+};
+
+const rotateBackground = (angle: number) => {
+  if (!venueStore.currentVenue?.backgroundImage) return;
+  
+  const currentRotation = venueStore.currentVenue.backgroundImage.rotation || 0;
+  venueStore.currentVenue.backgroundImage.rotation = (currentRotation + angle) % 360;
+};
 
 const recalculateRows = () => {
   if (!venueStore.currentVenue) return;
@@ -779,78 +799,15 @@ watch(activeTool, (newTool) => {
         />
 
         <!-- Background Settings Section -->
-        <div v-if="activeTool === 'background'" class="sidebar-section settings-section">
-          <!-- Upload Background -->
-          <div class="settings-group">
-            <label>Background Image</label>
-            <label for="background-upload" class="upload-button">
-              <span class="upload-icon"><IconImage name="upload" size="18px" /></span>
-              <span class="upload-text">Choose Image</span>
-            </label>
-            <input 
-              id="background-upload"
-              type="file" 
-              accept="image/*"
-              @change="handleBackgroundUpload"
-              style="display: none;"
-            />
-          </div>
-
-          <div v-if="venueStore.currentVenue?.backgroundImage" class="settings-group">
-            <button class="action-btn select-all-btn" @click="removeBackground">
-              Remove Background
-            </button>
-          </div>
-
-          <!-- Scale Control -->
-          <div v-if="venueStore.currentVenue?.backgroundImage" class="settings-group">
-            <label>Scale (%)</label>
-            <input 
-              type="number" 
-              v-model.number="venueStore.currentVenue.backgroundImage.scale" 
-              class="settings-input"
-              min="10"
-              max="200"
-              step="5"
-              style="width: 100%; margin-bottom: 8px;"
-            />
-            <input 
-              type="range" 
-              v-model.number="venueStore.currentVenue.backgroundImage.scale" 
-              min="10"
-              max="200"
-              step="5"
-              style="width: 100%;"
-            />
-          </div>
-
-          <!-- Position Controls -->
-          <div v-if="venueStore.currentVenue?.backgroundImage" class="settings-group">
-            <label>Position</label>
-            <div class="arrow-buttons">
-              <button class="arrow-btn up" @click="moveBackground(0, -1)"><IconImage name="arrow-up" size="18px" /></button>
-              <div class="horizontal-arrows">
-                <button class="arrow-btn left" @click="moveBackground(-1, 0)"><IconImage name="arrow-left" size="18px" /></button>
-                <div class="step-control-compact">
-                  <label>Step</label>
-                  <input type="number" v-model.number="backgroundMoveStep" min="1" class="step-input" />
-                </div>
-                <button class="arrow-btn right" @click="moveBackground(1, 0)"><IconImage name="arrow-right" size="18px" /></button>
-              </div>
-              <button class="arrow-btn down" @click="moveBackground(0, 1)"><IconImage name="arrow-down" size="18px" /></button>
-            </div>
-          </div>
-
-          <!-- Rotation Control -->
-          <div v-if="venueStore.currentVenue?.backgroundImage" class="settings-group">
-            <label>Rotation</label>
-            <div class="curvature-controls">
-              <button class="curvature-btn" @click="rotateBackground(-5)"><IconImage name="rotate-ccw" size="20px" /></button>
-              <span class="curvature-value">{{ venueStore.currentVenue.backgroundImage.rotation }}°</span>
-              <button class="curvature-btn" @click="rotateBackground(5)"><IconImage name="rotate-cw" size="20px" /></button>
-            </div>
-          </div>
-        </div>
+        <AdminBackgroundSettings
+          v-if="activeTool === 'background'"
+          :venue="venueStore.currentVenue"
+          v-model:moveStep="backgroundMoveStep"
+          @remove-background="removeBackground"
+          @move-background="moveBackground"
+          @rotate-background="rotateBackground"
+          @upload-background="handleBackgroundUpload"
+        />
 
 
         <!-- Objects Tool Section -->
