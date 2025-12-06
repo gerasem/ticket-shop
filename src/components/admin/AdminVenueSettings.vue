@@ -1,0 +1,346 @@
+<template>
+  <div class="sidebar-section settings-section">
+    <div class="settings-group">
+      <label>Name</label>
+      <input 
+        type="text" 
+        v-model="venue.name" 
+        class="settings-input"
+      />
+    </div>
+    
+    <div class="settings-row">
+      <div class="settings-group">
+        <label>Width (px)</label>
+        <input 
+          type="number" 
+          v-model.number="venue.width" 
+          class="settings-input"
+          step="10"
+        />
+      </div>
+      
+      <div class="settings-group">
+        <label>Height (px)</label>
+        <input 
+          type="number" 
+          v-model.number="venue.height" 
+          class="settings-input"
+          step="10"
+        />
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <button class="action-btn select-all-btn" @click="$emit('recalculate-rows')">
+        Recalculate Rows
+      </button>
+    </div>
+
+    <!-- Seat Styling Settings -->
+    <div class="settings-divider"></div>
+    <div class="settings-subtitle">Default Seat Style</div>
+
+    <!-- Color and Shape in a row -->
+    <div class="settings-row">
+      <div class="settings-group">
+        <label>Color</label>
+        <input 
+          type="color" 
+          v-model="venue.defaultSeatStyle.color" 
+          class="settings-input color-input"
+        />
+      </div>
+      
+      <div class="settings-group">
+        <label>Shape</label>
+        <select 
+          v-model="venue.defaultSeatStyle.borderRadius" 
+          class="settings-input"
+        >
+          <option value="8px">Square</option>
+          <option value="50%">Circle</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Width and Height in a row -->
+    <div class="settings-row">
+      <div class="settings-group">
+        <label>Width (px)</label>
+        <input 
+          type="number" 
+          v-model.number="venue.defaultSeatStyle.width" 
+          class="settings-input"
+          min="10"
+          max="100"
+        />
+      </div>
+      
+      <div class="settings-group">
+        <label>Height (px)</label>
+        <input 
+          type="number" 
+          v-model.number="venue.defaultSeatStyle.height" 
+          class="settings-input"
+          min="10"
+          max="100"
+        />
+      </div>
+    </div>
+    
+    <!-- Focal Point Curvature -->
+    <div class="settings-divider"></div>
+    <div class="settings-subtitle">Focal Point Curvature</div>
+    
+    <div class="settings-group">
+      <label>Row Arc Towards Stage</label>
+      <div class="curvature-controls">
+        <button 
+          class="curvature-btn" 
+          @click="decreaseCurvature"
+          :disabled="venue.curvature === -100"
+        ><IconImage name="rotate-ccw" size="20px" /></button>
+        <span class="curvature-value">{{ venue.curvature }}%</span>
+        <button 
+          class="curvature-btn" 
+          @click="increaseCurvature"
+          :disabled="venue.curvature === 100"
+        ><IconImage name="rotate-cw" size="20px" /></button>
+      </div>
+    </div>
+    
+    <!-- Row Labels Visibility -->
+    <div class="settings-divider"></div>
+    <div class="settings-subtitle">Row Labels</div>
+    
+    <div class="settings-row">
+      <div class="settings-group checkbox-group">
+        <label>
+          <input 
+            type="checkbox" 
+            :checked="showLeftRowLabels"
+            @change="$emit('update:showLeftRowLabels', ($event.target as HTMLInputElement).checked)"
+          >
+          Left Labels
+        </label>
+      </div>
+      
+      <div class="settings-group checkbox-group">
+        <label>
+          <input 
+            type="checkbox" 
+            :checked="showRightRowLabels"
+            @change="$emit('update:showRightRowLabels', ($event.target as HTMLInputElement).checked)"
+          >
+          Right Labels
+        </label>
+      </div>
+    </div>
+    
+    <!-- Manage Seat Types Button -->
+    <div class="settings-divider"></div>
+    <div class="settings-group">
+      <button class="action-btn manage-types-btn" @click="$emit('open-type-modal')">
+        Manage Seat Types
+      </button>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import type { Venue } from '../../services/mockData';
+import IconImage from '../ui/IconImage.vue';
+
+const props = defineProps<{
+  venue: Venue;
+  showLeftRowLabels: boolean;
+  showRightRowLabels: boolean;
+}>();
+
+const emit = defineEmits<{
+  (e: 'update:showLeftRowLabels', value: boolean): void;
+  (e: 'update:showRightRowLabels', value: boolean): void;
+  (e: 'recalculate-rows'): void;
+  (e: 'open-type-modal'): void;
+}>();
+
+const decreaseCurvature = () => {
+  if (props.venue.curvature > -100) {
+    props.venue.curvature = Math.max(-100, props.venue.curvature - 5);
+  }
+};
+
+const increaseCurvature = () => {
+  if (props.venue.curvature < 100) {
+    props.venue.curvature = Math.min(100, props.venue.curvature + 5);
+  }
+};
+</script>
+
+<style scoped>
+/* Reusing styles from AdminView to ensure consistency */
+
+.settings-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0 0.25rem;
+}
+
+.settings-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
+  min-width: 0;
+}
+
+.settings-group label {
+  font-size: 0.7rem;
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+}
+
+.settings-input {
+  background: var(--color-bg-input);
+  border: 1px solid var(--color-border-light);
+  color: var(--color-text-white);
+  padding: 4px 6px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.settings-input:focus {
+  border-color: var(--color-accent);
+  outline: none;
+}
+
+.settings-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.settings-row .settings-group {
+  margin-bottom: 0;
+}
+
+.settings-divider {
+  width: 100%;
+  height: 1px;
+  background: var(--color-border-light);
+  margin: 1rem 0;
+}
+
+.settings-subtitle {
+  font-size: 0.75rem;
+  color: var(--color-accent);
+  text-transform: uppercase;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.5px;
+}
+
+.action-btn {
+  width: 100%;
+  padding: 6px;
+  border-radius: 4px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.select-all-btn {
+  background: var(--color-accent-light);
+  color: var(--color-accent);
+  border: 1px solid var(--color-accent-strong);
+}
+
+.select-all-btn:hover {
+  background: var(--color-accent-medium);
+}
+
+.manage-types-btn {
+  background: var(--color-accent-light);
+  color: var(--color-accent);
+  border: 1px solid var(--color-accent-strong);
+}
+
+.manage-types-btn:hover {
+  background: var(--color-accent-medium);
+}
+
+.curvature-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.curvature-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border-medium);
+  background: var(--color-border-light);
+  color: var(--color-text-white);
+  cursor: pointer;
+  font-size: 1.6rem;
+  font-weight: bold;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 1;
+}
+
+.curvature-btn:hover:not(:disabled) {
+  background: var(--color-accent-strong);
+  border-color: var(--color-accent);
+}
+
+.curvature-btn:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.curvature-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.curvature-value {
+  font-size: 1rem;
+  color: var(--color-accent);
+  min-width: 45px;
+  text-align: center;
+  font-weight: 600;
+}
+
+.checkbox-group label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  flex-direction: row;
+  font-size: 0.8rem;
+  color: var(--color-text-white);
+}
+
+.color-input {
+  height: 25px;
+  width: 100%;
+  padding: 2px;
+  cursor: pointer;
+}
+</style>

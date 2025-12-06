@@ -12,6 +12,7 @@ import type { Seat, SeatType } from '../services/mockData';
 import type { VenueObject } from '../types/venueObjects';
 import { OBJECT_TEMPLATES } from '../types/venueObjects';
 import IconImage from '../components/ui/IconImage.vue';
+import AdminVenueSettings from '../components/admin/AdminVenueSettings.vue';
 
 const venueStore = useVenueStore();
 
@@ -148,59 +149,9 @@ const handleTypesUpdate = (types: SeatType[]) => {
   }
 };
 
-// Curvature controls
-const increaseCurvature = () => {
-  if (!venueStore.currentVenue) return;
-  const newCurvature = Math.min(venueStore.currentVenue.curvature + 10, 100);
-  venueStore.currentVenue.curvature = newCurvature;
-  applyCurvature();
-};
+// Curvature functions moved to AdminVenueSettings component
 
-const decreaseCurvature = () => {
-  if (!venueStore.currentVenue) return;
-  const newCurvature = Math.max(venueStore.currentVenue.curvature - 10, -100);
-  venueStore.currentVenue.curvature = newCurvature;
-  applyCurvature();
-};
 
-const applyCurvature = () => {
-  if (!venueStore.currentVenue) return;
-  
-  const venue = venueStore.currentVenue;
-  const curvature = venue.curvature / 100; // -1 to 1
-  
-  // Calculate the actual horizontal center of all seats for symmetry
-  const allSeatsX = venue.seats.map(s => s.originalX ?? s.x);
-  const minX = Math.min(...allSeatsX);
-  const maxX = Math.max(...allSeatsX);
-  const seatsCenter = (minX + maxX) / 2;
-  const seatsWidth = maxX - minX;
-  
-  venue.seats.forEach(seat => {
-    if (seat.originalX === undefined || seat.originalY === undefined) {
-      seat.originalX = seat.x;
-      seat.originalY = seat.y;
-    }
-    
-    // Calculate distance from seats center (for symmetry)
-    const offsetX = seat.originalX - seatsCenter;
-    
-    // Normalized offset from center: -1 (left edge) to 1 (right edge)
-    const normalizedOffset = offsetX / (seatsWidth / 2);
-    
-    // Parabolic curve - same for all rows
-    const arcOffset = normalizedOffset * normalizedOffset * curvature * 150;
-    
-    // Rotation towards stage - increased from 8 to 20 for more visibility
-    // Left seats rotate inward (right), right seats rotate inward (left)
-    const rotationAmount = normalizedOffset * curvature * 20; // degrees
-    
-    // Apply transformation
-    seat.x = seat.originalX;
-    seat.y = seat.originalY + arcOffset;
-    seat.rotation = rotationAmount;
-  });
-};
 
 
 // Watch activeTool and clear selection when switching away from select tool
@@ -817,147 +768,15 @@ watch(activeTool, (newTool) => {
         </div>
 
         <!-- Settings Section -->
-        <div v-if="activeTool === 'settings'" class="sidebar-section settings-section">
-          <div class="settings-group">
-            <label>Name</label>
-            <input 
-              type="text" 
-              v-model="venueStore.currentVenue.name" 
-              class="settings-input"
-            />
-          </div>
-          
-          <div class="settings-row">
-            <div class="settings-group">
-              <label>Width (px)</label>
-              <input 
-                type="number" 
-                v-model.number="venueStore.currentVenue.width" 
-                class="settings-input"
-                step="10"
-              />
-            </div>
-            
-            <div class="settings-group">
-              <label>Height (px)</label>
-              <input 
-                type="number" 
-                v-model.number="venueStore.currentVenue.height" 
-                class="settings-input"
-                step="10"
-              />
-            </div>
-          </div>
-
-          <div class="settings-group">
-            <button class="action-btn select-all-btn" @click="recalculateRows">
-              Recalculate Rows
-            </button>
-          </div>
-
-
-
-          <!-- Seat Styling Settings -->
-          <div class="settings-divider"></div>
-          <div class="settings-subtitle">Default Seat Style</div>
-
-          <!-- Color and Shape in a row -->
-          <div class="settings-row">
-            <div class="settings-group">
-              <label>Color</label>
-              <input 
-                type="color" 
-                v-model="venueStore.currentVenue.defaultSeatStyle.color" 
-                class="settings-input color-input"
-              />
-            </div>
-            
-            <div class="settings-group">
-              <label>Shape</label>
-              <select 
-                v-model="venueStore.currentVenue.defaultSeatStyle.borderRadius" 
-                class="settings-input"
-              >
-                <option value="8px">Square</option>
-                <option value="50%">Circle</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Width and Height in a row -->
-          <div class="settings-row">
-            <div class="settings-group">
-              <label>Width (px)</label>
-              <input 
-                type="number" 
-                v-model.number="venueStore.currentVenue.defaultSeatStyle.width" 
-                class="settings-input"
-                min="10"
-                max="100"
-              />
-            </div>
-            
-            <div class="settings-group">
-              <label>Height (px)</label>
-              <input 
-                type="number" 
-                v-model.number="venueStore.currentVenue.defaultSeatStyle.height" 
-                class="settings-input"
-                min="10"
-                max="100"
-              />
-            </div>
-          </div>
-          
-          <!-- Focal Point Curvature -->
-          <div class="settings-divider"></div>
-          <div class="settings-subtitle">Focal Point Curvature</div>
-          
-          <div class="settings-group">
-            <label>Row Arc Towards Stage</label>
-            <div class="curvature-controls">
-              <button 
-                class="curvature-btn" 
-                @click="decreaseCurvature"
-                :disabled="venueStore.currentVenue.curvature === -100"
-              ><IconImage name="rotate-ccw" size="20px" /></button>
-              <span class="curvature-value">{{ venueStore.currentVenue.curvature }}%</span>
-              <button 
-                class="curvature-btn" 
-                @click="increaseCurvature"
-                :disabled="venueStore.currentVenue.curvature === 100"
-              ><IconImage name="rotate-cw" size="20px" /></button>
-            </div>
-          </div>
-          
-          <!-- Row Labels Visibility -->
-          <div class="settings-divider"></div>
-          <div class="settings-subtitle">Row Labels</div>
-          
-          <div class="settings-row">
-            <div class="settings-group checkbox-group">
-              <label>
-                <input type="checkbox" v-model="showLeftRowLabels">
-                Left Labels
-              </label>
-            </div>
-            
-            <div class="settings-group checkbox-group">
-              <label>
-                <input type="checkbox" v-model="showRightRowLabels">
-                Right Labels
-              </label>
-            </div>
-          </div>
-          
-          <!-- Manage Seat Types Button -->
-          <div class="settings-divider"></div>
-          <div class="settings-group">
-            <button class="action-btn manage-types-btn" @click="showTypeModal = true">
-              Manage Seat Types
-            </button>
-          </div>
-        </div>
+        <!-- Settings Section -->
+        <AdminVenueSettings
+          v-if="activeTool === 'settings'"
+          :venue="venueStore.currentVenue"
+          v-model:showLeftRowLabels="showLeftRowLabels"
+          v-model:showRightRowLabels="showRightRowLabels"
+          @recalculate-rows="recalculateRows"
+          @open-type-modal="showTypeModal = true"
+        />
 
         <!-- Background Settings Section -->
         <div v-if="activeTool === 'background'" class="sidebar-section settings-section">
