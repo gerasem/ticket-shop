@@ -89,6 +89,7 @@
       </div>
     </div>
     
+    
     <!-- Focal Point Curvature -->
     <div class="settings-divider"></div>
     <div class="settings-subtitle">Focal Point Curvature</div>
@@ -165,17 +166,60 @@ const emit = defineEmits<{
   (e: 'open-type-modal'): void;
 }>();
 
-const decreaseCurvature = () => {
-  if (props.venue.curvature > -100) {
-    props.venue.curvature = Math.max(-100, props.venue.curvature - 5);
-  }
+// Curvature controls
+const increaseCurvature = () => {
+  if (!props.venue) return;
+  const newCurvature = Math.min(props.venue.curvature + 10, 100);
+  props.venue.curvature = newCurvature;
+  applyCurvature();
 };
 
-const increaseCurvature = () => {
-  if (props.venue.curvature < 100) {
-    props.venue.curvature = Math.min(100, props.venue.curvature + 5);
-  }
+const decreaseCurvature = () => {
+  if (!props.venue) return;
+  const newCurvature = Math.max(props.venue.curvature - 10, -100);
+  props.venue.curvature = newCurvature;
+  applyCurvature();
 };
+
+const applyCurvature = () => {
+  if (!props.venue) return;
+  
+  const venue = props.venue;
+  const curvature = venue.curvature / 100; // -1 to 1
+  
+  // Calculate the actual horizontal center of all seats for symmetry
+  const allSeatsX = venue.seats.map(s => s.originalX ?? s.x);
+  const minX = Math.min(...allSeatsX);
+  const maxX = Math.max(...allSeatsX);
+  const seatsCenter = (minX + maxX) / 2;
+  const seatsWidth = maxX - minX;
+  
+  venue.seats.forEach(seat => {
+    if (seat.originalX === undefined || seat.originalY === undefined) {
+      seat.originalX = seat.x;
+      seat.originalY = seat.y;
+    }
+    
+    // Calculate distance from seats center (for symmetry)
+    const offsetX = seat.originalX - seatsCenter;
+    
+    // Normalized offset from center: -1 (left edge) to 1 (right edge)
+    const normalizedOffset = offsetX / (seatsWidth / 2);
+    
+    // Parabolic curve - same for all rows
+    const arcOffset = normalizedOffset * normalizedOffset * curvature * 150;
+    
+    // Rotation towards stage - increased from 8 to 20 for more visibility
+    // Left seats rotate inward (right), right seats rotate inward (left)
+    const rotationAmount = normalizedOffset * curvature * 20; // degrees
+    
+    // Apply transformation
+    seat.x = seat.originalX;
+    seat.y = seat.originalY + arcOffset;
+    seat.rotation = rotationAmount;
+  });
+};
+
 </script>
 
 <style scoped>
