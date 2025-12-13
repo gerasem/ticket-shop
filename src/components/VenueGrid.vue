@@ -49,6 +49,9 @@ const wrapperRef = ref<HTMLElement | null>(null);
 const handleMouseDown = (event: MouseEvent) => {
   if (!wrapperRef.value) return;
   
+  // Only allow drag-to-scroll if Pan tool is active
+  if (props.activeTool !== 'pan') return;
+  
   isDragging.value = true;
   dragStart.value = {
     x: event.clientX + wrapperRef.value.scrollLeft,
