@@ -65,9 +65,25 @@ export function useVenueEditor(venue: Ref<Venue | null>) {
   const getSeatsInArea = (minX: number, maxX: number, minY: number, maxY: number): Seat[] => {
     if (!venue.value) return [];
     
-    return venue.value.seats.filter(seat => 
-      seat.x >= minX && seat.x <= maxX && seat.y >= minY && seat.y <= maxY
-    );
+    return venue.value.seats.filter(seat => {
+      // Determine seat dimensions
+      let width = venue.value?.defaultSeatStyle.width || 30;
+      let height = venue.value?.defaultSeatStyle.height || 30;
+      
+      // Check if seat has a specific type with custom dimensions
+      if (seat.typeId && venue.value?.seatTypes) {
+        const type = venue.value.seatTypes.find(t => t.id === seat.typeId);
+        if (type?.style?.width) width = type.style.width;
+        if (type?.style?.height) height = type.style.height;
+      }
+      
+      // Calculate center point
+      const centerX = seat.x + width / 2;
+      const centerY = seat.y + height / 2;
+      
+      // Check if center is within bounds
+      return centerX >= minX && centerX <= maxX && centerY >= minY && centerY <= maxY;
+    });
   };
 
   return {
