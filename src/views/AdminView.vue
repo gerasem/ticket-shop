@@ -14,6 +14,7 @@ import { OBJECT_TEMPLATES } from '../types/venueObjects';
 import AdminVenueSettings from '../components/admin/AdminVenueSettings.vue';
 import AdminBackgroundSettings from '../components/admin/AdminBackgroundSettings.vue';
 import AdminObjectSettings from '../components/admin/AdminObjectSettings.vue';
+import AdminSeatSettings from '../components/admin/AdminSeatSettings.vue';
 
 const venueStore = useVenueStore();
 
@@ -535,6 +536,36 @@ const addSeat = (event: MouseEvent) => {
   venueStore.currentVenue.seats.push(newSeat);
 };
 
+const addSeatBlock = (rows: number, seatsPerRow: number) => {
+  if (!venueStore.currentVenue) return;
+  
+  const startX = 100;
+  const startY = 100;
+  const seatWidth = venueStore.currentVenue.defaultSeatStyle.width;
+  const seatHeight = venueStore.currentVenue.defaultSeatStyle.height;
+  const gap = 10;
+  
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < seatsPerRow; c++) {
+      const x = startX + c * (seatWidth + gap);
+      const y = startY + r * (seatHeight + gap);
+      
+      const newSeat = {
+        id: `seat-${Date.now()}-${r}-${c}`,
+        x,
+        y,
+        status: 'free' as const,
+        row: r + 1,
+        place: c + 1,
+        typeId: 'standard',
+        rotation: 0
+      };
+      
+      venueStore.currentVenue.seats.push(newSeat);
+    }
+  }
+};
+
 const handleContainerMouseDown = (event: MouseEvent) => {
   // Ignore if clicking sidebar or if already panning
   if ((event.target as HTMLElement).closest('.sidebar')) return;
@@ -808,6 +839,12 @@ watch(activeTool, (newTool) => {
           v-model:showRightRowLabels="showRightRowLabels"
           @recalculate-rows="recalculateRows"
           @open-type-modal="showTypeModal = true"
+        />
+
+        <!-- Add Seat Tool Section -->
+        <AdminSeatSettings
+          v-if="activeTool === 'add-seat'"
+          @add-seat-block="addSeatBlock"
         />
 
         <!-- Background Settings Section -->
