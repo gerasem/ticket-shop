@@ -11,7 +11,6 @@ import ToolBar from '../components/ToolBar.vue';
 import type { Seat, SeatType } from '../services/mockData';
 import type { VenueObject } from '../types/venueObjects';
 import { OBJECT_TEMPLATES } from '../types/venueObjects';
-import IconImage from '../components/ui/IconImage.vue';
 import AdminVenueSettings from '../components/admin/AdminVenueSettings.vue';
 import AdminBackgroundSettings from '../components/admin/AdminBackgroundSettings.vue';
 import AdminObjectSettings from '../components/admin/AdminObjectSettings.vue';
@@ -98,6 +97,8 @@ const lastMousePos = ref<Point>({ x: 0, y: 0 });
 
 // Add seat preview state
 const previewSeatPos = ref<Point | null>(null);
+
+
 
 
 
@@ -395,7 +396,7 @@ const updateSelectedSeatsType = (typeId: string) => {
 
 // Setup keyboard controls after function declarations
 useKeyboardControls({
-  enabled: computed(() => selectedSeats.value.size > 0 || isStageSelected.value || selectedObjectId.value !== null),
+  enabled: computed(() => selectedSeats.value.size > 0 || selectedObjectId.value !== null),
   onArrowKey: moveSelection,
   onDelete: deleteSelection
 });
