@@ -533,35 +533,78 @@ const addSeat = (event: MouseEvent) => {
     rotation: 0
   };
 
-  venueStore.currentVenue.seats.push(newSeat);
+  const seatWidth = venueStore.currentVenue.defaultSeatStyle.width;
+  const seatHeight = venueStore.currentVenue.defaultSeatStyle.height;
+
+  if (!checkCollision(x, y, seatWidth, seatHeight)) {
+    venueStore.currentVenue.seats.push(newSeat);
+  }
+};
+
+const checkCollision = (x: number, y: number, width: number, height: number): boolean => {
+  if (!venueStore.currentVenue) return false;
+  
+  return venueStore.currentVenue.seats.some(seat => {
+    // Get dimensions of existing seat
+    let seatW = venueStore.currentVenue!.defaultSeatStyle.width;
+    let seatH = venueStore.currentVenue!.defaultSeatStyle.height;
+    
+    if (seat.typeId && venueStore.currentVenue!.seatTypes) {
+      const type = venueStore.currentVenue!.seatTypes.find(t => t.id === seat.typeId);
+      if (type?.style?.width) seatW = type.style.width;
+      if (type?.style?.height) seatH = type.style.height;
+    }
+    
+    // Check overlap
+    return (
+      x < seat.x + seatW &&
+      x + width > seat.x &&
+      y < seat.y + seatH &&
+      y + height > seat.y
+    );
+  });
 };
 
 const addSeatBlock = (rows: number, seatsPerRow: number) => {
   if (!venueStore.currentVenue) return;
   
-  const startX = 100;
-  const startY = 100;
   const seatWidth = venueStore.currentVenue.defaultSeatStyle.width;
   const seatHeight = venueStore.currentVenue.defaultSeatStyle.height;
   const gap = 10;
+
+  // Calculate start position based on existing seats
+  let startX = 100;
+  let startY = 100;
+
+  if (venueStore.currentVenue.seats.length > 0) {
+    const maxX = Math.max(...venueStore.currentVenue.seats.map(s => s.x + (s.typeId ? 0 : seatWidth))); // Simplified width check
+    startX = maxX + 50; // Add 50px gap
+    
+    // Align Y with the top-most seat to keep it neat
+    const minY = Math.min(...venueStore.currentVenue.seats.map(s => s.y));
+    startY = minY;
+  }
   
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < seatsPerRow; c++) {
       const x = startX + c * (seatWidth + gap);
       const y = startY + r * (seatHeight + gap);
       
-      const newSeat = {
-        id: `seat-${Date.now()}-${r}-${c}`,
-        x,
-        y,
-        status: 'free' as const,
-        row: r + 1,
-        place: c + 1,
-        typeId: 'standard',
-        rotation: 0
-      };
-      
-      venueStore.currentVenue.seats.push(newSeat);
+      // Check collision before adding
+      if (!checkCollision(x, y, seatWidth, seatHeight)) {
+        const newSeat = {
+          id: `seat-${Date.now()}-${r}-${c}`,
+          x,
+          y,
+          status: 'free' as const,
+          row: r + 1,
+          place: c + 1,
+          typeId: 'standard',
+          rotation: 0
+        };
+        
+        venueStore.currentVenue.seats.push(newSeat);
+      }
     }
   }
 };
