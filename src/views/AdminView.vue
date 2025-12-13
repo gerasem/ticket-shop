@@ -483,6 +483,8 @@ const recalculateRows = () => {
 
 
 
+
+
 const handleMouseMoveForPreview = (event: MouseEvent) => {
   if (activeTool.value !== 'add-seat') {
     previewSeatPos.value = null;
@@ -603,6 +605,9 @@ const handleCanvasMouseDown = (event: MouseEvent) => {
   
   const container = getSeatsGridContainer();
   if (!container) return;
+  
+  // Only allow area selection in 'select' tool
+  if (activeTool.value !== 'select') return;
   
   // Don't clear selection when starting area select (allow adding to selection)
   
@@ -956,7 +961,9 @@ watch(activeTool, (newTool) => {
         :show-right-row-labels="showRightRowLabels"
         :class="{ 
           'cursor-grab': activeTool === 'pan',
-          'cursor-add': activeTool === 'add-seat'
+          'cursor-add': activeTool === 'add-seat',
+          'cursor-select': activeTool === 'select',
+          'cursor-default': activeTool === 'settings' || activeTool === 'background' || activeTool === 'objects'
         }"
         @grid-mousedown="handleCanvasMouseDown"
 
@@ -1004,7 +1011,10 @@ watch(activeTool, (newTool) => {
               ...getSeatStyle(seat)
             }"
             :title="`Row: ${seat.row}, Place: ${seat.place} | Type: ${getSeatType(seat)?.name || 'Unknown'} | Price: ${formatPrice(getSeatType(seat)?.priceInCents || 0)}`"
-            @mousedown="(e) => { if (activeTool !== 'pan') { e.stopPropagation(); } if (activeTool === 'select') { toggleSeatSelection(seat.id); } }"
+            @mousedown="(e) => { 
+              if (activeTool !== 'pan') { e.stopPropagation(); } 
+              if (activeTool === 'select') { toggleSeatSelection(seat.id); } 
+            }"
           >
             {{ seat.place }}
           </div>
@@ -1362,6 +1372,19 @@ watch(activeTool, (newTool) => {
 .cursor-grab :deep(.seats-grid):active,
 .cursor-grab :deep(.seat):active {
   cursor: grabbing;
+}
+
+.cursor-select :deep(.seats-grid) {
+  cursor: crosshair;
+}
+
+.cursor-select :deep(.seat) {
+  cursor: pointer;
+}
+
+.cursor-default :deep(.seats-grid),
+.cursor-default :deep(.seat) {
+  cursor: default;
 }
 
 .cursor-add :deep(.seats-grid) {
