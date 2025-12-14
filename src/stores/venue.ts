@@ -1,13 +1,42 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import { type Venue, generateMockVenue } from '../services/mockData';
+import { type Venue, generateMockVenue, getVenueById } from '../services/mockData';
 
 export const useVenueStore = defineStore('venue', () => {
   const currentVenue = ref<Venue | null>(null);
 
-  const loadVenue = async () => {
-    // Default: load from default JSON or generate mock
-    await loadVenueFromJSON('default-venue.json');
+  const loadVenue = async (venueId?: string) => {
+    // In a real app, this would fetch from API
+    // For now, we generate mock data
+    if (!currentVenue.value || venueId) {
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Use the new getVenueById if an ID is provided, otherwise default
+      if (venueId) {
+        currentVenue.value = getVenueById(venueId);
+      } else {
+        // Try to load default from JSON first, fallback to mock
+        try {
+          await loadVenueFromJSON('default-venue.json');
+        } catch (e) {
+          currentVenue.value = generateMockVenue();
+        }
+      }
+      
+      if (currentVenue.value) {
+        // Load saved seats from local storage if any
+        const saved = localStorage.getItem(`venue_seats_${currentVenue.value.id}`);
+        if (saved) {
+          const savedSeats = JSON.parse(saved);
+          // Merge saved status
+          currentVenue.value.seats = currentVenue.value.seats.map(s => {
+            const savedS = savedSeats.find((ss: any) => ss.id === s.id);
+            return savedS ? { ...s, status: savedS.status } : s;
+          });
+        }
+      }
+    }
   };
 
   const loadVenueFromJSON = async (filename: string) => {

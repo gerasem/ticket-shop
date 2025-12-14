@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router';
-import VenueSelector from './components/VenueSelector.vue';
 import { useVenueStore } from './stores/venue';
 
 // Import shared styles
@@ -31,7 +30,6 @@ const handleExportJSON = async () => {
         </div>
         <div class="nav-right">
           <button class="export-btn" @click="handleExportJSON">Export</button>
-          <VenueSelector />
         </div>
       </nav>
     </header>

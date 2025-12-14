@@ -4,13 +4,16 @@ import { useVenueStore } from '../stores/venue';
 import { useCartStore } from '../stores/cart';
 import { usePrice } from '../composables/usePrice';
 import VenueGrid from '../components/VenueGrid.vue';
+import { useRoute } from 'vue-router';
 
 const venueStore = useVenueStore();
 const cartStore = useCartStore();
 const { formatPrice } = usePrice();
+const route = useRoute();
 
 onMounted(() => {
-  venueStore.loadVenue();
+  const venueId = route.query.venueId as string;
+  venueStore.loadVenue(venueId);
 });
 
 const handleSeatClick = (seatId: string) => {
