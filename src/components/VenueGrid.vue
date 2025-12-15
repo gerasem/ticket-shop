@@ -110,8 +110,7 @@ const handleMouseLeave = () => {
         }"
       >
 
-        
-
+      
         <div class="seating-area">
           <!-- Left row labels -->
           <div 

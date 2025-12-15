@@ -13,6 +13,7 @@ const emit = defineEmits<{
   (e: 'update:activeTool', tool: Tool): void;
   (e: 'undo'): void;
   (e: 'redo'): void;
+  (e: 'delete'): void;
 }>();
 </script>
 
@@ -67,8 +68,9 @@ const emit = defineEmits<{
     >
       <IconImage name="box" size="24px" />
     </button>
-    <div class="separator"></div>
+    <div v-if="activeTool === 'select'" class="separator"></div>
     <button 
+      v-if="activeTool === 'select'"
       class="tool-btn" 
       @click="$emit('undo')"
       :disabled="!canUndo"
@@ -77,12 +79,21 @@ const emit = defineEmits<{
       <IconImage name="undo" size="24px" />
     </button>
     <button 
+      v-if="activeTool === 'select'"
       class="tool-btn" 
       @click="$emit('redo')"
       :disabled="!canRedo"
       title="Redo (Ctrl+Y)"
     >
       <IconImage name="redo" size="24px" />
+    </button>
+    <button 
+      v-if="activeTool === 'select'"
+      class="tool-btn delete-btn" 
+      @click="$emit('delete')"
+      title="Delete Selected (Del)"
+    >
+      <IconImage name="trash" size="24px" />
     </button>
   </div>
 </template>

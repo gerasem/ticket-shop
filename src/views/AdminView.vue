@@ -892,17 +892,6 @@ watch(activeTool, (newTool) => {
 
 <template>
   <div class="admin-view">
-    <Teleport to="#admin-toolbar-actions">
-      <button 
-        class="export-btn" 
-        @click="undo" 
-        :disabled="!canUndo"
-        title="Undo last action (Ctrl+Z)"
-      >
-        Back
-      </button>
-    </Teleport>
-
     <h1>Venue Layout Editor</h1>
     
     <div 
@@ -918,6 +907,7 @@ watch(activeTool, (newTool) => {
         @update:activeTool="activeTool = $event"
         @undo="undo"
         @redo="redo"
+        @delete="deleteSelection"
       />
 
       <!-- Properties Panel (Sidebar) -->
@@ -1041,7 +1031,6 @@ watch(activeTool, (newTool) => {
             <!-- Selection Info (Vertical) -->
             <div class="selection-info-vertical">
               <span class="selected-count">Selected: {{ selectedSeats.size }}</span>
-              <button class="action-btn delete-btn" @click="deleteSelection">Delete</button>
               <button class="clear-btn" @click="clearSelection">Clear Selection</button>
               
               <!-- Type Selection (only for seats, not stage) -->
