@@ -50,6 +50,7 @@ export function useKeyboardControls(options: KeyboardControlsOptions) {
 
     // Обработка Delete/Backspace
     if (onDelete && (event.key === 'Delete' || event.key === 'Backspace')) {
+      event.preventDefault(); // Prevent browser back navigation
       onDelete();
       return;
     }

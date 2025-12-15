@@ -5,10 +5,14 @@ type Tool = 'select' | 'pan' | 'settings' | 'add-seat' | 'background' | 'objects
 
 defineProps<{
   activeTool: Tool;
+  canUndo?: boolean;
+  canRedo?: boolean;
 }>();
 
 const emit = defineEmits<{
   (e: 'update:activeTool', tool: Tool): void;
+  (e: 'undo'): void;
+  (e: 'redo'): void;
 }>();
 </script>
 
@@ -63,6 +67,23 @@ const emit = defineEmits<{
     >
       <IconImage name="box" size="24px" />
     </button>
+    <div class="separator"></div>
+    <button 
+      class="tool-btn" 
+      @click="$emit('undo')"
+      :disabled="!canUndo"
+      title="Undo (Ctrl+Z)"
+    >
+      <IconImage name="undo" size="24px" />
+    </button>
+    <button 
+      class="tool-btn" 
+      @click="$emit('redo')"
+      :disabled="!canRedo"
+      title="Redo (Ctrl+Y)"
+    >
+      <IconImage name="redo" size="24px" />
+    </button>
   </div>
 </template>
 
@@ -108,5 +129,12 @@ const emit = defineEmits<{
 
 .tool-icon {
   font-size: 1.4rem;
+}
+
+.separator {
+  width: 80%;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 0.5rem 0;
 }
 </style>

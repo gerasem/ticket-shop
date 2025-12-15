@@ -1,4 +1,4 @@
-import { computed, type Ref } from 'vue';
+import { computed, ref, type Ref } from 'vue';
 import type { Venue, Seat } from '../services/mockData';
 
 /**
@@ -86,12 +86,95 @@ export function useVenueEditor(venue: Ref<Venue | null>) {
     });
   };
 
+  // History state
+  const history = ref<string[]>([]);
+  const historyIndex = ref(-1);
+
+  /**
+   * Initialize history with current state
+   */
+  const initHistory = () => {
+    if (!venue.value) return;
+    // Save minimal state needed for undo/redo
+    const state = {
+      seats: venue.value.seats,
+      objects: venue.value.objects,
+      backgroundImage: venue.value.backgroundImage
+    };
+    history.value = [JSON.stringify(state)];
+    historyIndex.value = 0;
+  };
+
+  /**
+   * Commit current state to history
+   * Should be called AFTER a change is made
+   */
+  const commit = () => {
+    if (!venue.value) return;
+    
+    // Remove any future history if we were in the middle
+    if (historyIndex.value < history.value.length - 1) {
+      history.value = history.value.slice(0, historyIndex.value + 1);
+    }
+    
+    const state = {
+      seats: venue.value.seats,
+      objects: venue.value.objects,
+      backgroundImage: venue.value.backgroundImage
+    };
+    
+    history.value.push(JSON.stringify(state));
+    historyIndex.value++;
+  };
+
+  /**
+   * Undo last change
+   */
+  const undo = () => {
+    if (historyIndex.value > 0) {
+      historyIndex.value--;
+      const jsonState = history.value[historyIndex.value];
+      if (jsonState && venue.value) {
+        const state = JSON.parse(jsonState);
+        venue.value.seats = state.seats || [];
+        venue.value.objects = state.objects || [];
+        venue.value.backgroundImage = state.backgroundImage;
+      }
+    }
+  };
+
+  /**
+   * Redo last undone change
+   */
+  const redo = () => {
+    if (historyIndex.value < history.value.length - 1) {
+      historyIndex.value++;
+      const jsonState = history.value[historyIndex.value];
+      if (jsonState && venue.value) {
+        const state = JSON.parse(jsonState);
+        venue.value.seats = state.seats || [];
+        venue.value.objects = state.objects || [];
+        venue.value.backgroundImage = state.backgroundImage;
+      }
+    }
+  };
+
+  const canUndo = computed(() => historyIndex.value > 0);
+  const canRedo = computed(() => historyIndex.value < history.value.length - 1);
+
   return {
     getRows,
     getColumns,
     getRowY,
     getColX,
     findSeatById,
-    getSeatsInArea
+    getSeatsInArea,
+    // History
+    initHistory,
+    commit,
+    undo,
+    redo,
+    canUndo,
+    canRedo
   };
 }

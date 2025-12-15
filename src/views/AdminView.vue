@@ -1,5 +1,5 @@
 ﻿<script setup lang="ts">
-import { ref, onMounted, computed, toRef, watch } from 'vue';
+import { ref, onMounted, onUnmounted, computed, toRef, watch } from 'vue';
 import { useVenueStore } from '../stores/venue';
 import { useVenueEditor } from '../composables/useVenueEditor';
 import { useGeometry, type Point } from '../composables/useGeometry';
@@ -8,8 +8,9 @@ import { useKeyboardControls } from '../composables/useKeyboardControls';
 import VenueGrid from '../components/VenueGrid.vue';
 import SeatTypeModal from '../components/SeatTypeModal.vue';
 import ToolBar from '../components/ToolBar.vue';
-import type { Seat, SeatType } from '../services/mockData';
+import type { Seat, SeatType, Venue } from '../services/mockData';
 import type { VenueObject } from '../types/venueObjects';
+
 import { OBJECT_TEMPLATES } from '../types/venueObjects';
 import AdminVenueSettings from '../components/admin/AdminVenueSettings.vue';
 import AdminBackgroundSettings from '../components/admin/AdminBackgroundSettings.vue';
@@ -19,7 +20,22 @@ import AdminSeatSettings from '../components/admin/AdminSeatSettings.vue';
 const venueStore = useVenueStore();
 
 // Composables
-const venueEditor = useVenueEditor(toRef(venueStore, 'currentVenue'));
+const venueRef = ref<Venue | null>(null);
+const venueEditor = useVenueEditor(venueRef);
+
+// Sync venueRef with store
+watch(() => venueStore.currentVenue, (newVal) => {
+  venueRef.value = newVal;
+}, { immediate: true });
+
+const { 
+  initHistory, 
+  commit, 
+  undo, 
+  redo, 
+  canUndo, 
+  canRedo 
+} = venueEditor;
 const geometry = useGeometry();
 const { formatPrice } = usePrice();
 
@@ -84,6 +100,40 @@ const currentType = computed(() => {
 const isAreaSelecting = ref(false);
 const areaStart = ref<Point>({ x: 0, y: 0 });
 const areaEnd = ref<Point>({ x: 0, y: 0 });
+const overlappingSeatIds = computed(() => {
+  if (!venueStore.currentVenue) return new Set<string>();
+
+  const seats = venueStore.currentVenue.seats;
+  const overlapping = new Set<string>();
+
+  for (let i = 0; i < seats.length; i++) {
+    const seatA = seats[i];
+    if (!seatA) continue;
+    
+    const styleA = getSeatStyle(seatA);
+    const widthA = parseInt(styleA.width as string);
+    const heightA = parseInt(styleA.height as string);
+
+    for (let j = i + 1; j < seats.length; j++) {
+      const seatB = seats[j];
+      if (!seatB) continue;
+
+      const styleB = getSeatStyle(seatB);
+      const widthB = parseInt(styleB.width as string);
+      const heightB = parseInt(styleB.height as string);
+
+      if (geometry.checkIntersection(
+        { x: seatA.x, y: seatA.y, width: widthA, height: heightA, rotation: seatA.rotation },
+        { x: seatB.x, y: seatB.y, width: widthB, height: heightB, rotation: seatB.rotation }
+      )) {
+        overlapping.add(seatA.id);
+        overlapping.add(seatB.id);
+      }
+    }
+  }
+
+  return overlapping;
+});
 
 // Background tool state
 const backgroundMoveStep = ref(10);
@@ -100,10 +150,6 @@ const lastMousePos = ref<Point>({ x: 0, y: 0 });
 const previewSeatPos = ref<Point | null>(null);
 
 
-
-
-
-
 // Modal state
 const showTypeModal = ref(false);
 
@@ -116,7 +162,6 @@ const objectTemplates = OBJECT_TEMPLATES;
 // Row labels visibility
 const showLeftRowLabels = ref(true);
 const showRightRowLabels = ref(false);
-
 
 // Background image handlers
 const handleBackgroundUpload = (event: Event) => {
@@ -142,17 +187,12 @@ const handleBackgroundUpload = (event: Event) => {
   }
 };
 
-
-
 // Handle seat types update from modal
 const handleTypesUpdate = (types: SeatType[]) => {
   if (venueStore.currentVenue) {
     venueStore.currentVenue.seatTypes = types;
   }
 };
-
-// Curvature functions moved to AdminVenueSettings component
-
 
 
 
@@ -164,8 +204,36 @@ watch(activeTool, (newTool, oldTool) => {
   }
 });
 
-onMounted(() => {
-  venueStore.loadVenue();
+// Undo/Redo Keyboard Shortcuts
+const handleUndoRedoKeydown = (e: KeyboardEvent) => {
+  // Undo: Ctrl+Z
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && !e.shiftKey) {
+    e.preventDefault();
+    undo();
+  }
+  // Redo: Ctrl+Y or Ctrl+Shift+Z
+  if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'y' || (e.shiftKey && e.key.toLowerCase() === 'z'))) {
+    e.preventDefault();
+    redo();
+  }
+};
+
+onMounted(async () => {
+  try {
+    await venueStore.loadVenue();
+    
+    if (venueStore.currentVenue) {
+      initHistory();
+    }
+    
+    window.addEventListener('keydown', handleUndoRedoKeydown);
+  } catch (e) {
+    console.error('Error in AdminView onMounted:', e);
+  }
+});
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleUndoRedoKeydown);
 });
 
 // Helper to get seats grid container
@@ -263,6 +331,7 @@ const selectColumn = (colNumber: number) => {
 };
 
 // Movement Logic
+// Movement Logic
 const moveSelection = (dx: number, dy: number) => {
   const stepX = dx * moveStep.value;
   const stepY = dy * moveStep.value;
@@ -275,6 +344,10 @@ const moveSelection = (dx: number, dy: number) => {
       object.y += stepY;
     }
   } else {
+    if (selectedSeats.value.size === 0) return;
+    
+    commit(); // Save state before movement
+    
     selectedSeats.value.forEach(seatId => {
       const seat = venueEditor.findSeatById(seatId);
       if (seat) {
@@ -299,6 +372,8 @@ const rotateClockwise = () => {
   }
   
   if (selectedSeats.value.size === 0) return;
+  
+  commit(); // Save state before rotation
   
   // Find center of selected seats
   const seats = Array.from(selectedSeats.value)
@@ -336,6 +411,8 @@ const rotateCounterClockwise = () => {
   
   if (selectedSeats.value.size === 0) return;
   
+  commit(); // Save state before rotation
+  
   // Find center of selected seats
   const seats = Array.from(selectedSeats.value)
     .map(id => venueEditor.findSeatById(id))
@@ -372,6 +449,8 @@ const deleteSelection = () => {
   // Delete selected seats
   if (selectedSeats.value.size === 0) return;
   
+  commit(); // Save state before deletion
+  
   venueStore.currentVenue.seats = venueStore.currentVenue.seats.filter(
     seat => !selectedSeats.value.has(seat.id)
   );
@@ -382,6 +461,8 @@ const deleteSelection = () => {
 // Update type for selected seats
 const updateSelectedSeatsType = (typeId: string) => {
   if (!venueStore.currentVenue || selectedSeats.value.size === 0) return;
+  
+  commit(); // Save state before change
   
   // Update all selected seats
   selectedSeats.value.forEach(seatId => {
@@ -536,75 +617,25 @@ const addSeat = (event: MouseEvent) => {
   const seatWidth = venueStore.currentVenue.defaultSeatStyle.width;
   const seatHeight = venueStore.currentVenue.defaultSeatStyle.height;
 
-  if (!checkCollision(x, y, seatWidth, seatHeight)) {
-    venueStore.currentVenue.seats.push(newSeat);
-  }
-};
-
-const checkCollision = (x: number, y: number, width: number, height: number): boolean => {
-  if (!venueStore.currentVenue) return false;
-  
-  return venueStore.currentVenue.seats.some(seat => {
-    // Get dimensions of existing seat
-    let seatW = venueStore.currentVenue!.defaultSeatStyle.width;
-    let seatH = venueStore.currentVenue!.defaultSeatStyle.height;
-    
-    if (seat.typeId && venueStore.currentVenue!.seatTypes) {
-      const type = venueStore.currentVenue!.seatTypes.find(t => t.id === seat.typeId);
-      if (type?.style?.width) seatW = type.style.width;
-      if (type?.style?.height) seatH = type.style.height;
-    }
-    
-    // Check overlap
-    return (
-      x < seat.x + seatW &&
-      x + width > seat.x &&
-      y < seat.y + seatH &&
-      y + height > seat.y
-    );
-  });
-};
-
-const addSeatBlock = (rows: number, seatsPerRow: number) => {
-  if (!venueStore.currentVenue) return;
-  
-  const seatWidth = venueStore.currentVenue.defaultSeatStyle.width;
-  const seatHeight = venueStore.currentVenue.defaultSeatStyle.height;
-  const gap = 10;
-
-  // Calculate start position based on existing seats
-  let startX = 100;
-  let startY = 100;
-
-  if (venueStore.currentVenue.seats.length > 0) {
-    const maxX = Math.max(...venueStore.currentVenue.seats.map(s => s.x + (s.typeId ? 0 : seatWidth))); // Simplified width check
-    startX = maxX + 50; // Add 50px gap
-    
-    // Align Y with the top-most seat to keep it neat
-    const minY = Math.min(...venueStore.currentVenue.seats.map(s => s.y));
-    startY = minY;
-  }
+  commit(); // Save state before change
   
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < seatsPerRow; c++) {
       const x = startX + c * (seatWidth + gap);
       const y = startY + r * (seatHeight + gap);
       
-      // Check collision before adding
-      if (!checkCollision(x, y, seatWidth, seatHeight)) {
-        const newSeat = {
-          id: `seat-${Date.now()}-${r}-${c}`,
-          x,
-          y,
-          status: 'free' as const,
-          row: r + 1,
-          place: c + 1,
-          typeId: 'standard',
-          rotation: 0
-        };
-        
-        venueStore.currentVenue.seats.push(newSeat);
-      }
+      const newSeat = {
+        id: `seat-${Date.now()}-${r}-${c}`,
+        x,
+        y,
+        status: 'free' as const,
+        row: r + 1,
+        place: c + 1,
+        typeId: 'standard',
+        rotation: 0
+      };
+      
+      venueStore.currentVenue.seats.push(newSeat);
     }
   }
 };
@@ -779,6 +810,8 @@ const addObjectFromTemplate = (templateType: VenueObject['type'], x?: number, y?
     venueStore.currentVenue.objects = [];
   }
   
+  commit(); // Save state before adding object
+  
   venueStore.currentVenue.objects.push(newObject);
   selectedObjectId.value = newObject.id;
 };
@@ -814,6 +847,9 @@ const handleObjectDragMove = (event: MouseEvent) => {
 };
 
 const handleObjectDragEnd = () => {
+  if (isDraggingObject.value) {
+    commit(); // Save state after drag
+  }
   isDraggingObject.value = false;
 };
 
@@ -821,6 +857,7 @@ const deleteSelectedObject = () => {
   if (!selectedObjectId.value || !venueStore.currentVenue) return;
   
   if (venueStore.currentVenue.objects) {
+    commit(); // Save state before deletion
     venueStore.currentVenue.objects = venueStore.currentVenue.objects.filter(
       o => o.id !== selectedObjectId.value
     );
@@ -831,6 +868,8 @@ const deleteSelectedObject = () => {
 
 const updateObjectProperty = (property: keyof VenueObject, value: any) => {
   if (!selectedObjectId.value || !venueStore.currentVenue) return;
+  
+  commit(); // Save state before update
   
   const object = venueStore.currentVenue.objects?.find(o => o.id === selectedObjectId.value);
   if (object) {
@@ -853,6 +892,17 @@ watch(activeTool, (newTool) => {
 
 <template>
   <div class="admin-view">
+    <Teleport to="#admin-toolbar-actions">
+      <button 
+        class="export-btn" 
+        @click="undo" 
+        :disabled="!canUndo"
+        title="Undo last action (Ctrl+Z)"
+      >
+        Back
+      </button>
+    </Teleport>
+
     <h1>Venue Layout Editor</h1>
     
     <div 
@@ -863,7 +913,11 @@ watch(activeTool, (newTool) => {
       <!-- Main Toolbar -->
       <ToolBar 
         :activeTool="activeTool" 
+        :canUndo="canUndo"
+        :canRedo="canRedo"
         @update:activeTool="activeTool = $event"
+        @undo="undo"
+        @redo="redo"
       />
 
       <!-- Properties Panel (Sidebar) -->
@@ -920,22 +974,8 @@ watch(activeTool, (newTool) => {
           <button class="action-btn select-all-btn" @click="selectAllSeats">
             Select All Seats
           </button>
-          
-          <!-- Selected Seats Controls -->
-          <div v-if="selectedSeats.size > 0" style="margin-top: 1rem;">
-            <div class="settings-divider"></div>
-            <div class="settings-subtitle">Selected: {{ selectedSeats.size }} seat(s)</div>
-            
-            <div class="settings-group">
-              <button class="action-btn delete-btn" @click="deleteSelection">
-                Delete Selected
-              </button>
-              <button class="clear-btn" @click="clearSelection" style="margin-top: 0.5rem;">
-                Deselect All
-              </button>
-            </div>
-          </div>
         </div>
+          
 
         <!-- Help: Select tool with no seats selected -->
         <div v-if="activeTool === 'select' && selectedSeats.size === 0" style="padding: 10px; font-size: 0.75rem; color: #aaa;">
@@ -1082,7 +1122,8 @@ watch(activeTool, (newTool) => {
             class="seat"
             :class="{ 
               selected: selectedSeats.has(seat.id),
-              transparent: activeTool === 'objects'
+              transparent: activeTool === 'objects',
+              overlapping: overlappingSeatIds.has(seat.id)
             }"
             :style="{ 
               left: seat.x + 'px', 
@@ -1437,6 +1478,11 @@ watch(activeTool, (newTool) => {
 
 .seat.selected {
   box-shadow: 0 0 0 3px var(--color-accent);
+}
+
+.seat.overlapping {
+  box-shadow: 0 0 0 2px #ff4444 !important;
+  z-index: 10 !important;
 }
 
 .seat.transparent {
