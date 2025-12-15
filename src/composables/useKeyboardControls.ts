@@ -9,6 +9,12 @@ export interface KeyboardControlsOptions {
   
   // Callback для обработки Delete/Backspace
   onDelete?: () => void;
+
+  // Callback для Undo
+  onUndo?: () => void;
+
+  // Callback для Redo
+  onRedo?: () => void;
   
   // Опционально: дополнительные кастомные обработчики
   customHandlers?: Record<string, (event: KeyboardEvent) => void>;
@@ -19,7 +25,7 @@ export interface KeyboardControlsOptions {
  * Автоматически подписывается/отписывается от событий клавиатуры
  */
 export function useKeyboardControls(options: KeyboardControlsOptions) {
-  const { enabled, onArrowKey, onDelete, customHandlers } = options;
+  const { enabled, onArrowKey, onDelete, onUndo, onRedo, customHandlers } = options;
 
   const handleKeydown = (event: KeyboardEvent) => {
     // Не обрабатываем события если обработчик отключен
@@ -45,6 +51,23 @@ export function useKeyboardControls(options: KeyboardControlsOptions) {
         case 'ArrowRight':
           onArrowKey(1, 0);
           return;
+      }
+    }
+
+    // Обработка Undo/Redo
+    if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key.toLowerCase() === 'z') {
+      if (onUndo) {
+        event.preventDefault();
+        onUndo();
+        return;
+      }
+    }
+
+    if ((event.ctrlKey || event.metaKey) && (event.key.toLowerCase() === 'y' || (event.shiftKey && event.key.toLowerCase() === 'z'))) {
+      if (onRedo) {
+        event.preventDefault();
+        onRedo();
+        return;
       }
     }
 

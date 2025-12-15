@@ -201,19 +201,6 @@ watch(activeTool, (newTool, oldTool) => {
   }
 });
 
-// Undo/Redo Keyboard Shortcuts
-const handleUndoRedoKeydown = (e: KeyboardEvent) => {
-  // Undo: Ctrl+Z
-  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && !e.shiftKey) {
-    e.preventDefault();
-    undo();
-  }
-  // Redo: Ctrl+Y or Ctrl+Shift+Z
-  if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'y' || (e.shiftKey && e.key.toLowerCase() === 'z'))) {
-    e.preventDefault();
-    redo();
-  }
-};
 
 onMounted(async () => {
   try {
@@ -223,15 +210,14 @@ onMounted(async () => {
       initHistory();
     }
     
-    window.addEventListener('keydown', handleUndoRedoKeydown);
   } catch (e) {
     console.error('Error in AdminView onMounted:', e);
   }
 });
 
-onUnmounted(() => {
-  window.removeEventListener('keydown', handleUndoRedoKeydown);
-});
+// onUnmounted(() => {
+//   window.removeEventListener('keydown', handleUndoRedoKeydown);
+// });
 
 // Helper to get seats grid container
 const getSeatsGridContainer = (): HTMLElement | null => {
@@ -475,7 +461,9 @@ const updateSelectedSeatsType = (typeId: string) => {
 useKeyboardControls({
   enabled: computed(() => selectedSeats.value.size > 0 || selectedObjectId.value !== null),
   onArrowKey: moveSelection,
-  onDelete: deleteSelection
+  onDelete: deleteSelection,
+  onUndo: undo,
+  onRedo: redo
 });
 
 // Background handlers
