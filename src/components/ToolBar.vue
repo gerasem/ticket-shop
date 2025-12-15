@@ -69,9 +69,9 @@ const emit = defineEmits<{
     >
       <IconImage name="box" size="24px" />
     </button>
-    <div v-if="activeTool === 'select'" class="separator"></div>
+    <div v-if="activeTool === 'select' || activeTool === 'add-seat' || activeTool === 'background' || activeTool === 'objects'" class="separator"></div>
     <button 
-      v-if="activeTool === 'select'"
+      v-if="activeTool === 'select' || activeTool === 'add-seat' || activeTool === 'background' || activeTool === 'objects'"
       class="tool-btn" 
       @click="$emit('undo')"
       :disabled="!canUndo"
@@ -80,7 +80,7 @@ const emit = defineEmits<{
       <IconImage name="undo" size="24px" />
     </button>
     <button 
-      v-if="activeTool === 'select'"
+      v-if="activeTool === 'select' || activeTool === 'add-seat' || activeTool === 'background' || activeTool === 'objects'"
       class="tool-btn" 
       @click="$emit('redo')"
       :disabled="!canRedo"
@@ -89,11 +89,11 @@ const emit = defineEmits<{
       <IconImage name="redo" size="24px" />
     </button>
     <button 
-      v-if="activeTool === 'select'"
+      v-if="activeTool === 'select' || activeTool === 'background' || activeTool === 'objects'"
       class="tool-btn delete-btn" 
       @click="$emit('delete')"
       :disabled="!canDelete"
-      title="Delete Selected (Del)"
+      title="Delete (Del)"
     >
       <IconImage name="trash" size="24px" />
     </button>

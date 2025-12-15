@@ -119,9 +119,9 @@
 
       <!-- Delete and Deselect Buttons -->
       <div class="settings-group">
-        <button class="action-btn delete-btn" @click="$emit('delete-object')">
+        <!-- <button class="action-btn delete-btn" @click="$emit('delete-object')">
           Delete Object
-        </button>
+        </button> -->
         <button class="clear-btn" @click="$emit('deselect')" style="margin-top: 0.5rem;">
           Deselect
         </button>

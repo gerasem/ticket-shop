@@ -424,22 +424,28 @@ const rotateCounterClockwise = () => {
 const deleteSelection = () => {
   if (!venueStore.currentVenue) return;
   
-  // Delete selected object
-  if (selectedObjectId.value) {
+  // Delete background when background tool is active
+  if (activeTool.value === 'background') {
+    removeBackground();
+    return;
+  }
+  
+  // Delete selected object when objects tool is active
+  if (activeTool.value === 'objects' && selectedObjectId.value) {
     deleteSelectedObject();
     return;
   }
   
-  // Delete selected seats
-  if (selectedSeats.value.size === 0) return;
-  
-  commit(); // Save state before deletion
-  
-  venueStore.currentVenue.seats = venueStore.currentVenue.seats.filter(
-    seat => !selectedSeats.value.has(seat.id)
-  );
-  
-  clearSelection();
+  // Delete selected seats when select tool is active
+  if (activeTool.value === 'select' && selectedSeats.value.size > 0) {
+    commit(); // Save state before deletion
+    
+    venueStore.currentVenue.seats = venueStore.currentVenue.seats.filter(
+      seat => !selectedSeats.value.has(seat.id)
+    );
+    
+    clearSelection();
+  }
 };
 
 // Update type for selected seats
@@ -910,7 +916,11 @@ watch(activeTool, (newTool) => {
         :activeTool="activeTool" 
         :canUndo="canUndo"
         :canRedo="canRedo"
-        :canDelete="selectedSeats.size > 0 || selectedObjectId !== null"
+        :canDelete="
+          (activeTool === 'select' && selectedSeats.size > 0) || 
+          (activeTool === 'objects' && selectedObjectId !== null) ||
+          (activeTool === 'background' && venueStore.currentVenue?.backgroundImage !== undefined)
+        "
         @update:activeTool="activeTool = $event"
         @undo="undo"
         @redo="redo"
@@ -992,16 +1002,6 @@ watch(activeTool, (newTool) => {
           <ul style="margin: 0; padding-left: 20px;">
             <li>Drag to move view</li>
             <li>Navigate around the venue</li>
-          </ul>
-        </div>
-
-        <!-- Help: Add Seat tool -->
-        <div v-if="activeTool === 'add-seat'" style="padding: 10px; font-size: 0.75rem; color: #aaa;">
-          <p style="margin: 0 0 8px 0;"><strong>Add Seat Tool</strong></p>
-          <ul style="margin: 0; padding-left: 20px;">
-            <li>Click anywhere to add a seat</li>
-            <li>Seats snap to 10px grid</li>
-            <li>Use Recalculate Rows to update numbering</li>
           </ul>
         </div>
 
