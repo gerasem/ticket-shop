@@ -7,6 +7,7 @@ defineProps<{
   activeTool: Tool;
   canUndo?: boolean;
   canRedo?: boolean;
+  canDelete?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -91,6 +92,7 @@ const emit = defineEmits<{
       v-if="activeTool === 'select'"
       class="tool-btn delete-btn" 
       @click="$emit('delete')"
+      :disabled="!canDelete"
       title="Delete Selected (Del)"
     >
       <IconImage name="trash" size="24px" />
@@ -136,6 +138,17 @@ const emit = defineEmits<{
   background: rgba(66, 185, 131, 0.2);
   border-color: #42b983;
   color: #42b983;
+}
+
+.tool-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  color: #555;
+}
+
+.tool-btn:disabled:hover {
+  background: transparent;
+  color: #555;
 }
 
 .tool-icon {

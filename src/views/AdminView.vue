@@ -904,6 +904,7 @@ watch(activeTool, (newTool) => {
         :activeTool="activeTool" 
         :canUndo="canUndo"
         :canRedo="canRedo"
+        :canDelete="selectedSeats.size > 0 || selectedObjectId !== null"
         @update:activeTool="activeTool = $event"
         @undo="undo"
         @redo="redo"
