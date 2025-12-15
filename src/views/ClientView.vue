@@ -274,13 +274,13 @@ const getSeatTypeClass = (seat: any) => {
 
 /* Booked seats - red */
 .seat.booked {
-  background: #ef4444 !important;
+  background: var(--color-danger) !important;
   cursor: not-allowed;
 }
 
 /* Selected seats - green accent */
 .seat.readyToBook {
-  background: #42b983 !important;
+  background: var(--color-seat-selected) !important;
   box-shadow: 0 0 15px var(--color-accent);
 }
 

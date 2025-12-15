@@ -146,6 +146,13 @@
         Manage Seat Types
       </button>
     </div>
+    
+    <!-- Manage Colors Button -->
+    <div class="settings-group">
+      <button class="action-btn manage-colors-btn" @click="$emit('open-color-modal')">
+        Manage Colors
+      </button>
+    </div>
   </div>
 </template>
 
@@ -164,6 +171,7 @@ const emit = defineEmits<{
   (e: 'update:showRightRowLabels', value: boolean): void;
   (e: 'recalculate-rows'): void;
   (e: 'open-type-modal'): void;
+  (e: 'open-color-modal'): void;
 }>();
 
 // Curvature controls
@@ -320,6 +328,16 @@ const applyCurvature = () => {
 }
 
 .manage-types-btn:hover {
+  background: var(--color-accent-medium);
+}
+
+.manage-colors-btn {
+  background: var(--color-accent-light);
+  color: var(--color-accent);
+  border: 1px solid var(--color-accent-strong);
+}
+
+.manage-colors-btn:hover {
   background: var(--color-accent-medium);
 }
 

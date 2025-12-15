@@ -16,6 +16,7 @@ import AdminVenueSettings from '../components/admin/AdminVenueSettings.vue';
 import AdminBackgroundSettings from '../components/admin/AdminBackgroundSettings.vue';
 import AdminObjectSettings from '../components/admin/AdminObjectSettings.vue';
 import AdminSeatSettings from '../components/admin/AdminSeatSettings.vue';
+import ColorSettingsModal from '../components/admin/ColorSettingsModal.vue';
 
 const venueStore = useVenueStore();
 
@@ -151,6 +152,7 @@ const previewSeatPos = ref<Point | null>(null);
 
 // Modal state
 const showTypeModal = ref(false);
+const showColorModal = ref(false);
 
 // Objects tool state
 const selectedObjectId = ref<string | null>(null);
@@ -934,6 +936,7 @@ watch(activeTool, (newTool) => {
           v-model:showRightRowLabels="showRightRowLabels"
           @recalculate-rows="recalculateRows"
           @open-type-modal="showTypeModal = true"
+          @open-color-modal="showColorModal = true"
         />
 
         <!-- Add Seat Tool Section -->
@@ -1148,6 +1151,11 @@ watch(activeTool, (newTool) => {
       v-model="showTypeModal"
       :venue="venueStore.currentVenue"
       @save="handleTypesUpdate"
+    />
+    
+    <!-- Color Settings Modal -->
+    <ColorSettingsModal 
+      v-model="showColorModal"
     />
   </div>
 </template>
@@ -1479,7 +1487,7 @@ watch(activeTool, (newTool) => {
 }
 
 .seat.overlapping {
-  box-shadow: 0 0 0 2px #ff4444 !important;
+  box-shadow: 0 0 0 2px var(--color-danger) !important;
   z-index: 10 !important;
 }
 
@@ -1535,7 +1543,7 @@ watch(activeTool, (newTool) => {
 /* Preview Seat Styles */
 .preview-seat {
   opacity: 0.5;
-  background: #42b983 !important;
+  background: var(--color-seat-selected) !important;
   border: 2px dashed var(--color-accent);
   pointer-events: none;
   font-size: 16px;
