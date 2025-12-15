@@ -150,7 +150,7 @@ const handleMouseLeave = () => {
               :key="obj.id"
               class="venue-object"
               :class="{ selected: selectedObjectId === obj.id }"
-              @click="(e) => { if (activeTool !== 'pan') { e.stopPropagation(); emit('object-click', obj.id, e); } }"
+              @click="(e) => { if (activeTool === 'objects') { e.stopPropagation(); emit('object-click', obj.id, e); } }"
               :style="{
                 position: 'absolute',
                 left: obj.x + 'px',
