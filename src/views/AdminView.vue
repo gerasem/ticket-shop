@@ -182,6 +182,7 @@ const handleBackgroundUpload = (event: Event) => {
         } else {
           venueStore.currentVenue.backgroundImage.url = e.target.result as string;
         }
+        commit(); // Save state after upload/replace
       }
     };
     reader.readAsDataURL(input.files[0]);
@@ -472,6 +473,7 @@ useKeyboardControls({
 const removeBackground = () => {
   if (venueStore.currentVenue) {
     venueStore.currentVenue.backgroundImage = undefined;
+    commit(); // Save state after removal
   }
 };
 
@@ -481,6 +483,8 @@ const moveBackground = (dx: number, dy: number) => {
   const step = backgroundMoveStep.value;
   venueStore.currentVenue.backgroundImage.x += dx * step;
   venueStore.currentVenue.backgroundImage.y += dy * step;
+  
+  commit(); // Save state after movement
 };
 
 const rotateBackground = (angle: number) => {
@@ -488,6 +492,8 @@ const rotateBackground = (angle: number) => {
   
   const currentRotation = venueStore.currentVenue.backgroundImage.rotation || 0;
   venueStore.currentVenue.backgroundImage.rotation = (currentRotation + angle) % 360;
+  
+  commit(); // Save state after rotation
 };
 
 const recalculateRows = () => {
