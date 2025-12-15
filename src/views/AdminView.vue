@@ -1,5 +1,5 @@
 ﻿<script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed, toRef, watch } from 'vue';
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import { useVenueStore } from '../stores/venue';
 import { useVenueEditor } from '../composables/useVenueEditor';
 import { useGeometry, type Point } from '../composables/useGeometry';
@@ -87,7 +87,7 @@ const currentType = computed(() => {
   if (seats.length === 0) return null;
   
   // Check if all seats have the same type
-  const firstTypeId = seats[0].typeId;
+  const firstTypeId = seats[0]?.typeId;
   const allSameType = seats.every(seat => seat.typeId === firstTypeId);
   
   // Only return type if all selected seats have the same type
@@ -149,7 +149,6 @@ const lastMousePos = ref<Point>({ x: 0, y: 0 });
 // Add seat preview state
 const previewSeatPos = ref<Point | null>(null);
 
-
 // Modal state
 const showTypeModal = ref(false);
 
@@ -193,8 +192,6 @@ const handleTypesUpdate = (types: SeatType[]) => {
     venueStore.currentVenue.seatTypes = types;
   }
 };
-
-
 
 // Watch activeTool and clear selection when switching away from select tool
 watch(activeTool, (newTool, oldTool) => {
@@ -253,7 +250,6 @@ const toggleSeatSelection = (seatId: string) => {
     selectedSeats.value.add(seatId);
   }
 };
-
 
 // Select all seats (toggle: if all selected, deselect all)
 const selectAllSeats = () => {
@@ -330,7 +326,6 @@ const selectColumn = (colNumber: number) => {
   }
 };
 
-// Movement Logic
 // Movement Logic
 const moveSelection = (dx: number, dy: number) => {
   const stepX = dx * moveStep.value;
@@ -562,11 +557,6 @@ const recalculateRows = () => {
   });
 };
 
-
-
-
-
-
 const handleMouseMoveForPreview = (event: MouseEvent) => {
   if (activeTool.value !== 'add-seat') {
     previewSeatPos.value = null;
@@ -614,10 +604,30 @@ const addSeat = (event: MouseEvent) => {
     rotation: 0
   };
 
+  commit(); // Save state before change
+  venueStore.currentVenue.seats.push(newSeat);
+};
+
+const addSeatBlock = (rows: number, seatsPerRow: number) => {
+  if (!venueStore.currentVenue) return;
+  
   const seatWidth = venueStore.currentVenue.defaultSeatStyle.width;
   const seatHeight = venueStore.currentVenue.defaultSeatStyle.height;
+  const gap = 10;
 
-  commit(); // Save state before change
+  // Calculate start position based on existing seats
+  let startX = 100;
+  let startY = 100;
+
+  if (venueStore.currentVenue.seats.length > 0) {
+    const maxX = Math.max(...venueStore.currentVenue.seats.map(s => s.x + (s.typeId ? 0 : seatWidth))); 
+    startX = maxX + 50; // Add 50px gap
+    
+    const minY = Math.min(...venueStore.currentVenue.seats.map(s => s.y));
+    startY = minY;
+  }
+  
+  commit();
   
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < seatsPerRow; c++) {

@@ -56,8 +56,6 @@ const getSeatTypeClass = (seat: any) => {
   const type = getSeatType(seat);
   return `type-${type?.id || 'unknown'}`;
 };
-
-
 </script>
 
 <template>

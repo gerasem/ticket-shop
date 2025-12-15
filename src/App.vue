@@ -23,8 +23,6 @@ const handleExportJSON = async () => {
     alert('❌ Failed to copy. Please try again.');
   }
 };
-
-
 </script>
 
 <template>
