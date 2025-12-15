@@ -107,7 +107,7 @@ export function useVenueEditor(venue: Ref<Venue | null>) {
 
   /**
    * Commit current state to history
-   * Should be called AFTER a change is made
+   * Should be called AFTER making a change to save the new state
    */
   const commit = () => {
     if (!venue.value) return;
@@ -117,14 +117,28 @@ export function useVenueEditor(venue: Ref<Venue | null>) {
       history.value = history.value.slice(0, historyIndex.value + 1);
     }
     
+    // Deep clone to prevent reference issues
     const state = {
-      seats: venue.value.seats,
-      objects: venue.value.objects,
-      backgroundImage: venue.value.backgroundImage
+      seats: JSON.parse(JSON.stringify(venue.value.seats)),
+      objects: JSON.parse(JSON.stringify(venue.value.objects || [])),
+      backgroundImage: venue.value.backgroundImage ? JSON.parse(JSON.stringify(venue.value.backgroundImage)) : undefined
     };
     
-    history.value.push(JSON.stringify(state));
+    const stateJson = JSON.stringify(state);
+    
+    // Don't save duplicate states
+    if (history.value[history.value.length - 1] === stateJson) {
+      return;
+    }
+    
+    history.value.push(stateJson);
     historyIndex.value++;
+    
+    // Limit history to last 50 states to prevent memory issues
+    if (history.value.length > 50) {
+      history.value.shift();
+      historyIndex.value--;
+    }
   };
 
   /**

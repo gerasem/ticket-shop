@@ -594,8 +594,8 @@ const addSeat = (event: MouseEvent) => {
     rotation: 0
   };
 
-  commit(); // Save state before change
   venueStore.currentVenue.seats.push(newSeat);
+  commit(); // Save state after change
 };
 
 const addSeatBlock = (rows: number, seatsPerRow: number) => {
@@ -810,10 +810,10 @@ const addObjectFromTemplate = (templateType: VenueObject['type'], x?: number, y?
     venueStore.currentVenue.objects = [];
   }
   
-  commit(); // Save state before adding object
-  
   venueStore.currentVenue.objects.push(newObject);
   selectedObjectId.value = newObject.id;
+  
+  commit(); // Save state after adding object
 };
 
 const handleObjectClick = (objectId: string, event: MouseEvent) => {
@@ -857,24 +857,24 @@ const deleteSelectedObject = () => {
   if (!selectedObjectId.value || !venueStore.currentVenue) return;
   
   if (venueStore.currentVenue.objects) {
-    commit(); // Save state before deletion
     venueStore.currentVenue.objects = venueStore.currentVenue.objects.filter(
       o => o.id !== selectedObjectId.value
     );
   }
   
   selectedObjectId.value = null;
+  commit(); // Save state after deletion
 };
 
 const updateObjectProperty = (property: keyof VenueObject, value: any) => {
   if (!selectedObjectId.value || !venueStore.currentVenue) return;
   
-  commit(); // Save state before update
-  
   const object = venueStore.currentVenue.objects?.find(o => o.id === selectedObjectId.value);
   if (object) {
     (object as any)[property] = value;
   }
+  
+  commit(); // Save state after update
 };
 
 const getSelectedObject = computed(() => {
