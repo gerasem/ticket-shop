@@ -1,0 +1,23 @@
+<?php
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+
+Route::get('/user', function (Request $request) {
+    return $request->user();
+})->middleware('auth:sanctum');
+
+Route::get('/test', function () {
+    try {
+        \Illuminate\Support\Facades\DB::connection()->getPdo();
+        $dbStatus = 'connected';
+    } catch (\Exception $e) {
+        $dbStatus = 'disconnected: ' . $e->getMessage();
+    }
+
+    return response()->json([
+        'status' => 'ok',
+        'message' => 'Backend is working',
+        'database' => $dbStatus,
+    ]);
+});
