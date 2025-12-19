@@ -1,31 +1,27 @@
 {
-  "name": "ticket-shop",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "server": "node server/index.js",
-    "dev:all": "concurrently \"npm run server\" \"npm run dev\"",
-    "build": "vue-tsc -b && vite build",
-    "preview": "vite preview"
-  },
-  "dependencies": {
-    "body-parser": "^2.2.1",
-    "concurrently": "^9.2.1",
-    "cors": "^2.8.5",
-    "express": "^5.1.0",
-    "pinia": "^3.0.4",
-    "sqlite3": "^5.1.7",
-    "vue": "^3.5.24",
-    "vue-router": "^4.6.3"
-  },
-  "devDependencies": {
-    "@types/node": "^24.10.1",
-    "@vitejs/plugin-vue": "^6.0.1",
-    "@vue/tsconfig": "^0.8.1",
-    "typescript": "~5.9.3",
-    "vite": "^7.2.4",
-    "vue-tsc": "^3.1.4"
-  }
+    "$schema": "https://www.schemastore.org/package.json",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "build": "vue-tsc -b && vite build",
+        "dev": "vite"
+    },
+    "dependencies": {
+        "pinia": "^3.0.4",
+        "vue": "^3.5.24",
+        "vue-router": "^4.6.3"
+    },
+    "devDependencies": {
+        "@tailwindcss/vite": "^4.0.0",
+        "@types/node": "^24.10.1",
+        "@vitejs/plugin-vue": "^6.0.1",
+        "@vue/tsconfig": "^0.8.1",
+        "axios": "^1.11.0",
+        "concurrently": "^9.0.1",
+        "laravel-vite-plugin": "^2.0.0",
+        "tailwindcss": "^4.0.0",
+        "typescript": "~5.9.3",
+        "vite": "^7.0.7",
+        "vue-tsc": "^3.1.4"
+    }
 }
