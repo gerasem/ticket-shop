@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { RouterView, useRoute } from 'vue-router';
+import { RouterView, useRoute, useRouter } from 'vue-router';
 import { useVenueStore } from './stores/venue';
+import { useAuthStore } from './stores/auth';
 
 // Import shared styles
 import './assets/theme.css';
@@ -9,10 +10,12 @@ import './assets/styles/buttons.css';
 import './assets/styles/layout.css';
 
 const venueStore = useVenueStore();
+const authStore = useAuthStore();
 const route = useRoute();
+const router = useRouter();
 
 const showAdminToolbar = computed(() => {
-  return route.path.startsWith('/admin');
+  return route.path.startsWith('/admin') && authStore.isAuthenticated;
 });
 
 const handleExportJSON = async () => {
@@ -23,6 +26,11 @@ const handleExportJSON = async () => {
     alert('❌ Failed to copy. Please try again.');
   }
 };
+
+const handleLogout = () => {
+  authStore.logout();
+  router.push('/login');
+};
 </script>
 
 <template>
@@ -32,11 +40,19 @@ const handleExportJSON = async () => {
         <div class="nav-left">
           <RouterLink to="/">Home</RouterLink> |
           <RouterLink to="/client">Client Booking</RouterLink> |
-          <RouterLink to="/admin">Admin</RouterLink>
+          <template v-if="authStore.isAuthenticated">
+            <RouterLink to="/admin">Admin</RouterLink>
+          </template>
+          <template v-else>
+            <RouterLink to="/login">Login</RouterLink>
+          </template>
         </div>
-        <div class="nav-right" v-if="showAdminToolbar">
-          <div id="admin-toolbar-actions"></div>
-          <button class="export-btn" @click="handleExportJSON">Export</button>
+        <div class="nav-right">
+            <template v-if="authStore.isAuthenticated">
+                 <a href="#" @click.prevent="handleLogout" class="logout-link">Logout</a>
+            </template>
+            <div v-if="showAdminToolbar" id="admin-toolbar-actions"></div>
+             <button v-if="showAdminToolbar" class="export-btn" @click="handleExportJSON">Export</button>
         </div>
       </nav>
     </header>
@@ -92,6 +108,18 @@ nav a:hover {
 
 nav a.router-link-active {
   color: var(--color-accent);
+}
+
+.logout-link {
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  font-weight: bold;
+  margin-right: 1rem;
+  font-size: 0.9rem;
+}
+
+.logout-link:hover {
+  color: #ef4444; /* Red color for logout */
 }
 </style>
 

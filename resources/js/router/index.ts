@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import ClientView from '../views/ClientView.vue'
@@ -25,8 +26,31 @@ const router = createRouter({
       path: '/admin',
       name: 'admin',
       component: AdminView
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: () => import('../views/AuthView.vue')
     }
   ]
+})
+
+import { useAuthStore } from '../stores/auth'
+
+router.beforeEach((to, from, next) => {
+  const authStore = useAuthStore()
+  
+  // Protect admin routes
+  if (to.path.startsWith('/admin') && !authStore.isAuthenticated) {
+    next('/login')
+  } 
+  // Redirect to admin if already logged in
+  else if (to.path === '/login' && authStore.isAuthenticated) {
+    next('/admin')
+  } 
+  else {
+    next()
+  }
 })
 
 export default router
