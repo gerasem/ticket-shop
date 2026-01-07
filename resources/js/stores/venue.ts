@@ -1,43 +1,14 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
+import axios from 'axios';
 import { type Venue, generateMockVenue, getVenueById } from '../services/mockData';
 
 export const useVenueStore = defineStore('venue', () => {
   const currentVenue = ref<Venue | null>(null);
-
-  const loadVenue = async (venueId?: string) => {
-    // In a real app, this would fetch from API
-    // For now, we generate mock data
-    if (!currentVenue.value || venueId) {
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // Use the new getVenueById if an ID is provided, otherwise default
-      if (venueId) {
-        currentVenue.value = getVenueById(venueId);
-      } else {
-        // Try to load default from JSON first, fallback to mock
-        try {
-          await loadVenueFromJSON('default-venue.json');
-        } catch (e) {
-          currentVenue.value = generateMockVenue();
-        }
-      }
-      
-      if (currentVenue.value) {
-        // Load saved seats from local storage if any
-        const saved = localStorage.getItem(`venue_seats_${currentVenue.value.id}`);
-        if (saved) {
-          const savedSeats = JSON.parse(saved);
-          // Merge saved status
-          currentVenue.value.seats = currentVenue.value.seats.map(s => {
-            const savedS = savedSeats.find((ss: any) => ss.id === s.id);
-            return savedS ? { ...s, status: savedS.status } : s;
-          });
-        }
-      }
-    }
-  };
+  const venuesList = ref<Venue[]>([]);
+  const isLoading = ref(false);
+  const errorMsg = ref<string | null>(null);
+  const currentVenueId = ref<string | null>(null);
 
   const loadVenueFromJSON = async (filename: string) => {
     try {
@@ -53,12 +24,67 @@ export const useVenueStore = defineStore('venue', () => {
       }
       
       currentVenue.value = data;
+      currentVenueId.value = data?.id ?? null; // Update currentVenueId when loading from JSON
     } catch (error) {
       console.error('Error loading venue from JSON:', error);
       // Fallback to mock data
       currentVenue.value = generateMockVenue();
+      currentVenueId.value = currentVenue.value?.id ?? null; // Update currentVenueId for mock data
     }
   };
+
+  async function loadVenues() {
+    try {
+        isLoading.value = true;
+        errorMsg.value = null; // Clear previous errors
+        const response = await axios.get('/api/venues');
+        venuesList.value = response.data;
+        
+        // Auto load first venue if current is empty
+        if (!currentVenue.value && venuesList.value.length > 0) {
+             await loadVenue(venuesList.value[0].id);
+        }
+    } catch (error) {
+        console.error('Failed to load venues list', error);
+        errorMsg.value = 'Failed to load venues list';
+    } finally {
+        isLoading.value = false;
+    }
+  }
+
+  async function loadVenue(venueId: string) {
+    try {
+        isLoading.value = true;
+        errorMsg.value = null; // Clear previous errors
+        currentVenueId.value = venueId;
+        
+        const response = await axios.get(`/api/venues/${venueId}`);
+        const venueData = response.data;
+
+        // Transform if needed, but Controller should send correct format
+        currentVenue.value = venueData;
+
+        // Load saved seats from local storage if any (retained from original loadVenue logic)
+        if (currentVenue.value) {
+          const saved = localStorage.getItem(`venue_seats_${currentVenue.value.id}`);
+          if (saved) {
+            const savedSeats = JSON.parse(saved);
+            // Merge saved status
+            currentVenue.value.seats = currentVenue.value.seats.map(s => {
+            const savedS = savedSeats.find((ss: any) => ss.id === s.id);
+            return savedS ? { ...s, status: savedS.status } : s;
+          });
+        }
+      }
+
+
+    } catch (error) {
+        console.error(`Failed to load venue ${venueId}`, error);
+        errorMsg.value = `Failed to load venue ${venueId}`;
+    } finally {
+        isLoading.value = false;
+    }
+  }
 
   const exportVenueAsJSON = (): string => {
     if (!currentVenue.value) return '';
@@ -87,7 +113,12 @@ export const useVenueStore = defineStore('venue', () => {
 
   return {
     currentVenue,
+    venuesList,
+    isLoading,
+    errorMsg,
+    currentVenueId,
     loadVenue,
+    loadVenues,
     loadVenueFromJSON,
     exportVenueAsJSON,
     copyVenueJSON,
