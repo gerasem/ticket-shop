@@ -1,15 +1,21 @@
 <script setup lang="ts">
-import { mockEvents } from '../services/mockEvents';
+import { onMounted } from 'vue';
+import { useEventsStore } from '../stores/events';
 import { useRouter } from 'vue-router';
 
+const eventsStore = useEventsStore();
 const router = useRouter();
 
-const goToEvent = (eventId: string) => {
+onMounted(() => {
+  eventsStore.loadEvents();
+});
+
+const goToEvent = (eventId: number) => {
   router.push(`/event/${eventId}`);
 };
 
 const formatDate = (dateStr: string) => {
-  return new Date(dateStr).toLocaleDateString('en-US', {
+  return new Date(dateStr).toLocaleDateString('ru-RU', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
@@ -25,10 +31,16 @@ const formatDate = (dateStr: string) => {
       <p>Discover and book tickets for the best events in town.</p>
     </div>
 
-    <div class="events-grid">
-      <div v-for="event in mockEvents" :key="event.id" class="event-card" @click="goToEvent(event.id)">
+    <!-- Empty state -->
+    <div v-if="!eventsStore.isLoading && eventsStore.events.length === 0" class="empty-state">
+      <p>Мероприятий пока нет</p>
+    </div>
+
+    <!-- Events grid -->
+    <div v-else class="events-grid">
+      <div v-for="event in eventsStore.events" :key="event.id" class="event-card" @click="goToEvent(event.id)">
         <div class="event-image">
-          <img :src="event.image" :alt="event.title" />
+          <img :src="event.image || 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?w=800'" :alt="event.title" />
           <div class="event-date-badge">
             <span class="month">{{ new Date(event.date).toLocaleString('default', { month: 'short' }) }}</span>
             <span class="day">{{ new Date(event.date).getDate() }}</span>
@@ -44,10 +56,6 @@ const formatDate = (dateStr: string) => {
           <button class="btn-book">Get Tickets</button>
         </div>
       </div>
-    </div>
-    
-    <div class="admin-link">
-      <RouterLink to="/admin" class="btn-secondary">Admin Dashboard</RouterLink>
     </div>
   </div>
 </template>
@@ -80,6 +88,13 @@ const formatDate = (dateStr: string) => {
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 2rem;
   margin-bottom: 4rem;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--color-text-muted);
+  font-size: 1.2rem;
 }
 
 .event-card {
