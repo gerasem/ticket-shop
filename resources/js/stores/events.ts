@@ -32,11 +32,16 @@ export const useEventsStore = defineStore('events', () => {
     }
   }
 
-  async function createEvent(eventData: Omit<Event, 'id'>) {
+  async function createEvent(eventData: FormData | Omit<Event, 'id'>) {
     try {
       isLoading.value = true;
       error.value = null;
-      const response = await axios.post('/api/events', eventData);
+      
+      const config = eventData instanceof FormData ? {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      } : {};
+      
+      const response = await axios.post('/api/events', eventData, config);
       events.value.push(response.data);
       return response.data;
     } catch (e) {
@@ -48,11 +53,16 @@ export const useEventsStore = defineStore('events', () => {
     }
   }
 
-  async function updateEvent(id: number, eventData: Partial<Event>) {
+  async function updateEvent(id: number, eventData: FormData | Partial<Event>) {
     try {
       isLoading.value = true;
       error.value = null;
-      const response = await axios.put(`/api/events/${id}`, eventData);
+      
+      const config = eventData instanceof FormData ? {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      } : {};
+      
+      const response = await axios.put(`/api/events/${id}`, eventData, config);
       const index = events.value.findIndex(e => e.id === id);
       if (index !== -1) {
         events.value[index] = response.data;

@@ -86,21 +86,6 @@ export const useVenueStore = defineStore('venue', () => {
     }
   }
 
-  const exportVenueAsJSON = (): string => {
-    if (!currentVenue.value) return '';
-    return JSON.stringify(currentVenue.value, null, 2);
-  };
-
-  const copyVenueJSON = async () => {
-    const json = exportVenueAsJSON();
-    try {
-      await navigator.clipboard.writeText(json);
-      return true;
-    } catch (error) {
-      console.error('Failed to copy to clipboard:', error);
-      return false;
-    }
-  };
 
   const updateSeatStatus = async (seatId: string, status: Venue['seats'][0]['status']) => {
     if (!currentVenue.value) return;
@@ -120,8 +105,6 @@ export const useVenueStore = defineStore('venue', () => {
     loadVenue,
     loadVenues,
     loadVenueFromJSON,
-    exportVenueAsJSON,
-    copyVenueJSON,
     updateSeatStatus
   };
 });

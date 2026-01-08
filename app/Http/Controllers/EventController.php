@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Event;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class EventController extends Controller
 {
@@ -21,8 +22,13 @@ class EventController extends Controller
             'date' => 'required|date',
             'time' => 'required',
             'venue_id' => 'required|exists:venues,id',
-            'image' => 'nullable|string'
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:10240'
         ]);
+
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            $validated['image'] = $this->handleImageUpload($request->file('image'));
+        }
 
         $event = Event::create($validated);
         return response()->json($event->load('venue'), 201);
@@ -44,8 +50,17 @@ class EventController extends Controller
             'date' => 'sometimes|required|date',
             'time' => 'sometimes|required',
             'venue_id' => 'sometimes|required|exists:venues,id',
-            'image' => 'nullable|string'
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:10240'
         ]);
+
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            // Delete old image if exists
+            if ($event->image) {
+                Storage::disk('public')->delete($event->image);
+            }
+            $validated['image'] = $this->handleImageUpload($request->file('image'));
+        }
 
         $event->update($validated);
         return response()->json($event->load('venue'));
@@ -54,7 +69,28 @@ class EventController extends Controller
     public function destroy($id)
     {
         $event = Event::findOrFail($id);
+        
+        // Delete image if exists
+        if ($event->image) {
+            Storage::disk('public')->delete($event->image);
+        }
+        
         $event->delete();
         return response()->json(['message' => 'Event deleted']);
+    }
+
+    /**
+     * Handle image upload and resize to 16:9 aspect ratio
+     */
+    /**
+     * Handle image upload without resizing (bypass GD issues)
+     */
+    private function handleImageUpload($file)
+    {
+        // Store the file directly in 'public/events' directory
+        // Storage::putFile returns the path like 'events/hash.jpg'
+        $path = Storage::disk('public')->putFile('events', $file);
+        
+        return $path;
     }
 }

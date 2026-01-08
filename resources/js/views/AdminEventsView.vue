@@ -1,152 +1,100 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted } from 'vue';
 import { useEventsStore } from '../stores/events';
-import { useVenueStore } from '../stores/venue';
+import { useRouter } from 'vue-router';
+import { Button } from '../components/ui/button';
 
 const eventsStore = useEventsStore();
-const venueStore = useVenueStore();
+const router = useRouter();
 
-const showForm = ref(false);
-const editingEvent = ref<any>(null);
-const formData = ref({
-  title: '',
-  description: '',
-  date: '',
-  time: '',
-  venue_id: '',
-  image: ''
+onMounted(() => {
+  eventsStore.loadEvents();
 });
 
-onMounted(async () => {
-  await Promise.all([
-    eventsStore.loadEvents(),
-    venueStore.loadVenues()
-  ]);
-});
+const formatDate = (dateStr: string) => {
+  return new Date(dateStr).toLocaleDateString('en-US', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  });
+};
 
-function openCreateForm() {
-  editingEvent.value = null;
-  formData.value = {
-    title: '',
-    description: '',
-    date: '',
-    time: '',
-    venue_id: '',
-    image: ''
-  };
-  showForm.value = true;
-}
-
-function openEditForm(event: any) {
-  editingEvent.value = event;
-  formData.value = {
-    title: event.title,
-    description: event.description,
-   date: event.date,
-    time: event.time,
-    venue_id: event.venue_id,
-    image: event.image || ''
-  };
-  showForm.value = true;
-}
-
-async function saveEvent() {
-  try {
-    if (editingEvent.value) {
-      await eventsStore.updateEvent(editingEvent.value.id, formData.value);
-    } else {
-      await eventsStore.createEvent(formData.value);
-    }
-    showForm.value = false;
-  } catch (error) {
-    alert('Failed to save event');
-  }
-}
-
-async function deleteEvent(id: number) {
+const deleteEvent = async (id: number) => {
   if (confirm('Are you sure you want to delete this event?')) {
-    try {
-      await eventsStore.deleteEvent(id);
-    } catch (error) {
-      alert('Failed to delete event');
-    }
+    await eventsStore.deleteEvent(id);
   }
-}
-
-function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString('ru-RU');
-}
+};
 </script>
 
 <template>
   <div class="admin-events">
     <div class="header">
-      <h1>Управление мероприятиями</h1>
-      <button @click="openCreateForm" class="btn-primary">Создать мероприятие</button>
+      <h1>Event Management</h1>
+      <Button variant="primary" @click="router.push('/admin/events/create')">
+        Create Event
+      </Button>
+    </div>
+
+    <!-- Loading state -->
+    <div v-if="eventsStore.isLoading" class="empty-state">
+      <p>Loading...</p>
     </div>
 
     <!-- Empty state -->
-    <div v-if="!eventsStore.isLoading && eventsStore.events.length === 0" class="empty-state">
-      <p>Мероприятий пока нет</p>
-      <button @click="openCreateForm" class="btn-primary">Создать мероприятие</button>
+    <div v-else-if="eventsStore.events.length === 0" class="empty-state">
+      <div class="empty-content">
+        <svg class="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        <h2>No events found</h2>
+        <p>Create your first event to start selling tickets</p>
+      </div>
     </div>
 
     <!-- Events list -->
     <div v-else class="events-list">
-      <div v-for="event in eventsStore.events" :key="event.id" class="event-item">
-        <div class="event-info">
+      <div v-for="event in eventsStore.events" :key="event.id" class="event-card">
+        <div class="event-image">
+          <img 
+            :src="event.image ? `/storage/${event.image}` : 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?w=400'" 
+            :alt="event.title"
+          />
+        </div>
+        <div class="event-details">
           <h3>{{ event.title }}</h3>
-          <p class="meta">📅 {{ formatDate(event.date) }} | 🕒 {{ event.time }}</p>
-          <p class="description">{{ event.description }}</p>
+          <div class="event-meta">
+            <span class="meta-item">
+              <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              {{ formatDate(event.date) }}
+            </span>
+            <span class="meta-item">
+              <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              {{ event.time }}
+            </span>
+          </div>
+          <p class="event-description">{{ event.description }}</p>
         </div>
         <div class="event-actions">
-          <button @click="openEditForm(event)" class="btn-edit">Редактировать</button>
-          <button @click="deleteEvent(event.id)" class="btn-delete">Удалить</button>
+          <Button 
+            variant="secondary-outline" 
+            size="sm" 
+            @click="router.push(`/admin/events/${event.id}/edit`)"
+          >
+            Edit
+          </Button>
+          <Button 
+            variant="secondary-outline" 
+            size="sm" 
+            class="delete-btn"
+            @click="deleteEvent(event.id)"
+          >
+            Delete
+          </Button>
         </div>
-      </div>
-    </div>
-
-    <!-- Form Modal -->
-    <div v-if="showForm" class="modal-overlay" @click.self="showForm = false">
-      <div class="modal">
-        <h2>{{ editingEvent ? 'Редактировать' : 'Создать' }} мероприятие</h2>
-        <form @submit.prevent="saveEvent">
-          <div class="form-group">
-            <label>Название</label>
-            <input v-model="formData.title" required />
-          </div>
-          <div class="form-group">
-            <label>Описание</label>
-            <textarea v-model="formData.description" required rows="4"></textarea>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label>Дата</label>
-              <input v-model="formData.date" type="date" required />
-            </div>
-            <div class="form-group">
-              <label>Время</label>
-              <input v-model="formData.time" type="time" required />
-            </div>
-          </div>
-          <div class="form-group">
-            <label>Venue</label>
-            <select v-model="formData.venue_id" required>
-              <option value="">Выберите venue</option>
-              <option v-for="venue in venueStore.venuesList" :key="venue.id" :value="venue.id">
-                {{ venue.name }}
-              </option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>URL изображения (опционально)</label>
-            <input v-model="formData.image" type="url" placeholder="https://..." />
-          </div>
-          <div class="form-actions">
-            <button type="button" @click="showForm = false" class="btn-cancel">Отмена</button>
-            <button type="submit" class="btn-primary">Сохранить</button>
-          </div>
-        </form>
       </div>
     </div>
   </div>
@@ -154,9 +102,9 @@ function formatDate(dateStr: string) {
 
 <style scoped>
 .admin-events {
-  padding: 2rem;
   max-width: 1200px;
   margin: 0 auto;
+  padding: 2rem 1.5rem;
 }
 
 .header {
@@ -167,19 +115,44 @@ function formatDate(dateStr: string) {
 }
 
 .header h1 {
-  color: var(--color-text-white);
+  font-size: 2rem;
+  font-weight: 700;
+  color: #111827;
   margin: 0;
 }
 
 .empty-state {
   text-align: center;
   padding: 4rem 2rem;
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
 }
 
-.empty-state p {
-  color: var(--color-text-muted);
-  font-size: 1.2rem;
-  margin-bottom: 1.5rem;
+.empty-content {
+  max-width: 400px;
+}
+
+.empty-icon {
+  width: 64px;
+  height: 64px;
+  color: #d1d5db;
+  margin: 0 auto 1rem;
+}
+
+.empty-content h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #374151;
+  margin: 0 0 0.5rem 0;
+}
+
+.empty-content p {
+  color: #6b7280;
+  font-size: 1rem;
+  margin: 0;
 }
 
 .events-list {
@@ -188,155 +161,110 @@ function formatDate(dateStr: string) {
   gap: 1rem;
 }
 
-.event-item {
-  background: var(--color-bg-panel);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  padding: 1.5rem;
+.event-card {
+  display: grid;
+  grid-template-columns: 200px 1fr auto;
+  gap: 1.5rem;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.2s;
+}
+
+.event-card:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  border-color: #d1d5db;
+}
+
+.event-image {
+  width: 200px;
+  height: 150px;
+  overflow: hidden;
+}
+
+.event-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.event-details {
+  padding: 1.5rem 0;
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.event-details h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.event-meta {
+  display: flex;
+  gap: 1.5rem;
+  font-size: 0.875rem;
+}
+
+.meta-item {
+  display: flex;
   align-items: center;
+  gap: 0.5rem;
+  color: #6b7280;
 }
 
-.event-info h3 {
-  margin: 0 0 0.5rem 0;
-  color: var(--color-text-white);
+.icon {
+  width: 16px;
+  height: 16px;
 }
 
-.event-info .meta {
-  color: var(--color-text-muted);
-  font-size: 0.9rem;
-  margin: 0.25rem 0;
-}
-
-.event-info .description {
-  color: var(--color-text-tertiary);
-  margin: 0.5rem 0 0 0;
-  max-width: 600px;
+.event-description {
+  color: #4b5563;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .event-actions {
   display: flex;
+  flex-direction: column;
   gap: 0.5rem;
+  padding: 1.5rem;
+  border-left: 1px solid #f3f4f6;
+  align-items: stretch;
 }
 
-.btn-primary {
-  background: var(--color-accent);
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 6px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background 0.2s;
+.delete-btn {
+  border-color: #ef4444;
+  color: #ef4444;
 }
 
-.btn-primary:hover {
-  background: var(--color-accent-hover);
+.delete-btn:hover {
+  background: #fef2f2;
 }
 
-.btn-edit {
-  background: #3b82f6;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  cursor: pointer;
-}
+@media (max-width: 768px) {
+  .event-card {
+    grid-template-columns: 1fr;
+  }
 
-.btn-edit:hover {
-  background: #2563eb;
-}
+  .event-image {
+    width: 100%;
+    height: 200px;
+  }
 
-.btn-delete {
-  background: #ef4444;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.btn-delete:hover {
-  background: #dc2626;
-}
-
-/* Modal styles */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.modal {
-  background: var(--color-bg-panel);
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  padding: 2rem;
-  max-width: 600px;
-  width: 90%;
-  max-height: 90vh;
-  overflow-y: auto;
-}
-
-.modal h2 {
-  margin: 0 0 1.5rem 0;
-  color: var(--color-text-white);
-}
-
-.form-group {
-  margin-bottom: 1.5rem;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 0.5rem;
-  color: var(--color-text-tertiary);
-  font-size: 0.9rem;
-}
-
-.form-group input,
-.form-group textarea,
-.form-group select {
-  width: 100%;
-  padding: 0.75rem;
-  background: var(--color-bg-dark);
-  border: 1px solid var(--color-border);
-  border-radius: 4px;
-  color: var(--color-text-white);
-  font-family: inherit;
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
-
-.form-actions {
-  display: flex;
-  gap: 1rem;
-  justify-content: flex-end;
-  margin-top: 2rem;
-}
-
-.btn-cancel {
-  background: transparent;
-  color: var(--color-text-muted);
-  border: 1px solid var(--color-border);
-  padding: 0.75rem 1.5rem;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.btn-cancel:hover {
-  border-color: var(--color-text-muted);
+  .event-actions {
+    border-left: none;
+    border-top: 1px solid #f3f4f6;
+    flex-direction: row;
+  }
 }
 </style>

@@ -986,9 +986,9 @@ watch(activeTool, (newTool) => {
           
 
         <!-- Help: Select tool with no seats selected -->
-        <div v-if="activeTool === 'select' && selectedSeats.size === 0" style="padding: 10px; font-size: 0.75rem; color: #aaa;">
-          <p style="margin: 0 0 8px 0;"><strong>Selection Tool</strong></p>
-          <ul style="margin: 0; padding-left: 20px;">
+        <div v-if="activeTool === 'select' && selectedSeats.size === 0" class="tool-help">
+          <p class="tool-help-title"><strong>Selection Tool</strong></p>
+          <ul class="tool-help-list">
             <li>Click seat to toggle select</li>
             <li>Drag to area select</li>
             <li>Click row/col label to select all</li>
@@ -997,9 +997,9 @@ watch(activeTool, (newTool) => {
         </div>
 
         <!-- Help: Pan tool -->
-        <div v-if="activeTool === 'pan'" style="padding: 10px; font-size: 0.75rem; color: #aaa;">
-          <p style="margin: 0 0 8px 0;"><strong>Pan Tool</strong></p>
-          <ul style="margin: 0; padding-left: 20px;">
+        <div v-if="activeTool === 'pan'" class="tool-help">
+          <p class="tool-help-title"><strong>Pan Tool</strong></p>
+          <ul class="tool-help-list">
             <li>Drag to move view</li>
             <li>Navigate around the venue</li>
           </ul>
@@ -1899,5 +1899,27 @@ watch(activeTool, (newTool) => {
   flex-direction: column;
   gap: 0.75rem;
   margin-top: 0.5rem;
+}
+
+/* Tool Help Sections */
+.tool-help {
+  padding: 10px;
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.tool-help-title {
+  margin: 0 0 8px 0;
+  color: #6b7280;
+}
+
+.tool-help-list {
+  margin: 0;
+  padding-left: 20px;
+  color: #9ca3af;
+}
+
+.tool-help-list li {
+  margin-bottom: 4px;
 }
 </style>

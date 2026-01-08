@@ -5,6 +5,7 @@ import { useCartStore } from '../stores/cart';
 import { usePrice } from '../composables/usePrice';
 import VenueGrid from '../components/VenueGrid.vue';
 import { useRoute } from 'vue-router';
+import { Button } from '../components/ui/button';
 
 const venueStore = useVenueStore();
 const cartStore = useCartStore();
@@ -109,14 +110,14 @@ const getSeatTypeClass = (seat: any) => {
       <aside class="shopping-cart">
         <div class="cart-header">
           <h3>Your Cart</h3>
-          <button 
+          <Button 
             v-if="cartStore.selectedSeats.length > 0"
-            class="clear-cart-btn" 
+            variant="secondary-outline" 
+            size="sm"
             @click="clearCart"
-            title="Clear all selections"
           >
             Clear
-          </button>
+          </Button>
         </div>
         <div v-if="cartStore.selectedSeats.length === 0" class="empty-cart">
           No seats selected
@@ -143,7 +144,7 @@ const getSeatTypeClass = (seat: any) => {
           </div>
         </div>
         <div class="cart-total">
-          <strong>Total:</strong>
+          <strong class="total-label">Total:</strong>
           <strong class="total-price">{{ formatPrice(cartStore.totalPriceInCents) }}</strong>
         </div>
       </aside>
@@ -157,9 +158,9 @@ const getSeatTypeClass = (seat: any) => {
 
 .client-view {
   padding: 2rem;
-  background: var(--color-bg-primary);
+  background: var(--bg-secondary);
   min-height: 100vh;
-  color: white;
+  color: var(--text-primary);
 }
 
 /* Header Section with Title and Legend */
@@ -179,10 +180,12 @@ const getSeatTypeClass = (seat: any) => {
   display: flex;
   align-items: center;
   gap: 1.5rem;
-  background: var(--color-bg-panel);
+  background: white;
   padding: 0.75rem 1.5rem;
   border-radius: 8px;
   font-size: 0.85rem;
+  color: var(--text-subtle);
+  border: 1px solid var(--border-primary);
 }
 
 .price-legend-compact .legend-item {
@@ -337,13 +340,15 @@ const getSeatTypeClass = (seat: any) => {
 
 /* Shopping Cart */
 .shopping-cart {
-  width: 250px;
-  background: var(--color-bg-secondary);
+  width: 300px;
+  background: white;
   padding: 1.5rem;
   border-radius: 12px;
   height: fit-content;
   position: sticky;
   top: 2rem;
+  border: 1px solid var(--border-primary);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .cart-header {
@@ -355,8 +360,9 @@ const getSeatTypeClass = (seat: any) => {
 
 .shopping-cart h3 {
   margin: 0;
-  font-size: 1.1rem;
-  color: var(--color-accent);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
 }
 
 .clear-cart-btn {
@@ -378,10 +384,11 @@ const getSeatTypeClass = (seat: any) => {
 }
 
 .empty-cart {
-  color: var(--color-text-tertiary);
+  color: var(--text-muted);
   font-style: italic;
   text-align: center;
-  padding: 2rem 0;
+  padding: 3rem 1rem;
+  font-size: 0.9375rem;
 }
 
 .cart-items {
@@ -398,10 +405,11 @@ const getSeatTypeClass = (seat: any) => {
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem;
-  background: var(--color-bg-panel);
+  background: var(--bg-secondary);
   border-radius: 6px;
   font-size: 0.9rem;
   gap: 0.5rem;
+  border: 1px solid var(--border-primary);
 }
 
 .cart-seat-info {
@@ -409,8 +417,8 @@ const getSeatTypeClass = (seat: any) => {
 }
 
 .cart-seat-label {
-  color: var(--color-accent);
-  font-weight: 500;
+  color: var(--text-primary);
+  font-weight: 600;
   display: block;
 }
 
@@ -421,7 +429,8 @@ const getSeatTypeClass = (seat: any) => {
 }
 
 .cart-seat-price {
-  color: var(--color-seat-price);
+  color: rgb(var(--color-primary));
+  font-weight: 600;
 }
 
 .remove-seat-btn {
@@ -449,12 +458,19 @@ const getSeatTypeClass = (seat: any) => {
   display: flex;
   justify-content: space-between;
   padding-top: 1rem;
-  border-top: 2px solid var(--color-border-light);
+  border-top: 2px solid var(--border-primary);
   font-size: 1.1rem;
+  color: var(--text-primary);
 }
 
 .total-price {
-  color: var(--color-accent);
-  font-size: 1.3rem;
+  color: rgb(var(--color-primary));
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.total-label {
+  color: var(--text-subtle);
+  font-weight: 600;
 }
 </style>

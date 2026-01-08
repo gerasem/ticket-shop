@@ -4,6 +4,7 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
 
+import '../css/app.css' // Tailwind CSS
 import './style.css' // Assuming default style file or we will create one
 import './assets/venue.css'
 

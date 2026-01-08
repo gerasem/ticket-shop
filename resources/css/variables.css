@@ -1,0 +1,103 @@
+/* Theme Colors - CSS Variables */
+:root {
+  /* Primary Color (Green) */
+  --color-primary: 22 163 74; /* green-600 */
+  --color-primary-hover: 21 128 61; /* green-700 */
+  --color-primary-light: 240 253 244; /* green-50 */
+  
+  /* Secondary Color (Blue) */
+  --color-secondary: 37 99 235; /* blue-600 */
+  --color-secondary-hover: 29 78 216; /* blue-700 */
+  --color-secondary-light: 239 246 255; /* blue-50 */
+  
+  /* Background Colors */
+  --color-bg-primary: 255 255 255; /* white */
+  --color-bg-secondary: 249 250 251; /* gray-50 */
+  --color-bg-panel: 255 255 255; /* white */
+  --color-bg-hover: 243 244 246; /* gray-100 */
+  
+  /* Text Colors */
+  --color-text-primary: 17 24 39; /* gray-900 */
+  --color-text-secondary: 75 85 99; /* gray-600 */
+  --color-text-muted: 156 163 175; /* gray-400 */
+  
+  /* Border Colors */
+  --color-border: 229 231 235; /* gray-200 */
+  --color-border-light: 229 231 235; /* gray-200 */
+  
+  /* Utility */
+  --color-white: 255 255 255;
+  
+  /* ===== New Standard Colors ===== */
+  /* для замены хардкодов */
+  
+  /* Text */
+  --text-primary: #111827;     /* gray-900 - основной текст */
+  --text-secondary: #6b7280;   /* gray-500 - вторичный */
+  --text-muted: #9ca3af;       /* gray-400 - мелкий */
+  --text-disabled: #d1d5db;    /* gray-300 - отключенный */
+  --text-subtle: #4b5563;      /* gray-600 - тонкий */
+  --text-heading: #374151;     /* gray-700 - заголовки */
+  
+  /* Background */
+  --bg-primary: #ffffff;       /* white - основной фон */
+  --bg-secondary: #f9fafb;     /* gray-50 - вторичный фон */
+  --bg-tertiary: #f3f4f6;      /* gray-100 - третичный фон */
+  
+  /* Borders */
+  --border-primary: #e5e7eb;   /* gray-200 - основные границы */
+  --border-secondary: #d1d5db; /* gray-300 - вторичные границы */
+  --border-subtle: #f3f4f6;    /* gray-100 - тонкие границы */
+  
+  /* Status */
+  --error: #ef4444;            /* red-500 */
+  --error-light: #fef2f2;      /* red-50 */
+  --error-border: #fecaca;     /* red-200 */
+}
+
+/* Button Utility Classes - avoiding Tailwind arbitrary value issues */
+.btn-primary {
+  background-color: rgb(var(--color-primary));
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: rgb(var(--color-primary-hover));
+}
+
+.btn-secondary {
+  background-color: rgb(var(--color-secondary));
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: rgb(var(--color-secondary-hover));
+}
+
+.btn-primary-outline {
+  border: 2px solid rgb(var(--color-primary));
+  color: rgb(var(--color-primary));
+  background-color: transparent;
+}
+
+.btn-primary-outline:hover {
+  background-color: rgb(var(--color-primary-light));
+}
+
+.dark .btn-primary-outline:hover {
+  background-color: rgba(var(--color-primary), 0.1);
+}
+
+.btn-secondary-outline {
+  border: 2px solid rgb(var(--color-secondary));
+  color: rgb(var(--color-secondary));
+  background-color: transparent;
+}
+
+.btn-secondary-outline:hover {
+  background-color: rgb(var(--color-secondary-light));
+}
+
+.dark .btn-secondary-outline:hover {
+  background-color: rgba(var(--color-secondary), 0.1);
+}

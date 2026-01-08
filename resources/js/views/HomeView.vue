@@ -2,6 +2,7 @@
 import { onMounted } from 'vue';
 import { useEventsStore } from '../stores/events';
 import { useRouter } from 'vue-router';
+import { Button } from '../components/ui/button';
 
 const eventsStore = useEventsStore();
 const router = useRouter();
@@ -15,7 +16,7 @@ const goToEvent = (eventId: number) => {
 };
 
 const formatDate = (dateStr: string) => {
-  return new Date(dateStr).toLocaleDateString('ru-RU', {
+  return new Date(dateStr).toLocaleDateString('en-US', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
@@ -28,32 +29,56 @@ const formatDate = (dateStr: string) => {
   <div class="home">
     <div class="hero">
       <h1>Upcoming Events</h1>
-      <p>Discover and book tickets for the best events in town.</p>
+      <p>Discover the best events and book your tickets</p>
+    </div>
+
+    <!-- Loading state -->
+    <div v-if="eventsStore.isLoading" class="empty-state">
+      <p>Loading...</p>
     </div>
 
     <!-- Empty state -->
-    <div v-if="!eventsStore.isLoading && eventsStore.events.length === 0" class="empty-state">
-      <p>Мероприятий пока нет</p>
+    <div v-else-if="eventsStore.events.length === 0" class="empty-state">
+      <svg class="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      </svg>
+      <h2>Events coming soon</h2>
+      <p>Stay tuned - interesting events will be here soon!</p>
     </div>
 
     <!-- Events grid -->
     <div v-else class="events-grid">
       <div v-for="event in eventsStore.events" :key="event.id" class="event-card" @click="goToEvent(event.id)">
         <div class="event-image">
-          <img :src="event.image || 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?w=800'" :alt="event.title" />
+          <img 
+            :src="event.image ? `/storage/${event.image}` : 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?w=800'" 
+            :alt="event.title" 
+          />
           <div class="event-date-badge">
-            <span class="month">{{ new Date(event.date).toLocaleString('default', { month: 'short' }) }}</span>
+            <span class="month">{{ new Date(event.date).toLocaleString('en-US', { month: 'short' }) }}</span>
             <span class="day">{{ new Date(event.date).getDate() }}</span>
           </div>
         </div>
         <div class="event-content">
           <h3>{{ event.title }}</h3>
           <div class="event-meta">
-            <span class="date">📅 {{ formatDate(event.date) }}</span>
-            <span class="time">🕒 {{ event.time }}</span>
+            <span class="meta-item">
+              <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              {{ formatDate(event.date) }}
+            </span>
+            <span class="meta-item">
+              <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              {{ event.time }}
+            </span>
           </div>
           <p class="description">{{ event.description }}</p>
-          <button class="btn-book">Get Tickets</button>
+          <Button variant="primary" class="w-full">
+            Buy Tickets
+          </Button>
         </div>
       </div>
     </div>
@@ -62,99 +87,130 @@ const formatDate = (dateStr: string) => {
 
 <style scoped>
 .home {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 2rem 1.5rem;
 }
 
 .hero {
   text-align: center;
   margin-bottom: 3rem;
+  padding: 3rem 1rem;
 }
 
 .hero h1 {
-  font-size: 2.5rem;
-  margin-bottom: 0.5rem;
-  color: var(--color-text-white);
+  font-size: 3rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  color: #111827;
 }
 
 .hero p {
-  color: var(--color-text-muted);
-  font-size: 1.1rem;
-}
-
-.events-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 2rem;
-  margin-bottom: 4rem;
+  color: #6b7280;
+  font-size: 1.25rem;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .empty-state {
   text-align: center;
   padding: 4rem 2rem;
-  color: var(--color-text-muted);
-  font-size: 1.2rem;
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-icon {
+  width: 80px;
+  height: 80px;
+  color: #d1d5db;
+  margin-bottom: 1.5rem;
+}
+
+.empty-state h2 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #374151;
+  margin: 0 0 0.5rem 0;
+}
+
+.empty-state p {
+  color: #6b7280;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.events-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 2rem;
+  margin-bottom: 4rem;
 }
 
 .event-card {
-  background: var(--color-bg-panel);
+  background: white;
   border-radius: 12px;
   overflow: hidden;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: all 0.3s;
   cursor: pointer;
-  border: 1px solid var(--color-border);
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .event-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-  border-color: var(--color-accent);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+  border-color: rgb(var(--color-primary));
 }
 
 .event-image {
-  height: 200px;
+  height: 220px;
   position: relative;
   overflow: hidden;
+  background: #f3f4f6;
 }
 
 .event-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.3s;
+  transition: transform 0.4s;
 }
 
 .event-card:hover .event-image img {
-  transform: scale(1.05);
+  transform: scale(1.08);
 }
 
 .event-date-badge {
   position: absolute;
   top: 1rem;
   right: 1rem;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(4px);
-  padding: 0.5rem;
-  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  padding: 0.75rem;
+  border-radius: 10px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-width: 50px;
-  border: 1px solid var(--color-accent);
+  min-width: 60px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .event-date-badge .month {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   text-transform: uppercase;
-  color: var(--color-accent);
-  font-weight: bold;
+  color: rgb(var(--color-primary));
+  font-weight: 700;
+  letter-spacing: 0.5px;
 }
 
 .event-date-badge .day {
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: white;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #111827;
+  line-height: 1;
 }
 
 .event-content {
@@ -162,61 +218,58 @@ const formatDate = (dateStr: string) => {
 }
 
 .event-content h3 {
-  margin: 0 0 0.5rem 0;
-  font-size: 1.25rem;
-  color: var(--color-text-white);
+  margin: 0 0 1rem 0;
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.3;
 }
 
 .event-meta {
   display: flex;
-  gap: 1rem;
+  flex-direction: column;
+  gap: 0.5rem;
   margin-bottom: 1rem;
-  font-size: 0.9rem;
-  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #6b7280;
+}
+
+.icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
 }
 
 .description {
-  color: var(--color-text-tertiary);
-  font-size: 0.95rem;
-  line-height: 1.5;
+  color: #4b5563;
+  font-size: 0.9375rem;
+  line-height: 1.6;
   margin-bottom: 1.5rem;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-.btn-book {
-  width: 100%;
-  padding: 0.75rem;
-  background: var(--color-accent);
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.btn-book:hover {
-  background: var(--color-accent-hover);
-}
-
-.admin-link {
-  text-align: center;
-  margin-top: 2rem;
-  border-top: 1px solid var(--color-border);
-  padding-top: 2rem;
-}
-
-.btn-secondary {
-  color: var(--color-text-muted);
-  text-decoration: none;
-  font-size: 0.9rem;
-  transition: color 0.2s;
-}
-
-.btn-secondary:hover {
-  color: var(--color-text-white);
+@media (max-width: 768px) {
+  .hero h1 {
+    font-size: 2rem;
+  }
+  
+  .hero p {
+    font-size: 1rem;
+  }
+  
+  .events-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
 }
 </style>

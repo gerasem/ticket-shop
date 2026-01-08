@@ -33,6 +33,16 @@ const router = createRouter({
       component: () => import('../views/AdminEventsView.vue')
     },
     {
+      path: '/admin/events/create',
+      name: 'admin-events-create',
+      component: () => import('../views/EventCreateView.vue')
+    },
+    {
+      path: '/admin/events/:id/edit',
+      name: 'admin-events-edit',
+      component: () => import('../views/EventEditView.vue')
+    },
+    {
       path: '/login',
       name: 'login',
       component: () => import('../views/AuthView.vue')
