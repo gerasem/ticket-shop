@@ -187,9 +187,9 @@ onMounted(() => {
 }
 
 .modal-container {
-  background: var(--color-bg-modal);
+  background: var(--bg-primary);
   border-radius: 12px;
-  border: 1px solid var(--color-border-light);
+  border: 1px solid var(--border-secondary);
   width: 90%;
   max-width: 700px;
   max-height: 80vh;
@@ -203,19 +203,19 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem;
-  border-bottom: 1px solid var(--color-border-light);
+  border-bottom: 1px solid var(--border-secondary);
 }
 
 .modal-header h2 {
   margin: 0;
   font-size: 1.25rem;
-  color: var(--color-accent);
+  color: var(--text-primary);
 }
 
 .close-btn {
   background: none;
   border: none;
-  color: var(--color-text-tertiary);
+  color: var(--text-muted);
   font-size: 1.5rem;
   cursor: pointer;
   padding: 0;
@@ -229,8 +229,8 @@ onMounted(() => {
 }
 
 .close-btn:hover {
-  background: var(--color-border-light);
-  color: var(--color-text-white);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
 }
 
 .modal-content {
@@ -249,7 +249,7 @@ onMounted(() => {
 
 .category-title {
   font-size: 0.9rem;
-  color: var(--color-accent);
+  color: var(--text-secondary);
   text-transform: uppercase;
   font-weight: 600;
   margin: 0 0 1rem 0;
@@ -270,7 +270,7 @@ onMounted(() => {
 
 .color-field label {
   font-size: 0.75rem;
-  color: var(--color-text-tertiary);
+  color: var(--text-secondary);
   text-transform: uppercase;
   font-weight: 500;
 }
@@ -284,7 +284,7 @@ onMounted(() => {
 .color-picker {
   width: 50px;
   height: 38px;
-  border: 1px solid var(--color-border-light);
+  border: 1px solid var(--border-secondary);
   border-radius: 4px;
   cursor: pointer;
   background: transparent;
@@ -292,9 +292,9 @@ onMounted(() => {
 
 .color-text {
   flex: 1;
-  background: var(--color-bg-input);
-  border: 1px solid var(--color-border-light);
-  color: var(--color-text-white);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-secondary);
+  color: var(--text-primary);
   padding: 0.5rem;
   border-radius: 4px;
   font-size: 0.85rem;
@@ -303,7 +303,7 @@ onMounted(() => {
 
 .color-text:focus {
   outline: none;
-  border-color: var(--color-accent);
+  border-color: rgb(var(--color-primary));
 }
 
 .modal-footer {
@@ -311,13 +311,13 @@ onMounted(() => {
   justify-content: space-between;
   gap: 0.75rem;
   padding: 1.5rem;
-  border-top: 1px solid var(--color-border-light);
+  border-top: 1px solid var(--border-secondary);
 }
 
 .reset-btn {
-  background: var(--color-danger-light);
-  color: var(--color-danger);
-  border: 1px solid var(--color-danger-strong);
+  background: var(--error-light);
+  color: var(--error);
+  border: 1px solid var(--error-border);
   padding: 0.5rem 1.5rem;
   border-radius: 4px;
   cursor: pointer;
@@ -326,12 +326,12 @@ onMounted(() => {
 }
 
 .reset-btn:hover {
-  background: var(--color-danger-medium);
+  background: #fee2e2;
 }
 
 .close-footer-btn {
-  background: var(--color-accent);
-  color: var(--color-text-white);
+  background: rgb(var(--color-primary));
+  color: white;
   border: none;
   padding: 0.5rem 1.5rem;
   border-radius: 4px;
@@ -342,7 +342,7 @@ onMounted(() => {
 }
 
 .close-footer-btn:hover {
-  background: var(--color-accent-hover);
+  background: rgb(var(--color-primary-hover));
 }
 
 /* Transition */

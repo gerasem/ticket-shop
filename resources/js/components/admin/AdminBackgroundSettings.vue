@@ -122,21 +122,21 @@ const handleBackgroundUpload = (event: Event) => {
 
 .settings-group label {
   font-size: 0.7rem;
-  color: var(--color-text-tertiary);
+  color: var(--text-secondary);
   text-transform: uppercase;
 }
 
 .settings-input {
-  background: var(--color-bg-input);
-  border: 1px solid var(--color-border-light);
-  color: var(--color-text-white);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-secondary);
+  color: var(--text-primary);
   padding: 4px 6px;
   border-radius: 4px;
   font-size: 0.8rem;
 }
 
 .settings-input:focus {
-  border-color: var(--color-accent);
+  border-color: rgb(var(--color-primary));
   outline: none;
 }
 
@@ -156,13 +156,13 @@ const handleBackgroundUpload = (event: Event) => {
 }
 
 .select-all-btn {
-  background: var(--color-accent-light);
-  color: var(--color-accent);
-  border: 1px solid var(--color-accent-strong);
+  background: rgb(var(--color-primary-light));
+  color: rgb(var(--color-primary));
+  border: 1px solid rgb(var(--color-primary));
 }
 
 .select-all-btn:hover {
-  background: var(--color-accent-medium);
+  background: rgb(var(--color-primary-light));
 }
 
 /* Upload Button */
@@ -172,10 +172,10 @@ const handleBackgroundUpload = (event: Event) => {
   justify-content: center;
   gap: 0.5rem;
   padding: 8px 12px;
-  background: var(--color-accent-light);
-  border: 1px solid var(--color-accent-strong);
+  background: rgb(var(--color-primary-light));
+  border: 1px solid rgb(var(--color-primary));
   border-radius: 6px;
-  color: var(--color-accent);
+  color: rgb(var(--color-primary));
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
@@ -184,15 +184,15 @@ const handleBackgroundUpload = (event: Event) => {
 }
 
 .upload-button:hover {
-  background: var(--color-accent-medium);
-  border-color: var(--color-accent);
+  background: rgb(var(--color-primary-light));
+  border-color: rgb(var(--color-primary));
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px var(--color-accent-medium);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 .upload-button:active {
   transform: translateY(0);
-  box-shadow: 0 1px 4px var(--color-accent-light);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
 }
 
 .upload-icon {
@@ -228,21 +228,22 @@ const handleBackgroundUpload = (event: Event) => {
 
 .step-control-compact label {
   font-size: 0.65rem;
-  color: var(--color-text-tertiary);
+  color: var(--text-secondary);
   text-transform: uppercase;
   line-height: 1;
 }
 
 .step-input {
   width: 36px;
-  background: var(--color-bg-input);
-  border: 1px solid var(--color-border-light);
-  color: var(--color-text-white);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-secondary);
+  color: var(--text-primary);
   padding: 2px 0;
   border-radius: 4px;
   text-align: center;
   font-size: 0.8rem;
   -moz-appearance: textfield;
+  appearance: textfield;
 }
 
 .step-input::-webkit-outer-spin-button,
@@ -254,20 +255,22 @@ const handleBackgroundUpload = (event: Event) => {
 .arrow-btn {
   width: 30px;
   height: 30px;
-  background: var(--color-accent);
-  border: none;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-secondary);
   border-radius: 4px;
-  color: var(--color-text-white);
+  color: var(--text-primary);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: bold;
-  transition: background 0.2s;
+  transition: all 0.2s;
 }
 
 .arrow-btn:hover {
-  background: var(--color-accent-hover);
+  background: var(--bg-secondary);
+  color: rgb(var(--color-primary));
+  border-color: rgb(var(--color-primary));
 }
 
 .arrow-btn:active {
@@ -287,9 +290,9 @@ const handleBackgroundUpload = (event: Event) => {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  border: 1px solid var(--color-border-medium);
-  background: var(--color-border-light);
-  color: var(--color-text-white);
+  border: 1px solid var(--border-secondary);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
   cursor: pointer;
   font-size: 1.6rem;
   font-weight: bold;
@@ -302,8 +305,9 @@ const handleBackgroundUpload = (event: Event) => {
 }
 
 .curvature-btn:hover:not(:disabled) {
-  background: var(--color-accent-strong);
-  border-color: var(--color-accent);
+  background: var(--bg-secondary);
+  border-color: rgb(var(--color-primary));
+  color: rgb(var(--color-primary));
 }
 
 .curvature-btn:active:not(:disabled) {
@@ -312,7 +316,7 @@ const handleBackgroundUpload = (event: Event) => {
 
 .curvature-value {
   font-size: 1rem;
-  color: var(--color-accent);
+  color: var(--text-primary);
   min-width: 45px;
   text-align: center;
   font-weight: 600;

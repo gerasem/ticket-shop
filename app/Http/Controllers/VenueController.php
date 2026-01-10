@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Venue;
+use App\Models\Seat;
 use Illuminate\Http\Request;
 
 class VenueController extends Controller
@@ -47,5 +48,117 @@ class VenueController extends Controller
                 ];
             })
         ]);
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string',
+            'width' => 'required|numeric',
+            'height' => 'required|numeric',
+        ]);
+
+        $venue = new Venue();
+        $venue->id = 'venue-' . time(); // Simple ID generation
+        $venue->name = $validated['name'];
+        $venue->width = $validated['width'];
+        $venue->height = $validated['height'];
+        $venue->type = 'theater'; // Default
+        $venue->curvature = 0;
+        
+        // Default objects/seat types
+        $venue->objects = [];
+        $venue->seat_types = [
+             ['id' => 'standard', 'name' => 'Standard Seat', 'priceInCents' => 5000, 'style' => ['color' => '#64748b']]
+        ];
+        $venue->default_seat_style = [
+            'width' => 30,
+            'height' => 30,
+            'borderRadius' => '4px 4px 12px 12px',
+            'color' => '#64748b'
+        ];
+
+        $venue->save();
+
+        return response()->json($venue);
+    }
+
+    public function update(Request $request, $id)
+    {
+        try {
+            $venue = Venue::findOrFail($id);
+            
+            // Use transaction to ensure data integrity
+            \Illuminate\Support\Facades\DB::transaction(function () use ($venue, $request) {
+                // 1. Update Venue Metadata
+                $venue->update($request->only(['name', 'width', 'height', 'curvature']));
+                
+                if ($request->has('objects')) {
+                    $venue->objects = $request->input('objects');
+                }
+                if ($request->has('seatTypes')) {
+                    $venue->seat_types = $request->input('seatTypes');
+                }
+                if ($request->has('defaultSeatStyle')) {
+                    $venue->default_seat_style = $request->input('defaultSeatStyle');
+                }
+                $venue->save();
+
+                // 2. Sync Seats
+                if ($request->has('seats')) {
+                    $venue->seats()->delete(); // Remove old seats
+                    
+                    $seatsData = $request->input('seats');
+                    $seatsToInsert = [];
+                    
+                    // Validate check to ensure no duplicates in input?
+                    // For now, trust input but catch DB errors.
+
+                    foreach ($seatsData as $seatData) {
+                        // Ensure required fields
+                         if (!isset($seatData['id'])) continue; 
+
+                        $seatsToInsert[] = [
+                            'venue_id' => $venue->id,
+                            'json_id' => $seatData['id'], // Map frontend 'id' to 'json_id'
+                            'x' => $seatData['x'] ?? 0,
+                            'y' => $seatData['y'] ?? 0,
+                            'rotation' => $seatData['rotation'] ?? 0,
+                            'row' => $seatData['row'] ?? null, // row can be string or int
+                            'place' => $seatData['place'] ?? null,
+                            'type_id' => $seatData['typeId'] ?? 'standard',
+                            'status' => $seatData['status'] ?? 'free',
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ];
+                    }
+                    
+                    // Bulk insert for performance
+                    if (count($seatsToInsert) > 0) {
+                        Seat::insert($seatsToInsert); 
+                    }
+                }
+            });
+
+            return response()->json($venue->fresh('seats'));
+
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Venue Save Failed: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error($e->getTraceAsString());
+            
+            return response()->json([
+                'error' => 'Save Failed', 
+                'message' => $e->getMessage(),
+                'trace' => $e->getFile() . ':' . $e->getLine()
+            ], 500);
+        }
+    }
+
+    public function destroy($id)
+    {
+        $venue = Venue::findOrFail($id);
+        $venue->seats()->delete(); // Delete associated seats
+        $venue->delete();
+        return response()->json(['message' => 'Venue deleted']);
     }
 }

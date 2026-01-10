@@ -105,7 +105,8 @@ const emit = defineEmits<{
 .main-toolbar {
   width: 60px;
   flex-shrink: 0;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-primary);
   border-radius: 8px;
   padding: 1rem 0;
   display: flex;
@@ -123,21 +124,21 @@ const emit = defineEmits<{
   justify-content: center;
   background: transparent;
   border: 1px solid transparent;
-  color: #aaa;
+  color: var(--text-secondary);
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .tool-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
+  background: rgb(var(--color-primary-light));
+  color: rgb(var(--color-primary));
 }
 
 .tool-btn.active {
-  background: rgba(66, 185, 131, 0.2);
-  border-color: #42b983;
-  color: #42b983;
+  background: rgb(var(--color-primary-light));
+  border-color: rgb(var(--color-primary));
+  color: rgb(var(--color-primary));
 }
 
 .tool-btn:disabled {
@@ -158,7 +159,7 @@ const emit = defineEmits<{
 .separator {
   width: 80%;
   height: 1px;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--border-primary);
   margin: 0.5rem 0;
 }
 </style>

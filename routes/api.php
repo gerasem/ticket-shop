@@ -20,6 +20,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/events', [EventController::class, 'store']);
     Route::put('/events/{id}', [EventController::class, 'update']);
     Route::delete('/events/{id}', [EventController::class, 'destroy']);
+    
+    // Venue CRUD
+    Route::post('/venues', [VenueController::class, 'store']);
+    Route::put('/venues/{id}', [VenueController::class, 'update']);
+    Route::delete('/venues/{id}', [VenueController::class, 'destroy']);
 });
 
 Route::get('/user', function (Request $request) {

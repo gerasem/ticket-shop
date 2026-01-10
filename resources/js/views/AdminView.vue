@@ -1,5 +1,6 @@
 ﻿<script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import { useVenueStore } from '../stores/venue';
 import { useVenueEditor } from '../composables/useVenueEditor';
 import { useGeometry, type Point } from '../composables/useGeometry';
@@ -19,6 +20,7 @@ import AdminSeatSettings from '../components/admin/AdminSeatSettings.vue';
 import ColorSettingsModal from '../components/admin/ColorSettingsModal.vue';
 
 const venueStore = useVenueStore();
+const route = useRoute();
 
 // Composables
 const venueRef = ref<Venue | null>(null);
@@ -28,6 +30,18 @@ const venueEditor = useVenueEditor(venueRef);
 watch(() => venueStore.currentVenue, (newVal) => {
   venueRef.value = newVal;
 }, { immediate: true });
+
+onMounted(async () => {
+  const venueId = route.params.id as string;
+  if (venueId) {
+    if (venueStore.currentVenue?.id !== venueId) {
+      await venueStore.loadVenue(venueId);
+    }
+  } else {
+    // If no ID, maybe load default or redirect?
+    // For now, let's assume valid ID is always passed or handled by router
+  }
+});
 
 const { 
   initHistory, 
@@ -39,6 +53,18 @@ const {
 } = venueEditor;
 const geometry = useGeometry();
 const { formatPrice } = usePrice();
+
+const handleSave = async () => {
+  try {
+    await venueStore.saveVenue();
+    alert('Venue saved successfully!');
+  } catch (error: any) {
+    console.error('Save error detailed:', error);
+    const serverMessage = error.response?.data?.message || error.message || 'Unknown error';
+    const trace = error.response?.data?.trace ? `\nAt: ${error.response.data.trace}` : '';
+    alert(`Failed to save venue: ${serverMessage}${trace}`);
+  }
+};
 
 // Edit mode state
 const selectedSeats = ref<Set<string>>(new Set());
@@ -207,7 +233,14 @@ watch(activeTool, (newTool, oldTool) => {
 
 onMounted(async () => {
   try {
-    await venueStore.loadVenue();
+    const route = useRoute();
+    const venueId = route.params.id as string;
+    
+    if (venueId) {
+        await venueStore.loadVenue(venueId);
+    } else {
+        await venueStore.loadVenues();
+    }
     
     if (venueStore.currentVenue) {
       initHistory();
@@ -904,7 +937,18 @@ watch(activeTool, (newTool) => {
 
 <template>
   <div class="admin-view">
-    <h1>Venue Layout Editor</h1>
+    <div class="header">
+      <h1>Venue Layout Editor</h1>
+      <div class="header-actions">
+        <button 
+          class="save-btn" 
+          @click="handleSave" 
+          :disabled="venueStore.isLoading"
+        >
+          {{ venueStore.isLoading ? 'Saving...' : 'Save Venue' }}
+        </button>
+      </div>
+    </div>
     
     <div 
       v-if="venueStore.currentVenue" 
@@ -1158,17 +1202,64 @@ watch(activeTool, (newTool) => {
 
 <style scoped>
 
+
+.admin-view {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+.header {
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.header-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.save-btn {
+  background: rgb(var(--color-primary));
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.save-btn:hover {
+  background: rgb(var(--color-primary-hover));
+}
+
+.save-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
 .editor-container {
   display: flex;
   gap: 1rem;
   align-items: flex-start;
+  height: calc(100vh - 100px); /* Fill available space */
 }
 
 /* Main Toolbar */
 .main-toolbar {
   width: 60px;
   flex-shrink: 0;
-  background: var(--color-bg-panel);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-primary);
   border-radius: 8px;
   padding: 1rem 0;
   display: flex;
@@ -1176,13 +1267,15 @@ watch(activeTool, (newTool) => {
   gap: .5rem;
   align-items: center;
   height: 100%;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 
 /* Sidebar (Properties) */
 .sidebar {
-  width: 160px; /* Wider for properties */
+  width: 200px;
   flex-shrink: 0;
-  background: var(--color-bg-panel);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-primary);
   border-radius: 8px;
   padding: 1rem;
   display: flex;
@@ -1190,14 +1283,17 @@ watch(activeTool, (newTool) => {
   gap: 1.5rem;
   align-items: center;
   height: 100%;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  overflow-y: auto;
 }
 
 .sidebar-header h3 {
   margin: 0;
   font-size: 1rem;
-  color: var(--color-accent);
+  color: rgb(var(--color-primary));
   text-transform: uppercase;
   letter-spacing: 1px;
+  font-weight: 700;
 }
 
 .sidebar-section {
@@ -1227,7 +1323,7 @@ watch(activeTool, (newTool) => {
 
 .step-control-compact label {
   font-size: 0.65rem;
-  color: var(--color-text-tertiary);
+  color: var(--text-secondary);
   text-transform: uppercase;
   line-height: 1;
 }
@@ -1238,51 +1334,62 @@ watch(activeTool, (newTool) => {
   align-items: center;
   gap: 0.5rem;
   margin-top: 0.5rem;
-  border-top: 1px solid var(--color-border-light);
+  border-top: 1px solid var(--border-subtle);
   padding-top: 0.5rem;
   width: 100%;
 }
 
-
+.selected-count {
+  font-size: 0.8rem;
+  color: var(--text-primary);
+  font-weight: 600;
+}
 
 .clear-btn {
   background: transparent;
-  border: 1px solid var(--color-border-medium);
-  color: var(--color-text-tertiary);
-  padding: 2px 8px;
+  border: 1px solid var(--border-secondary);
+  color: var(--text-secondary);
+  padding: 4px 8px;
   border-radius: 4px;
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   cursor: pointer;
   width: 100%;
   text-align: center;
+  transition: all 0.2s;
 }
 
 .clear-btn:hover {
-  border-color: var(--color-danger);
-  color: var(--color-danger);
+  border-color: var(--error);
+  color: var(--error);
+  background: var(--error-light);
 }
 
 .action-btn {
   width: 100%;
-  padding: 6px;
-  border-radius: 4px;
+  padding: 8px;
+  border-radius: 6px;
   border: none;
-  font-weight: bold;
+  font-weight: 600;
   cursor: pointer;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   transition: all 0.2s;
+  background: rgb(var(--color-primary));
+  color: white;
 }
 
-.delete-btn {
-  background: var(--color-danger-light);
-  color: var(--color-danger);
-  color: var(--color-accent);
-  border: 1px solid var(--color-accent-strong);
-  margin-top: 0.5rem;
+.action-btn:hover {
+  background: rgb(var(--color-primary-hover));
 }
 
-.recalc-btn:hover {
-  background: var(--color-accent-medium);
+.select-all-btn {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-secondary);
+}
+
+.select-all-btn:hover {
+  background: var(--bg-secondary);
+  border-color: var(--text-secondary);
 }
 
 /* Footer / Help */
@@ -1298,9 +1405,9 @@ watch(activeTool, (newTool) => {
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: var(--color-border-light);
-  border: none;
-  color: var(--color-text-tertiary);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-secondary);
+  color: var(--text-secondary);
   font-weight: bold;
   cursor: help;
   display: flex;
@@ -1311,8 +1418,8 @@ watch(activeTool, (newTool) => {
 }
 
 .help-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-  color: var(--color-text-white);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
 }
 
 .help-tooltip {
@@ -1321,14 +1428,14 @@ watch(activeTool, (newTool) => {
   left: 100%;
   bottom: 0;
   margin-left: 10px;
-  background: var(--color-bg-tooltip);
-  border: 1px solid var(--color-border-light);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-primary);
   padding: 1rem;
   border-radius: 6px;
-  width: 180px;
+  width: 200px;
   z-index: 100;
-  box-shadow: var(--shadow-tooltip);
-  font-size: 0.8rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  font-size: 0.85rem;
   text-align: left;
 }
 
@@ -1338,7 +1445,8 @@ watch(activeTool, (newTool) => {
 
 .help-tooltip p {
   margin: 0 0 0.5rem 0;
-  color: var(--color-accent);
+  color: var(--text-primary);
+  font-weight: bold;
 }
 
 .help-tooltip ul {
@@ -1349,21 +1457,19 @@ watch(activeTool, (newTool) => {
 
 .help-tooltip li {
   margin-bottom: 0.25rem;
-  color: var(--color-text-muted);
-  line-height: 1.3;
+  color: var(--text-secondary);
+  line-height: 1.4;
 }
 
-
-
 .step-input {
-  width: 36px;
-  background: var(--color-bg-input);
-  border: 1px solid var(--color-border-light);
-  color: var(--color-text-white);
-  padding: 2px 0;
+  width: 40px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-secondary);
+  color: var(--text-primary);
+  padding: 4px;
   border-radius: 4px;
   text-align: center;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   /* Hide spinner buttons for number input */
   -moz-appearance: textfield;
 }
@@ -1387,87 +1493,76 @@ watch(activeTool, (newTool) => {
   align-items: center;
 }
 
-.movement-controls {
-  display: flex;
-  justify-content: center;
-  margin-top: 0.5rem;
-}
-
-.arrow-grid {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-}
-
-.arrow-row {
-  display: flex;
-  gap: 4px;
-  align-items: center;
-}
-
-.step-control {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  min-width: 50px;
-}
-
-.step-control label {
-  font-size: 0.6rem;
-  color: var(--color-text-tertiary);
-  text-transform: uppercase;
-  line-height: 1;
-}
-
-.step-input {
-  width: 48px;
-  background: var(--color-bg-input);
-  border: 1px solid var(--color-border-light);
-  color: var(--color-text-white);
-  padding: 4px 2px;
-  border-radius: 4px;
-  text-align: center;
-  font-size: 0.8rem;
-  /* Hide spinner buttons for number input */
-  -moz-appearance: textfield;
-}
-
-.step-input::-webkit-outer-spin-button,
-.step-input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
 .arrow-btn {
-  width: 30px;
-  height: 30px;
-  background: var(--color-accent);
-  border: none;
-  border-radius: 4px;
-  color: var(--color-text-white);
+  width: 32px;
+  height: 32px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-secondary);
+  border-radius: 6px;
+  color: var(--text-primary);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: bold;
-  transition: background 0.2s;
+  transition: all 0.2s;
 }
 
 .arrow-btn:hover {
-  background: var(--color-accent-hover);
+  background: var(--bg-secondary);
+  border-color: rgb(var(--color-primary));
+  color: rgb(var(--color-primary));
 }
 
 .arrow-btn:active {
   transform: scale(0.95);
 }
 
+.rotation-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-top: 1rem;
+}
+
+.rotation-controls label {
+  font-size: 0.65rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+.rotation-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.rotate-btn {
+  width: 32px;
+  height: 32px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-secondary);
+  border-radius: 6px;
+  color: var(--text-primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  transition: all 0.2s;
+}
+
+.rotate-btn:hover {
+  background: var(--bg-secondary);
+  border-color: rgb(var(--color-primary));
+  color: rgb(var(--color-primary));
+}
+
+
 /* Admin Specific Seat Styles */
 .seat {
   cursor: pointer;
-  background: var(--color-seat-admin);
+  background: #64748b; /* slate-500 */
   z-index: 1;
   display: flex;
   align-items: center;
@@ -1475,21 +1570,25 @@ watch(activeTool, (newTool) => {
   font-size: 12px;
   font-weight: 600;
   color: white;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  border-radius: 4px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
 .seat.selected {
-  box-shadow: 0 0 0 3px var(--color-accent);
+  outline: 2px solid rgb(var(--color-primary));
+  outline-offset: 2px;
+  z-index: 10;
 }
 
 .seat.overlapping {
-  box-shadow: 0 0 0 2px var(--color-danger) !important;
-  z-index: 10 !important;
+  outline: 2px solid var(--error) !important;
+  outline-offset: 2px;
+  z-index: 20 !important;
 }
 
 .seat.transparent {
-  opacity: 0.2;
-  pointer-events: none; /* Disable interaction when transparent */
+  opacity: 0.3;
+  pointer-events: none;
 }
 
 .cursor-grab :deep(.seats-grid),
@@ -1529,91 +1628,82 @@ watch(activeTool, (newTool) => {
 }
 
 .settings-group label {
-  font-size: 0.7rem;
-  color: var(--color-text-tertiary);
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 600;
   text-transform: uppercase;
+  margin-bottom: 0.25rem;
+  display: block;
 }
 
+/* Seat Type dropdown specific */
+.type-edit-section {
+  width: 100%;
+}
 
+.settings-subtitle {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.current-type-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  margin-bottom: 0.5rem;
+  padding: 4px;
+  background: var(--bg-tertiary);
+  border-radius: 4px;
+}
+
+.current-type-info .label {
+  color: var(--text-secondary);
+}
+
+.current-type-info .value {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.type-select {
+  width: 100%;
+  padding: 6px;
+  border: 1px solid var(--border-secondary);
+  border-radius: 4px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 0.85rem;
+}
 
 /* Preview Seat Styles */
 .preview-seat {
-  opacity: 0.5;
-  background: var(--color-seat-selected) !important;
-  border: 2px dashed var(--color-accent);
+  opacity: 0.6;
+  background: rgb(var(--color-primary)) !important;
+  border: 2px dashed white;
   pointer-events: none;
   font-size: 16px;
-  color: var(--color-text-white);
-}
-
-/* Price Editing Styles */
-.price-edit-section {
-  width: 100%;
-  margin-top: 0.75rem;
-  padding-top: 0.75rem;
-  border-top: 1px solid var(--color-border-light);
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.current-price {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-.current-price label {
-  font-size: 0.65rem;
-  color: var(--color-text-tertiary);
-  text-transform: uppercase;
-}
-
-.price-value {
-  font-size: 0.9rem;
-  color: var(--color-accent);
-  font-weight: bold;
-}
-
-.price-input-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  width: 100%;
-}
-
-.price-input-group label {
-  font-size: 0.65rem;
-  color: var(--color-text-tertiary);
-  text-transform: uppercase;
-}
-
-.price-input {
-  width: 100%;
-  background: var(--color-bg-input);
-  border: 1px solid var(--color-border-light);
-  color: var(--color-text-white);
-  padding: 4px 6px;
+  color: white;
   border-radius: 4px;
-  font-size: 0.8rem;
-  text-align: center;
 }
 
 .price-input:focus {
-  border-color: var(--color-accent);
+  border-color: rgb(var(--color-primary));
   outline: none;
 }
 
 .price-btn {
-  background: var(--color-accent-light);
-  color: var(--color-accent);
-  border: 1px solid var(--color-accent-strong);
+  background: var(--color-primary-light);
+  color: rgb(var(--color-primary));
+  border: 1px solid rgb(var(--color-primary));
   margin-top: 0.25rem;
 }
 
 .price-btn:hover {
-  background: var(--color-accent-medium);
+  background: rgb(var(--color-primary));
+  color: white;
 }
 
 /* Select All Button */
@@ -1621,25 +1711,15 @@ watch(activeTool, (newTool) => {
   padding: 0 0.25rem;
 }
 
-.select-all-btn {
-  background: var(--color-accent-light);
-  color: var(--color-accent);
-  border: 1px solid var(--color-accent-strong);
-}
-
-.select-all-btn:hover {
-  background: var(--color-accent-medium);
-}
-
 .manage-types-btn {
-  background: var(--color-accent-light);
-  color: var(--color-accent);
-  border: 1px solid var(--color-accent-strong);
+  background: white;
+  color: rgb(var(--color-primary));
+  border: 1px solid rgb(var(--color-primary));
   width: 100%;
 }
 
 .manage-types-btn:hover {
-  background: var(--color-accent-medium);
+  background: var(--color-primary-light);
 }
 
 /* Curvature Controls */
@@ -1655,9 +1735,9 @@ watch(activeTool, (newTool) => {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  border: 1px solid var(--color-border-medium);
-  background: var(--color-border-light);
-  color: var(--color-text-white);
+  border: 1px solid var(--border-secondary);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
   cursor: pointer;
   font-size: 1.6rem;
   font-weight: bold;
@@ -1670,8 +1750,9 @@ watch(activeTool, (newTool) => {
 }
 
 .curvature-btn:hover:not(:disabled) {
-  background: var(--color-accent-strong);
-  border-color: var(--color-accent);
+  background: var(--bg-secondary);
+  border-color: rgb(var(--color-primary));
+  color: rgb(var(--color-primary));
 }
 
 .curvature-btn:active:not(:disabled) {
@@ -1685,73 +1766,23 @@ watch(activeTool, (newTool) => {
 
 .curvature-value {
   font-size: 1rem;
-  color: var(--color-accent);
+  color: var(--text-primary);
   min-width: 45px;
   text-align: center;
   font-weight: 600;
 }
 
-/* Rotation Controls */
-.rotation-controls {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.25rem;
-  margin-top: 0.5rem;
-  padding-top: 0.5rem;
-  border-top: 1px solid var(--color-border-light);
-}
-
-.rotation-controls label {
-  font-size: 0.65rem;
-  color: var(--color-text-tertiary);
-  text-transform: uppercase;
-}
-
-.rotation-buttons {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.rotate-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: 1px solid var(--color-border-medium);
-  background: var(--color-border-light);
-  color: var(--color-text-white);
-  cursor: pointer;
-  font-size: 1.6rem;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  line-height: 1;
-}
-
-.rotate-btn:hover {
-  background: var(--color-accent-strong);
-  border-color: var(--color-accent);
-}
-
-.rotate-btn:active {
-  transform: scale(0.95);
-}
-
-
-
 /* Settings Styles */
 .settings-divider {
   width: 100%;
   height: 1px;
-  background: var(--color-border-light);
+  background: var(--border-subtle);
   margin: 1rem 0;
 }
 
 .settings-subtitle {
   font-size: 0.75rem;
-  color: var(--color-accent);
+  color: var(--text-secondary);
   text-transform: uppercase;
   font-weight: bold;
   margin-bottom: 0.5rem;
@@ -1778,9 +1809,9 @@ watch(activeTool, (newTool) => {
 }
 
 .settings-input {
-  background: var(--color-bg-input);
-  border: 1px solid var(--color-border-light);
-  color: var(--color-text-white);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-secondary);
+  color: var(--text-primary);
   padding: 4px 6px;
   border-radius: 4px;
   font-size: 0.8rem;
@@ -1791,20 +1822,22 @@ watch(activeTool, (newTool) => {
   justify-content: space-between;
   align-items: center;
   font-size: 0.8rem;
-  padding: 0 2px;
+  padding: 4px 8px;
+  background: var(--bg-tertiary);
+  border-radius: 4px;
 }
 
 .current-type-info .label {
-  color: var(--color-text-tertiary);
+  color: var(--text-secondary);
 }
 
 .current-type-info .value {
-  color: var(--color-accent);
-  font-weight: bold;
+  color: var(--text-primary);
+  font-weight: 600;
 }
 
 .settings-input:focus {
-  border-color: var(--color-accent);
+  border-color: rgb(var(--color-primary));
   outline: none;
 }
 
@@ -1822,10 +1855,10 @@ watch(activeTool, (newTool) => {
   justify-content: center;
   gap: 0.5rem;
   padding: 8px 12px;
-  background: var(--color-accent-light);
-  border: 1px solid var(--color-accent-strong);
+  background: white;
+  border: 1px solid rgb(var(--color-primary));
   border-radius: 6px;
-  color: var(--color-accent);
+  color: rgb(var(--color-primary));
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
@@ -1834,15 +1867,13 @@ watch(activeTool, (newTool) => {
 }
 
 .upload-button:hover {
-  background: var(--color-accent-medium);
-  border-color: var(--color-accent);
+  background: var(--color-primary-light);
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px var(--color-accent-medium);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 .upload-button:active {
   transform: translateY(0);
-  box-shadow: 0 1px 4px var(--color-accent-light);
 }
 
 .upload-icon {
@@ -1871,16 +1902,16 @@ watch(activeTool, (newTool) => {
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem;
-  background: var(--color-bg-input);
-  border: 1px solid var(--color-border-light);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-secondary);
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .object-template-item:hover {
-  background: var(--color-accent-light);
-  border-color: var(--color-accent);
+  background: var(--bg-tertiary);
+  border-color: rgb(var(--color-primary));
 }
 
 .object-icon {
@@ -1891,7 +1922,7 @@ watch(activeTool, (newTool) => {
 .object-label {
   font-size: 0.85rem;
   font-weight: 500;
-  color: var(--color-text-white);
+  color: var(--text-primary);
 }
 
 .object-settings {
@@ -1905,18 +1936,19 @@ watch(activeTool, (newTool) => {
 .tool-help {
   padding: 10px;
   font-size: 0.75rem;
-  color: #9ca3af;
+  color: var(--text-muted);
 }
 
 .tool-help-title {
   margin: 0 0 8px 0;
-  color: #6b7280;
+  color: var(--text-secondary);
+  font-weight: 600;
 }
 
 .tool-help-list {
   margin: 0;
   padding-left: 20px;
-  color: #9ca3af;
+  color: var(--text-muted);
 }
 
 .tool-help-list li {

@@ -18,14 +18,31 @@ const router = createRouter({
       component: () => import('../views/EventDetailsView.vue')
     },
     {
-      path: '/client',
-      name: 'client',
+      path: '/booking',
+      name: 'booking',
       component: ClientView
     },
     {
       path: '/admin',
-      name: 'admin',
-      component: AdminView
+      redirect: '/admin/events'
+    },
+    {
+      path: '/admin/venue',
+      redirect: '/admin/venues' // Backward compatibility or just redirect
+    },
+    {
+        path: '/admin/venues',
+        name: 'admin-venues',
+        component: () => import('../views/AdminVenuesView.vue')
+    },
+    {
+      path: '/admin/venues/:id/editor',
+      name: 'venue-editor',
+      component: AdminView,
+      beforeEnter: (to, from, next) => {
+          // You might want to preload the venue here or just let the view handle it
+          next(); 
+      }
     },
     {
       path: '/admin/events',
@@ -59,9 +76,9 @@ router.beforeEach((to, from, next) => {
   if (to.path.startsWith('/admin') && !authStore.isAuthenticated) {
     next('/login')
   } 
-  // Redirect to admin if already logged in
+  // Redirect to dashboard if already logged in and visiting login
   else if (to.path === '/login' && authStore.isAuthenticated) {
-    next('/admin')
+    next('/admin/events')
   } 
   else {
     next()

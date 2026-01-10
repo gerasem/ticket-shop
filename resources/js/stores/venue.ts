@@ -96,6 +96,57 @@ export const useVenueStore = defineStore('venue', () => {
     }
   };
 
+  async function createVenue(data: { name: string, width: number, height: number }) {
+      try {
+          const response = await axios.post('/api/venues', data);
+          await loadVenues(); // Refresh list
+          return response.data;
+      } catch (error) {
+          console.error('Failed to create venue', error);
+          throw error;
+      }
+  }
+
+  async function saveVenue() {
+    if (!currentVenue.value || !currentVenueId.value) return;
+    
+    try {
+      isLoading.value = true;
+
+      // Ensure CSRF token is fresh before saving
+      await axios.get('/sanctum/csrf-cookie');
+
+      // Ensure we send the correct structure expected by the backend
+      const venueData = {
+        ...currentVenue.value,
+      };
+      
+      await axios.put(`/api/venues/${currentVenueId.value}`, venueData);
+      
+      console.log('Venue saved successfully');
+    } catch (error) {
+      console.error('Failed to save venue', error);
+      errorMsg.value = 'Failed to save venue';
+      throw error;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  async function deleteVenue(id: string) {
+      try {
+          await axios.delete(`/api/venues/${id}`);
+          await loadVenues(); // Refresh list
+          if (currentVenueId.value === id) {
+              currentVenueId.value = null;
+              currentVenue.value = null;
+          }
+      } catch (error) {
+          console.error('Failed to delete venue', error);
+          throw error;
+      }
+  }
+
   return {
     currentVenue,
     venuesList,
@@ -105,7 +156,10 @@ export const useVenueStore = defineStore('venue', () => {
     loadVenue,
     loadVenues,
     loadVenueFromJSON,
-    updateSeatStatus
+    updateSeatStatus,
+    createVenue,
+    saveVenue,
+    deleteVenue
   };
 });
 

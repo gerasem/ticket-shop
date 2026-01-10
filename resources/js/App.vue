@@ -22,7 +22,10 @@ const handleLogout = () => {
         <div class="nav-left">
           <router-link to="/" class="logo">TicketShop</router-link>
           <router-link to="/">Events</router-link>
-          <router-link v-if="authStore.isAuthenticated" to="/admin/events">Admin</router-link>
+          <template v-if="authStore.isAuthenticated">
+            <router-link to="/admin/events">Events Dashboard</router-link>
+            <router-link to="/admin/venues">Venues Management</router-link>
+          </template>
         </div>
         <div class="nav-right">
           <router-link v-if="!authStore.isAuthenticated" to="/login">Login</router-link>

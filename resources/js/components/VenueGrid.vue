@@ -203,20 +203,39 @@ const handleMouseLeave = () => {
 
 <style scoped>
 .venue-container {
+  display: flex;
+  flex-direction: column;
   position: relative;
-  max-width: 1200px;
-  margin: 0 auto;
+  width: 100%;
+  height: 100%; /* Fill the editor container */
+  max-width: none; /* Remove max-width limitation if inside editor */
+  margin: 0;
   padding: 1rem;
+  background: var(--bg-tertiary);
+  border-radius: 8px;
+  overflow: hidden; /* Prevent container itself from scrolling */
+}
+
+.venue-container h2 {
+  color: var(--text-primary);
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  flex-shrink: 0; /* Keep header from shrinking */
 }
 
 .venue-wrapper {
+  flex: 1; /* Take remaining height */
+  min-height: 0; /* Important for scroll to work in flex child */
+  width: 100%;
   overflow: auto;
-  border: 2px solid var(--color-border);
+  border: 2px solid var(--border-secondary);
   border-radius: 8px;
-  background: var(--color-bg-primary);
+  background: var(--bg-primary);
   position: relative;
   cursor: grab;
   user-select: none;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .venue-wrapper.dragging {
@@ -248,29 +267,34 @@ const handleMouseLeave = () => {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background: rgba(0, 0, 0, 0.6);
+  background: var(--bg-primary);
   padding: 0.5rem;
   border-radius: 8px;
   transition: all 0.2s;
-  padding: 0;
+  padding: 4px;
+  border: 1px solid var(--border-secondary);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  z-index: 10;
  }
 
 .zoom-controls button {
   width: 25px;
-  border-radius: 8px;
+  border-radius: 6px;
   border: 1px solid transparent;
   padding: 3px 0;
   font-size: 13px;
   font-weight: 500;
   font-family: inherit;
-  background-color: var(--color-text-secondary);
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: all 0.25s;
 }
 
 .zoom-controls button:hover:not(:disabled) {
-  background: var(--color-accent-strong);
-  border-color: var(--color-accent);
+  background: var(--bg-secondary);
+  border-color: rgb(var(--color-primary));
+  color: rgb(var(--color-primary));
 }
 
 .zoom-controls button:disabled {
@@ -280,7 +304,7 @@ const handleMouseLeave = () => {
 
 .zoom-level {
   font-size: 0.85rem;
-  color: var(--color-text-tertiary);
+  color: var(--text-secondary);
   min-width: 40px;
   text-align: center;
   font-variant-numeric: tabular-nums;

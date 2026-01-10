@@ -26,7 +26,7 @@ const goBack = () => {
 
 const goToSeatSelection = () => {
   if (event.value?.venue_id) {
-    router.push({ path: '/client', query: { venueId: event.value.venue_id } });
+    router.push({ path: '/booking', query: { venueId: event.value.venue_id } });
   }
 };
 

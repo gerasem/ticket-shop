@@ -9,7 +9,7 @@
         class="object-template-item"
         @click="$emit('add-object', template.type)"
       >
-        <span class="object-icon"><IconImage :name="template.icon" size="24px" /></span>
+        <span class="object-icon" :style="{ color: template.color }"><IconImage :name="template.icon" size="24px" /></span>
         <span class="object-label">{{ template.label }}</span>
       </div>
     </div>
@@ -130,7 +130,7 @@
 
     <!-- Help Text (show only when nothing is selected) -->
     <div v-if="!selectedObject" class="settings-divider"></div>
-    <div v-if="!selectedObject" style="padding: 10px; font-size: 0.75rem; color: var(--color-text-tertiary);">
+    <div v-if="!selectedObject" style="padding: 10px; font-size: 0.75rem; color: var(--text-secondary);">
       <p style="margin: 0 0 8px 0;"><strong>Objects Tool</strong></p>
       <ul style="margin: 0; padding-left: 20px;">
         <li>Click template to add object</li>
@@ -182,16 +182,16 @@ const objectTemplates = OBJECT_TEMPLATES;
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem;
-  background: var(--color-bg-input);
-  border: 1px solid var(--color-border-light);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-secondary);
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .object-template-item:hover {
-  background: var(--color-accent-light);
-  border-color: var(--color-accent);
+  background: var(--bg-tertiary);
+  border-color: rgb(var(--color-primary));
 }
 
 .object-icon {
@@ -202,7 +202,7 @@ const objectTemplates = OBJECT_TEMPLATES;
 .object-label {
   font-size: 0.85rem;
   font-weight: 500;
-  color: var(--color-text-white);
+  color: var(--text-primary);
 }
 
 .object-settings {
@@ -214,7 +214,7 @@ const objectTemplates = OBJECT_TEMPLATES;
 
 .settings-subtitle {
   font-size: 0.75rem;
-  color: var(--color-accent);
+  color: var(--text-secondary);
   text-transform: uppercase;
   font-weight: bold;
   margin-bottom: 0.5rem;
@@ -231,21 +231,21 @@ const objectTemplates = OBJECT_TEMPLATES;
 
 .settings-group label {
   font-size: 0.7rem;
-  color: var(--color-text-tertiary);
+  color: var(--text-secondary);
   text-transform: uppercase;
 }
 
 .settings-input {
-  background: var(--color-bg-input);
-  border: 1px solid var(--color-border-light);
-  color: var(--color-text-white);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-secondary);
+  color: var(--text-primary);
   padding: 4px 6px;
   border-radius: 4px;
   font-size: 0.8rem;
 }
 
 .settings-input:focus {
-  border-color: var(--color-accent);
+  border-color: rgb(var(--color-primary));
   outline: none;
 }
 
@@ -272,9 +272,9 @@ const objectTemplates = OBJECT_TEMPLATES;
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  border: 1px solid var(--color-border-medium);
-  background: var(--color-border-light);
-  color: var(--color-text-white);
+  border: 1px solid var(--border-secondary);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
   cursor: pointer;
   font-size: 1.6rem;
   font-weight: bold;
@@ -287,8 +287,8 @@ const objectTemplates = OBJECT_TEMPLATES;
 }
 
 .curvature-btn:hover:not(:disabled) {
-  background: var(--color-accent-strong);
-  border-color: var(--color-accent);
+  background: var(--bg-secondary);
+  border-color: rgb(var(--color-primary));
 }
 
 .curvature-btn:active:not(:disabled) {
@@ -297,7 +297,7 @@ const objectTemplates = OBJECT_TEMPLATES;
 
 .curvature-value {
   font-size: 1rem;
-  color: var(--color-accent);
+  color: var(--text-primary);
   min-width: 45px;
   text-align: center;
   font-weight: 600;
@@ -341,21 +341,22 @@ const objectTemplates = OBJECT_TEMPLATES;
 
 .step-control label {
   font-size: 0.6rem;
-  color: var(--color-text-tertiary);
+  color: var(--text-secondary);
   text-transform: uppercase;
   line-height: 1;
 }
 
 .step-input {
   width: 48px;
-  background: var(--color-bg-input);
-  border: 1px solid var(--color-border-light);
-  color: var(--color-text-white);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-secondary);
+  color: var(--text-primary);
   padding: 4px 2px;
   border-radius: 4px;
   text-align: center;
   font-size: 0.8rem;
   -moz-appearance: textfield;
+  appearance: textfield;
 }
 
 .step-input::-webkit-outer-spin-button,
@@ -367,20 +368,22 @@ const objectTemplates = OBJECT_TEMPLATES;
 .arrow-btn {
   width: 30px;
   height: 30px;
-  background: var(--color-accent);
-  border: none;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-secondary);
   border-radius: 4px;
-  color: var(--color-text-white);
+  color: var(--text-primary);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: bold;
-  transition: background 0.2s;
+  transition: all 0.2s;
 }
 
 .arrow-btn:hover {
-  background: var(--color-accent-hover);
+  background: var(--bg-secondary);
+  border-color: rgb(var(--color-primary));
+  color: rgb(var(--color-primary));
 }
 
 .arrow-btn:active {
@@ -403,16 +406,16 @@ const objectTemplates = OBJECT_TEMPLATES;
 }
 
 .delete-btn {
-  background: var(--color-danger-light);
-  color: var(--color-accent);
-  border: 1px solid var(--color-accent-strong);
+  background: var(--error-light);
+  color: var(--error);
+  border: 1px solid var(--error-border);
   margin-top: 0.5rem;
 }
 
 .clear-btn {
   background: transparent;
-  border: 1px solid var(--color-border-medium);
-  color: var(--color-text-tertiary);
+  border: 1px solid var(--border-secondary);
+  color: var(--text-muted);
   padding: 2px 8px;
   border-radius: 4px;
   font-size: 0.7rem;
@@ -422,14 +425,14 @@ const objectTemplates = OBJECT_TEMPLATES;
 }
 
 .clear-btn:hover {
-  border-color: var(--color-danger);
-  color: var(--color-danger);
+  border-color: var(--error);
+  color: var(--error);
 }
 
 .settings-divider {
   width: 100%;
   height: 1px;
-  background: var(--color-border-light);
+  background: var(--border-subtle);
   margin: 1rem 0;
 }
 </style>

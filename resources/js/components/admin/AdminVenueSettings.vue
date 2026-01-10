@@ -251,21 +251,21 @@ const applyCurvature = () => {
 
 .settings-group label {
   font-size: 0.7rem;
-  color: var(--color-text-tertiary);
+  color: var(--text-secondary);
   text-transform: uppercase;
 }
 
 .settings-input {
-  background: var(--color-bg-input);
-  border: 1px solid var(--color-border-light);
-  color: var(--color-text-white);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-secondary);
+  color: var(--text-primary);
   padding: 4px 6px;
   border-radius: 4px;
   font-size: 0.8rem;
 }
 
 .settings-input:focus {
-  border-color: var(--color-accent);
+  border-color: rgb(var(--color-primary));
   outline: none;
 }
 
@@ -283,13 +283,13 @@ const applyCurvature = () => {
 .settings-divider {
   width: 100%;
   height: 1px;
-  background: var(--color-border-light);
+  background: var(--border-subtle);
   margin: 1rem 0;
 }
 
 .settings-subtitle {
   font-size: 0.75rem;
-  color: var(--color-accent);
+  color: var(--text-secondary);
   text-transform: uppercase;
   font-weight: bold;
   margin-bottom: 0.5rem;
@@ -312,33 +312,35 @@ const applyCurvature = () => {
 }
 
 .select-all-btn {
-  background: var(--color-accent-light);
-  color: var(--color-accent);
-  border: 1px solid var(--color-accent-strong);
+  background: rgb(var(--color-primary-light));
+  color: rgb(var(--color-primary));
+  border: 1px solid rgb(var(--color-primary));
 }
 
 .select-all-btn:hover {
-  background: var(--color-accent-medium);
+  background: rgb(var(--color-primary-light));
 }
 
 .manage-types-btn {
-  background: var(--color-accent-light);
-  color: var(--color-accent);
-  border: 1px solid var(--color-accent-strong);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-secondary);
 }
 
 .manage-types-btn:hover {
-  background: var(--color-accent-medium);
+  background: var(--bg-secondary);
+  border-color: rgb(var(--color-primary));
 }
 
 .manage-colors-btn {
-  background: var(--color-accent-light);
-  color: var(--color-accent);
-  border: 1px solid var(--color-accent-strong);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-secondary);
 }
 
 .manage-colors-btn:hover {
-  background: var(--color-accent-medium);
+  background: var(--bg-secondary);
+  border-color: rgb(var(--color-primary));
 }
 
 .curvature-controls {
@@ -353,9 +355,9 @@ const applyCurvature = () => {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  border: 1px solid var(--color-border-medium);
-  background: var(--color-border-light);
-  color: var(--color-text-white);
+  border: 1px solid var(--border-secondary);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
   cursor: pointer;
   font-size: 1.6rem;
   font-weight: bold;
@@ -368,8 +370,8 @@ const applyCurvature = () => {
 }
 
 .curvature-btn:hover:not(:disabled) {
-  background: var(--color-accent-strong);
-  border-color: var(--color-accent);
+  background: var(--bg-secondary);
+  border-color: rgb(var(--color-primary));
 }
 
 .curvature-btn:active:not(:disabled) {
@@ -383,7 +385,7 @@ const applyCurvature = () => {
 
 .curvature-value {
   font-size: 1rem;
-  color: var(--color-accent);
+  color: var(--text-primary);
   min-width: 45px;
   text-align: center;
   font-weight: 600;
@@ -396,7 +398,7 @@ const applyCurvature = () => {
   cursor: pointer;
   flex-direction: row;
   font-size: 0.8rem;
-  color: var(--color-text-white);
+  color: var(--text-primary);
 }
 
 .color-input {

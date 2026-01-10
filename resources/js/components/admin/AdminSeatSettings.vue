@@ -34,7 +34,7 @@
 
     <div class="settings-divider"></div>
     
-    <div style="padding: 10px; font-size: 0.75rem; color: var(--color-text-tertiary);">
+    <div style="padding: 10px; font-size: 0.75rem; color: var(--text-secondary);">
       <p style="margin: 0 0 8px 0;"><strong>Add Seat Tool</strong></p>
       <ul style="margin: 0; padding-left: 20px;">
         <li>Click anywhere to add a single seat</li>
@@ -72,7 +72,7 @@ const emitAdd = () => {
 
 .settings-subtitle {
   font-size: 0.75rem;
-  color: var(--color-accent);
+  color: var(--text-secondary);
   text-transform: uppercase;
   font-weight: bold;
   margin-bottom: 0.5rem;
@@ -89,21 +89,21 @@ const emitAdd = () => {
 
 .settings-group label {
   font-size: 0.7rem;
-  color: var(--color-text-tertiary);
+  color: var(--text-secondary);
   text-transform: uppercase;
 }
 
 .settings-input {
-  background: var(--color-bg-input);
-  border: 1px solid var(--color-border-light);
-  color: var(--color-text-white);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-secondary);
+  color: var(--text-primary);
   padding: 4px 6px;
   border-radius: 4px;
   font-size: 0.8rem;
 }
 
 .settings-input:focus {
-  border-color: var(--color-accent);
+  border-color: rgb(var(--color-primary));
   outline: none;
 }
 
@@ -134,19 +134,19 @@ const emitAdd = () => {
 }
 
 .add-btn {
-  background: var(--color-accent-light);
-  color: var(--color-accent);
-  border: 1px solid var(--color-accent-strong);
+  background: rgb(var(--color-primary-light));
+  color: rgb(var(--color-primary));
+  border: 1px solid rgb(var(--color-primary));
 }
 
 .add-btn:hover {
-  background: var(--color-accent-medium);
+  background: rgb(var(--color-primary-light));
 }
 
 .settings-divider {
   width: 100%;
   height: 1px;
-  background: var(--color-border-light);
+  background: var(--border-subtle);
   margin: 1rem 0;
 }
 </style>
