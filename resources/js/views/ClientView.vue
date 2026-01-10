@@ -4,16 +4,23 @@ import { useVenueStore } from '../stores/venue';
 import { useCartStore } from '../stores/cart';
 import { usePrice } from '../composables/usePrice';
 import VenueGrid from '../components/VenueGrid.vue';
-import { useRoute } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { Button } from '../components/ui/button';
 
 const venueStore = useVenueStore();
 const cartStore = useCartStore();
 const { formatPrice } = usePrice();
 const route = useRoute();
+const router = useRouter();
 
 onMounted(() => {
   const venueId = route.query.venueId as string;
+  const eventId = route.query.eventId as string;
+  
+  // Set cart context to isolate carts per event (or venue if no event)
+  const contextId = eventId ? `event-${eventId}` : `venue-${venueId}`;
+  cartStore.setContext(contextId);
+  
   venueStore.loadVenue(venueId);
 });
 
@@ -46,7 +53,21 @@ const clearCart = () => {
     venueStore.updateSeatStatus(seat.id, 'free');
   });
   // Clear cart
+  // Clear cart
   cartStore.clearCart();
+};
+
+const handleCheckout = async () => {
+  if (cartStore.selectedSeats.length === 0) return;
+  
+  const success = await cartStore.reserveSeats();
+  if (success) {
+    router.push('/payment');
+  } else {
+    alert('Some seats are no longer available. Please refresh and try again.');
+    // Ideally reload venue here
+    venueStore.loadVenue(route.query.venueId as string);
+  }
 };
 
 const getSeatType = (seat: any) => {
@@ -110,14 +131,24 @@ const getSeatTypeClass = (seat: any) => {
       <aside class="shopping-cart">
         <div class="cart-header">
           <h3>Your Cart</h3>
-          <Button 
-            v-if="cartStore.selectedSeats.length > 0"
-            variant="secondary-outline" 
-            size="sm"
-            @click="clearCart"
-          >
-            Clear
-          </Button>
+          <h3>Your Cart</h3>
+          <div class="flex gap-2">
+            <Button 
+              v-if="cartStore.selectedSeats.length > 0"
+              variant="secondary-outline" 
+              size="sm"
+              @click="clearCart"
+            >
+              Clear
+            </Button>
+            <Button 
+              v-if="cartStore.selectedSeats.length > 0"
+              size="sm"
+              @click="handleCheckout"
+            >
+              Checkout
+            </Button>
+          </div>
         </div>
         <div v-if="cartStore.selectedSeats.length === 0" class="empty-cart">
           No seats selected

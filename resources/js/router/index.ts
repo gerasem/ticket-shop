@@ -60,6 +60,11 @@ const router = createRouter({
       component: () => import('../views/EventEditView.vue')
     },
     {
+      path: '/payment',
+      name: 'payment',
+      component: () => import('../views/PaymentView.vue')
+    },
+    {
       path: '/login',
       name: 'login',
       component: () => import('../views/AuthView.vue')

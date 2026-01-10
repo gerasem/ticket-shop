@@ -8,7 +8,7 @@ class Seat extends Model
 {
     protected $fillable = [
         'venue_id', 'json_id', 'x', 'y', 'rotation', 
-        'row', 'place', 'type_id', 'status'
+        'row', 'place', 'type_id', 'status', 'reserved_until', 'reservation_token'
     ];
 
     public function venue()

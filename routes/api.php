@@ -12,6 +12,7 @@ Route::post('/logout', [AuthController::class, 'logout']);
 
 Route::get('/venues', [VenueController::class, 'index']);
 Route::get('/venues/{id}', [VenueController::class, 'show']);
+Route::post('/reservations', [App\Http\Controllers\ReservationController::class, 'reserve']);
 
 // Events routes
 Route::get('/events', [EventController::class, 'index']);

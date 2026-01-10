@@ -98,6 +98,7 @@ export const useVenueStore = defineStore('venue', () => {
 
   async function createVenue(data: { name: string, width: number, height: number }) {
       try {
+          await axios.get('/sanctum/csrf-cookie');
           const response = await axios.post('/api/venues', data);
           await loadVenues(); // Refresh list
           return response.data;
