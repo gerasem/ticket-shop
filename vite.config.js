@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
 import vue from '@vitejs/plugin-vue';
-// removed tailwindcss
+import tailwindcss from '@tailwindcss/vite';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -22,7 +22,7 @@ export default defineConfig({
                 },
             },
         }),
-
+        tailwindcss(),
     ],
     resolve: {
         alias: {

@@ -16,10 +16,10 @@ const authStore = useAuthStore();
       <div class="navbar-end">
         <div class="navbar-item">
           <div class="buttons">
-                <router-link  v-if="!authStore.isAuthenticated" to="/login" class="button is-primary is-small">
+                <router-link  v-if="!authStore.isAuthenticated" to="/login" class="button is-primary">
                   Login
                 </router-link>
-                 <a v-else class="button is-light is-small" @click="authStore.logout">
+                 <a v-else class="button is-danger is-light" @click="authStore.logout">
                   Logout
                 </a>
           </div>
