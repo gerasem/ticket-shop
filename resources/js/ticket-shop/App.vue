@@ -15,14 +15,6 @@ import NavBar from './components/NavBar.vue';
   </div>
 </template>
 
-    <main class="section">
-      <div class="container">
-        <RouterView />
-      </div>
-    </main>
-  </div>
-</template>
-
 <style>
 /* New styles for V2 specific can go here or in a new SCSS file */
 </style>

@@ -1,3 +1,7 @@
+<script setup lang="ts">
+import { useAuthStore } from '../stores/auth';
+const authStore = useAuthStore();
+</script>
 <template>
   <nav class="navbar is-light" role="navigation" aria-label="main navigation">
     <div class="navbar-brand">
@@ -12,16 +16,15 @@
       <div class="navbar-end">
         <div class="navbar-item">
           <div class="buttons">
-            <a class="button is-primary is-small">
-              <strong>Login</strong>
-            </a>
+                <router-link  v-if="!authStore.isAuthenticated" to="/login" class="button is-primary is-small">
+                  Login
+                </router-link>
+                 <a v-else class="button is-light is-small" @click="authStore.logout">
+                  Logout
+                </a>
           </div>
         </div>
       </div>
     </div>
   </nav>
 </template>
-
-<script setup lang="ts">
-// Navbar logic here if needed
-</script>
