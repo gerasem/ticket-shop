@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed, watch } from 'vue';
 import axios from 'axios';
-import { type Seat } from '../services/mockData';
+import { type Seat } from '../../services/mockData';
 import { useVenueStore } from './venue';
 
 export const useCartStore = defineStore('cart', () => {

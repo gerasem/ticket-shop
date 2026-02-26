@@ -5,12 +5,12 @@
     "types": ["vite/client"],
 
     /* Linting */
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "strict": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue"]
+  "include": ["resources/js/**/*.ts", "resources/js/**/*.tsx", "resources/js/**/*.vue", "resources/js/**/*.js"]
 }

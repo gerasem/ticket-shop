@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import axios from 'axios';
-import { type Venue, generateMockVenue, getVenueById } from '../services/mockData';
+import { type Venue, generateMockVenue, getVenueById } from '../../services/mockData';
 
 export const useVenueStore = defineStore('venue', () => {
   const currentVenue = ref<Venue | null>(null);

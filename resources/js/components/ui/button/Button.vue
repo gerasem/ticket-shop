@@ -11,7 +11,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  variant: 'default',
+  variant: 'primary',
   size: 'default',
   asChild: false,
 })
