@@ -51,7 +51,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import type { Venue, SeatType } from '../../services/mockData';
+import type { Venue, SeatType } from '../../types/venue';
 import BaseButton from '../BaseButton.vue';
 
 const rows = ref(1);

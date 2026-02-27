@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import type { Venue, SeatType } from '../services/mockData';
+import type { Venue, SeatType } from '../types/venue';
 import BaseButton from './BaseButton.vue';
+import { useToast } from 'vue-toastification';
+
+const toast = useToast();
 
 const props = defineProps<{
   modelValue: boolean;
@@ -66,13 +69,12 @@ const deleteType = (typeId: string) => {
   const seatsUsingType = props.venue?.seats.filter(s => s.typeId === typeId).length || 0;
   
   if (seatsUsingType > 0) {
-    alert(`Cannot delete this type. ${seatsUsingType} seat(s) are using it.`);
+    toast.error(`Cannot delete: ${seatsUsingType} seat(s) still use this type.`);
     return;
   }
-  
-  // Prevent deleting last type
+
   if (editingTypes.value.length <= 1) {
-    alert('Cannot delete the last seat type.');
+    toast.warning('Cannot delete the last seat type.');
     return;
   }
   

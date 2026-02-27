@@ -6,12 +6,15 @@ import { useCartStore } from '../stores/cart';
 import { usePrice } from '../composables/usePrice';
 import VenueGrid from '../components/VenueGrid.vue';
 import { useRouter, useRoute } from 'vue-router';
+import { useToast } from 'vue-toastification';
+import type { Seat } from '../types/venue';
 
 const venueStore = useVenueStore();
 const cartStore = useCartStore();
 const { formatPrice } = usePrice();
 const route = useRoute();
 const router = useRouter();
+const toast = useToast();
 
 onMounted(() => {
   const venueId = route.query.venueId as string;
@@ -63,17 +66,16 @@ const handleCheckout = async () => {
   if (success) {
     router.push('/payment');
   } else {
-    alert('Some seats are no longer available. Please refresh and try again.');
-    // Ideally reload venue here
+    toast.error('Some seats are no longer available. Please try again.');
     venueStore.loadVenue(route.query.venueId as string);
   }
 };
 
-const getSeatType = (seat: any) => {
+const getSeatType = (seat: Seat) => {
   return venueStore.currentVenue?.seatTypes.find(t => t.id === seat.typeId);
 };
 
-const getSeatTypeClass = (seat: any) => {
+const getSeatTypeClass = (seat: Seat) => {
   const type = getSeatType(seat);
   return `type-${type?.id || 'unknown'}`;
 };

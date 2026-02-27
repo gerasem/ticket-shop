@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { toRef, ref } from 'vue';
-import { type Venue } from '../services/mockData';
+import { type Venue } from '../types/venue';
 import { useVenueEditor } from '../composables/useVenueEditor';
 import BaseButton from './BaseButton.vue';
 

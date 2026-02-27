@@ -1,5 +1,5 @@
 import { computed, ref, type Ref } from 'vue';
-import type { Venue, Seat } from '../services/mockData';
+import type { Venue, Seat } from '../types/venue';
 
 /**
  * Composable for venue editor utilities

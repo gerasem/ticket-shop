@@ -10,7 +10,7 @@ const __dirname = path.dirname(__filename);
 export default defineConfig({
     plugins: [
         laravel({
-            input: ['resources/js/main.ts', 'resources/js/ticket-shop/main.ts'],
+            input: ['resources/js/main.ts'],
             refresh: true,
         }),
         vue({

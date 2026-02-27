@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useCartStore } from '../stores/cart';
-import { loadStripe } from '@stripe/stripe-js';
-import axios from 'axios';
 import BaseButton from '../components/BaseButton.vue';
 import { usePrice } from '../composables/usePrice';
+import { useToast } from 'vue-toastification';
 
 const router = useRouter();
 const cartStore = useCartStore();
 const { formatPrice } = usePrice();
+const toast = useToast();
 
 // Formatting countdown
 const timeLeft = ref('15:00');
@@ -28,8 +28,7 @@ const isProcessing = ref(false);
 const startTimer = () => {
   const expiresAt = cartStore.reservationExpiresAt;
   if (!expiresAt) {
-    // If no reservation found, redirect back
-    alert('No active reservation found.');
+    toast.warning('No active reservation found.');
     router.push('/');
     return;
   }
@@ -41,7 +40,7 @@ const startTimer = () => {
     if (distance < 0) {
       if (timerInterval) clearInterval(timerInterval);
       timeLeft.value = '00:00';
-      alert('Reservation expired!');
+      toast.error('Reservation expired!');
       cartStore.clearCart();
       router.push('/booking'); 
       return;
@@ -74,7 +73,7 @@ const handlePayment = async () => {
   // Simulate API call
   await new Promise(resolve => setTimeout(resolve, 2000));
   
-  alert('Payment Successful! Tickets sent to email.');
+  toast.success('Payment Successful! Tickets will be sent to your email.');
   cartStore.clearCart();
   router.push('/');
   isProcessing.value = false;

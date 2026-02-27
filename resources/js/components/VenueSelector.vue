@@ -26,10 +26,8 @@ onMounted(async () => {
 const onVenueChange = async (event: Event) => {
   const select = event.target as HTMLSelectElement;
   const venueId = select.value;
-  
-  const venue = venues.value.find(v => v.id === venueId);
-  if (venue) {
-    await venueStore.loadVenueFromJSON(venue.file);
+  if (venueId) {
+    await venueStore.loadVenue(venueId);
     selectedVenue.value = venueId;
   }
 };

@@ -165,7 +165,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Venue } from '../../services/mockData';
+import type { Venue } from '../../types/venue';
 import BaseButton from '../BaseButton.vue';
 
 const props = defineProps<{

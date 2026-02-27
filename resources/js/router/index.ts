@@ -74,18 +74,19 @@ const router = createRouter({
 
 import { useAuthStore } from '../stores/auth'
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
-  
-  // Protect admin routes
+
+  // Ensure auth state is known before navigating
+  if (!authStore.user && !authStore.isAuthenticated) {
+    await authStore.checkAuth()
+  }
+
   if (to.path.startsWith('/admin') && !authStore.isAuthenticated) {
     next('/login')
-  } 
-  // Redirect to dashboard if already logged in and visiting login
-  else if (to.path === '/login' && authStore.isAuthenticated) {
+  } else if (to.path === '/login' && authStore.isAuthenticated) {
     next('/admin/events')
-  } 
-  else {
+  } else {
     next()
   }
 })
