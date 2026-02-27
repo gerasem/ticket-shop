@@ -9,7 +9,7 @@
         class="object-template-item"
         @click="$emit('add-object', template.type)"
       >
-        <span class="object-icon" :style="{ color: template.color }"><IconImage :name="template.icon" size="24px" /></span>
+        <span class="object-icon" :style="{ color: template.color }"><i :class="'bi ' + template.icon" style="font-size: 24px;"></i></span>
         <span class="object-label">{{ template.label }}</span>
       </div>
     </div>
@@ -60,9 +60,9 @@
       <div class="settings-group">
         <label>Rotation (°)</label>
         <div class="curvature-controls">
-          <button class="curvature-btn" @click="$emit('update-property', 'rotation', ((selectedObject.rotation || 0) - 15 + 360) % 360)"><IconImage name="rotate-ccw" size="20px" /></button>
+          <button class="curvature-btn" @click="$emit('update-property', 'rotation', ((selectedObject.rotation || 0) - 15 + 360) % 360)"><i class="bi bi-arrow-counterclockwise" style="font-size: 20px;"></i></button>
           <span class="curvature-value">{{ selectedObject.rotation || 0 }}°</span>
-          <button class="curvature-btn" @click="$emit('update-property', 'rotation', ((selectedObject.rotation || 0) + 15) % 360)"><IconImage name="rotate-cw" size="20px" /></button>
+          <button class="curvature-btn" @click="$emit('update-property', 'rotation', ((selectedObject.rotation || 0) + 15) % 360)"><i class="bi bi-arrow-clockwise" style="font-size: 20px;"></i></button>
         </div>
       </div>
 
@@ -96,9 +96,9 @@
         <label>Movement</label>
         <div class="movement-controls">
           <div class="arrow-grid">
-            <button class="arrow-btn" @click="$emit('move-selection', 0, -1)"><IconImage name="arrow-up" size="18px" /></button>
+            <button class="arrow-btn" @click="$emit('move-selection', 0, -1)"><i class="bi bi-arrow-up-short" style="font-size: 18px;"></i></button>
             <div class="arrow-row">
-              <button class="arrow-btn" @click="$emit('move-selection', -1, 0)"><IconImage name="arrow-left" size="18px" /></button>
+              <button class="arrow-btn" @click="$emit('move-selection', -1, 0)"><i class="bi bi-arrow-left-short" style="font-size: 18px;"></i></button>
               <div class="step-control">
                 <label>STEP</label>
                 <input 
@@ -110,9 +110,9 @@
                   max="100"
                 />
               </div>
-              <button class="arrow-btn" @click="$emit('move-selection', 1, 0)"><IconImage name="arrow-right" size="18px" /></button>
+              <button class="arrow-btn" @click="$emit('move-selection', 1, 0)"><i class="bi bi-arrow-right-short" style="font-size: 18px;"></i></button>
             </div>
-            <button class="arrow-btn" @click="$emit('move-selection', 0, 1)"><IconImage name="arrow-down" size="18px" /></button>
+            <button class="arrow-btn" @click="$emit('move-selection', 0, 1)"><i class="bi bi-arrow-down-short" style="font-size: 18px;"></i></button>
           </div>
         </div>
       </div>
@@ -144,7 +144,6 @@
 <script setup lang="ts">
 import type { VenueObject } from '../../types/venueObjects';
 import { OBJECT_TEMPLATES } from '../../types/venueObjects';
-import IconImage from '../IconImage.vue';
 
 const props = defineProps<{
   selectedObject: VenueObject | null;

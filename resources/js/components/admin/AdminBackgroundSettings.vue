@@ -4,7 +4,7 @@
     <div class="settings-group">
       <label>Background Image</label>
       <label for="background-upload" class="upload-button">
-        <span class="upload-icon"><IconImage name="upload" size="18px" /></span>
+        <span class="upload-icon"><i class="bi bi-upload" style="font-size: 18px;"></i></span>
         <span class="upload-text">Choose Image</span>
       </label>
       <input 
@@ -48,9 +48,9 @@
     <div v-if="venue.backgroundImage" class="settings-group">
       <label>Position</label>
       <div class="arrow-buttons">
-        <button class="arrow-btn up" @click="$emit('move-background', 0, -1)"><IconImage name="arrow-up" size="18px" /></button>
+        <button class="arrow-btn up" @click="$emit('move-background', 0, -1)"><i class="bi bi-arrow-down-short" style="transform: rotate(180deg); font-size: 18px;"></i></button>
         <div class="horizontal-arrows">
-          <button class="arrow-btn left" @click="$emit('move-background', -1, 0)"><IconImage name="arrow-left" size="18px" /></button>
+          <button class="arrow-btn left" @click="$emit('move-background', -1, 0)"><i class="bi bi-arrow-left-short" style="font-size: 18px;"></i></button>
           <div class="step-control-compact">
             <label>Step</label>
             <input 
@@ -61,9 +61,9 @@
               class="step-input" 
             />
           </div>
-          <button class="arrow-btn right" @click="$emit('move-background', 1, 0)"><IconImage name="arrow-right" size="18px" /></button>
+          <button class="arrow-btn right" @click="$emit('move-background', 1, 0)"><i class="bi bi-arrow-right-short" style="font-size: 18px;"></i></button>
         </div>
-        <button class="arrow-btn down" @click="$emit('move-background', 0, 1)"><IconImage name="arrow-down" size="18px" /></button>
+        <button class="arrow-btn down" @click="$emit('move-background', 0, 1)"><i class="bi bi-arrow-down-short" style="font-size: 18px;"></i></button>
       </div>
     </div>
 
@@ -71,9 +71,9 @@
     <div v-if="venue.backgroundImage" class="settings-group">
       <label>Rotation</label>
       <div class="curvature-controls">
-        <button class="curvature-btn" @click="$emit('rotate-background', -5)"><IconImage name="rotate-ccw" size="20px" /></button>
+        <button class="curvature-btn" @click="$emit('rotate-background', -5)"><i class="bi bi-arrow-counterclockwise" style="font-size: 20px;"></i></button>
         <span class="curvature-value">{{ venue.backgroundImage.rotation }}°</span>
-        <button class="curvature-btn" @click="$emit('rotate-background', 5)"><IconImage name="rotate-cw" size="20px" /></button>
+        <button class="curvature-btn" @click="$emit('rotate-background', 5)"><i class="bi bi-arrow-clockwise" style="font-size: 20px;"></i></button>
       </div>
     </div>
   </div>
@@ -81,7 +81,6 @@
 
 <script setup lang="ts">
 import type { Venue } from '../../services/mockData';
-import IconImage from '../IconImage.vue';
 
 const props = defineProps<{
   venue: Venue;

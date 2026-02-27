@@ -95,9 +95,7 @@ const editVenue = (id: string) => {
     <!-- Empty state -->
     <div v-else-if="venueStore.venuesList.length === 0" class="empty-state">
       <div class="empty-content">
-        <svg class="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-        </svg>
+        <i class="bi bi-building empty-icon"></i>
         <h2>No venues found</h2>
         <p>Create your first venue to start designing seating charts</p>
       </div>
@@ -107,9 +105,7 @@ const editVenue = (id: string) => {
     <div v-else class="venues-list">
       <div v-for="venue in venueStore.venuesList" :key="venue.id" class="venue-card">
         <div class="venue-icon-wrapper">
-            <svg class="venue-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-            </svg>
+            <i class="bi bi-building venue-icon"></i>
         </div>
         
         <div class="venue-details">

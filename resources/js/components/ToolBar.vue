@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import IconImage from './IconImage.vue';
-
 type Tool = 'select' | 'pan' | 'settings' | 'add-seat' | 'background' | 'objects';
 
 defineProps<{
@@ -27,7 +25,7 @@ const emit = defineEmits<{
       @click="emit('update:activeTool', 'pan')"
       title="Pan Tool"
     >
-      <IconImage name="pan" size="24px" />
+      <i class="bi bi-arrows-move" style="font-size: 24px;"></i>
     </button>
     <button 
       class="tool-btn" 
@@ -35,7 +33,7 @@ const emit = defineEmits<{
       @click="emit('update:activeTool', 'select')"
       title="Selection Tool"
     >
-      <IconImage name="select" size="24px" />
+      <i class="bi bi-cursor" style="font-size: 24px;"></i>
     </button>
     <button 
       class="tool-btn" 
@@ -43,7 +41,7 @@ const emit = defineEmits<{
       @click="emit('update:activeTool', 'settings')"
       title="Settings"
     >
-      <IconImage name="settings" size="24px" />
+      <i class="bi bi-gear" style="font-size: 24px;"></i>
     </button>
     <button 
       class="tool-btn" 
@@ -51,7 +49,7 @@ const emit = defineEmits<{
       @click="emit('update:activeTool', 'add-seat')"
       title="Add Seat"
     >
-      <IconImage name="plus" size="24px" />
+      <i class="bi bi-plus-lg" style="font-size: 24px;"></i>
     </button>
     <button 
       class="tool-btn" 
@@ -59,7 +57,7 @@ const emit = defineEmits<{
       @click="emit('update:activeTool', 'background')"
       title="Background"
     >
-      <IconImage name="image" size="24px" />
+      <i class="bi bi-image" style="font-size: 24px;"></i>
     </button>
     <button 
       class="tool-btn" 
@@ -67,7 +65,7 @@ const emit = defineEmits<{
       @click="emit('update:activeTool', 'objects')"
       title="Objects"
     >
-      <IconImage name="box" size="24px" />
+      <i class="bi bi-box" style="font-size: 24px;"></i>
     </button>
     <div v-if="activeTool === 'select' || activeTool === 'add-seat' || activeTool === 'background' || activeTool === 'objects'" class="separator"></div>
     <button 
@@ -77,7 +75,7 @@ const emit = defineEmits<{
       :disabled="!canUndo"
       title="Undo (Ctrl+Z)"
     >
-      <IconImage name="undo" size="24px" />
+      <i class="bi bi-arrow-90deg-left" style="font-size: 24px;"></i>
     </button>
     <button 
       v-if="activeTool === 'select' || activeTool === 'add-seat' || activeTool === 'background' || activeTool === 'objects'"
@@ -86,7 +84,7 @@ const emit = defineEmits<{
       :disabled="!canRedo"
       title="Redo (Ctrl+Y)"
     >
-      <IconImage name="redo" size="24px" />
+      <i class="bi bi-arrow-90deg-right" style="font-size: 24px;"></i>
     </button>
     <button 
       v-if="activeTool === 'select' || activeTool === 'background' || activeTool === 'objects'"
@@ -95,7 +93,7 @@ const emit = defineEmits<{
       :disabled="!canDelete"
       title="Delete (Del)"
     >
-      <IconImage name="trash" size="24px" />
+      <i class="bi bi-trash" style="font-size: 24px;"></i>
     </button>
   </div>
 </template>

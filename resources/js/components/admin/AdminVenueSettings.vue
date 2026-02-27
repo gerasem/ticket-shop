@@ -101,13 +101,13 @@
           class="curvature-btn" 
           @click="decreaseCurvature"
           :disabled="venue.curvature === -100"
-        ><IconImage name="rotate-ccw" size="20px" /></button>
+        ><i class="bi bi-arrow-counterclockwise" style="font-size: 20px;"></i></button>
         <span class="curvature-value">{{ venue.curvature }}%</span>
         <button 
           class="curvature-btn" 
           @click="increaseCurvature"
           :disabled="venue.curvature === 100"
-        ><IconImage name="rotate-cw" size="20px" /></button>
+        ><i class="bi bi-arrow-clockwise" style="font-size: 20px;"></i></button>
       </div>
     </div>
     
@@ -158,7 +158,6 @@
 
 <script setup lang="ts">
 import type { Venue } from '../../services/mockData';
-import IconImage from '../IconImage.vue';
 
 const props = defineProps<{
   venue: Venue;

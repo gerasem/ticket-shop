@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
-import IconImage from '../IconImage.vue';
 
 const props = defineProps<{
   modelValue: boolean;
@@ -123,7 +122,7 @@ onMounted(() => {
           <!-- Header -->
           <div class="modal-header">
             <h2>Manage Colors</h2>
-            <button class="close-btn" @click="closeModal"><IconImage name="x" size="20px" /></button>
+            <button class="close-btn" @click="closeModal"><i class="bi bi-x-lg"></i></button>
           </div>
           
           <!-- Content -->
