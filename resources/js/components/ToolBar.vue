@@ -50,7 +50,9 @@ const primaryTools = [
       :disabled="!canUndo"
       title="Undo (Ctrl+Z)"
     >
-      <i class="bi bi-arrow-counterclockwise" style="font-size: 24px;"></i>
+      <span class="icon is-medium">
+        <i class="bi bi-arrow-counterclockwise" style="font-size: 24px;"></i>
+      </span>
     </BaseButton>
     <BaseButton
       variant="light"
@@ -59,7 +61,9 @@ const primaryTools = [
       :disabled="!canRedo"
       title="Redo (Ctrl+Y)"
     >
-      <i class="bi bi-arrow-clockwise" style="font-size: 24px;"></i>
+      <span class="icon is-medium">
+        <i class="bi bi-arrow-clockwise" style="font-size: 24px;"></i>
+      </span>
     </BaseButton>
     <div v-if="activeTool === 'select' || activeTool === 'add-seat' || activeTool === 'background' || activeTool === 'objects'" class="separator"></div>
     <BaseButton
@@ -70,7 +74,9 @@ const primaryTools = [
       :disabled="!canDelete"
       title="Delete (Del/Backspace)"
     >
-      <i class="bi bi-trash" style="font-size: 24px;"></i>
+      <span class="icon is-medium">
+        <i class="bi bi-trash" style="font-size: 24px;"></i>
+      </span>
     </BaseButton>
   </div>
 </template>

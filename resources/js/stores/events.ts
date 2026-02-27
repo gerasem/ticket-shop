@@ -1,12 +1,12 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { eventsApi } from '../services/api/eventsApi';
-import type { Event } from '../types/event';
+import type { AppEvent } from '../types/event';
 
-export type { Event };
+export type { AppEvent };
 
 export const useEventsStore = defineStore('events', () => {
-  const events = ref<Event[]>([]);
+  const events = ref<AppEvent[]>([]);
   const isLoading = ref(false);
   const error = ref<string | null>(null);
 

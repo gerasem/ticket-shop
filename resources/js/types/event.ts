@@ -1,6 +1,6 @@
 import type { Venue } from './venue';
 
-export interface Event {
+export interface AppEvent {
   id: number;
   title: string;
   description: string;

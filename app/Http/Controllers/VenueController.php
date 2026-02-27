@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Venue;
 use App\Models\Seat;
 use Illuminate\Http\Request;
+use App\Http\Requests\StoreVenueRequest;
+use App\Http\Requests\UpdateVenueRequest;
 
 class VenueController extends Controller
 {
@@ -50,13 +52,9 @@ class VenueController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(StoreVenueRequest $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string',
-            'width' => 'required|numeric',
-            'height' => 'required|numeric',
-        ]);
+        $validated = $request->validated();
 
         $venue = new Venue();
         $venue->id = 'venue-' . time(); // Simple ID generation
@@ -74,7 +72,7 @@ class VenueController extends Controller
         $venue->default_seat_style = [
             'width' => 30,
             'height' => 30,
-            'borderRadius' => '4px 4px 12px 12px',
+            'borderRadius' => '4px',
             'color' => '#64748b'
         ];
 
@@ -83,7 +81,7 @@ class VenueController extends Controller
         return response()->json($venue);
     }
 
-    public function update(Request $request, $id)
+    public function update(UpdateVenueRequest $request, $id)
     {
         try {
             $venue = Venue::findOrFail($id);
@@ -106,25 +104,31 @@ class VenueController extends Controller
 
                 // 2. Sync Seats
                 if ($request->has('seats')) {
-                    $venue->seats()->delete(); // Remove old seats
-                    
                     $seatsData = $request->input('seats');
-                    $seatsToInsert = [];
                     
-                    // Validate check to ensure no duplicates in input?
-                    // For now, trust input but catch DB errors.
+                    $incomingJsonIds = collect($seatsData)
+                        ->filter(fn($seat) => isset($seat['id']))
+                        ->pluck('id')
+                        ->toArray();
 
+                    // Delete only seats that were actually removed in the editor
+                    if (!empty($incomingJsonIds)) {
+                        $venue->seats()->whereNotIn('json_id', $incomingJsonIds)->delete();
+                    } else {
+                        $venue->seats()->delete();
+                    }
+                    
+                    $seatsToUpsert = [];
                     foreach ($seatsData as $seatData) {
-                        // Ensure required fields
-                         if (!isset($seatData['id'])) continue; 
+                        if (!isset($seatData['id'])) continue; 
 
-                        $seatsToInsert[] = [
+                        $seatsToUpsert[] = [
                             'venue_id' => $venue->id,
-                            'json_id' => $seatData['id'], // Map frontend 'id' to 'json_id'
+                            'json_id' => $seatData['id'],
                             'x' => $seatData['x'] ?? 0,
                             'y' => $seatData['y'] ?? 0,
                             'rotation' => $seatData['rotation'] ?? 0,
-                            'row' => $seatData['row'] ?? null, // row can be string or int
+                            'row' => $seatData['row'] ?? null,
                             'place' => $seatData['place'] ?? null,
                             'type_id' => $seatData['typeId'] ?? 'standard',
                             'status' => $seatData['status'] ?? 'free',
@@ -133,9 +137,13 @@ class VenueController extends Controller
                         ];
                     }
                     
-                    // Bulk insert for performance
-                    if (count($seatsToInsert) > 0) {
-                        Seat::insert($seatsToInsert); 
+                    // Bulk upsert for performance and data safety
+                    if (count($seatsToUpsert) > 0) {
+                        Seat::upsert(
+                            $seatsToUpsert,
+                            ['venue_id', 'json_id'], // Unique fields to match on
+                            ['x', 'y', 'rotation', 'row', 'place', 'type_id', 'updated_at'] // Only update layout fields; DO NOT update 'status', 'reserved_until', or 'reservation_token' to protect active checkouts!
+                        ); 
                     }
                 }
             });

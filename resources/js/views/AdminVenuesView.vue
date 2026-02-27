@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router';
 import { useVenueStore } from '../stores/venue';
 import BaseButton from '../components/BaseButton.vue';
 import { useToast } from 'vue-toastification';
+import AdminPageLayout from '../components/admin/AdminPageLayout.vue';
 
 const router = useRouter();
 const venueStore = useVenueStore();
@@ -58,22 +59,20 @@ const editVenue = (id: string) => {
 </script>
 
 <template>
-  <div>
-    <!-- Page Header -->
-    <div class="level mb-5">
-      <div class="level-left">
-        <div class="level-item">
-          <h1 class="title is-3">Venues Management</h1>
-        </div>
-      </div>
-      <div class="level-right">
-        <div class="level-item">
-          <BaseButton variant="primary" @click="showCreateModal = true">
-            Create Venue
-          </BaseButton>
-        </div>
-      </div>
-    </div>
+  <AdminPageLayout
+    title="Venues Management"
+    :is-loading="venueStore.isLoading"
+    :is-empty="venueStore.venuesList.length === 0"
+    empty-icon="bi-building"
+    empty-title="No venues found"
+    empty-subtitle="Create your first venue to start designing seating charts"
+  >
+    <!-- Header Actions -->
+    <template #header-actions>
+      <BaseButton variant="primary" @click="showCreateModal = true">
+        Create Venue
+      </BaseButton>
+    </template>
 
     <!-- Create Venue Modal -->
     <div v-if="showCreateModal" class="modal-overlay">
@@ -103,20 +102,7 @@ const editVenue = (id: string) => {
       </div>
     </div>
 
-    <!-- Loading -->
-    <div v-if="venueStore.isLoading" class="has-text-centered py-6 has-text-grey">
-      <p>Loading...</p>
-    </div>
-
-    <!-- Empty -->
-    <div v-else-if="venueStore.venuesList.length === 0" class="has-text-centered py-6">
-      <i class="bi bi-building" style="font-size: 3rem; color: var(--border-secondary);"></i>
-      <h2 class="title is-4 mt-4">No venues found</h2>
-      <p class="has-text-grey">Create your first venue to start designing seating charts</p>
-    </div>
-
     <!-- Venues list -->
-    <div v-else class="is-flex is-flex-direction-column" style="gap: 1.5rem;">
       <div v-for="venue in venueStore.venuesList" :key="venue.id" class="box">
         <article class="media is-align-items-center">
           <!-- Icon -->
@@ -156,8 +142,8 @@ const editVenue = (id: string) => {
           </div>
         </article>
       </div>
-    </div>
-  </div>
+    <!-- End list -->
+  </AdminPageLayout>
 </template>
 
 <style scoped lang="scss">

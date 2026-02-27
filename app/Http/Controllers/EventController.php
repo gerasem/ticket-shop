@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Event;
 use Illuminate\Http\Request;
+use App\Http\Requests\StoreEventRequest;
+use App\Http\Requests\UpdateEventRequest;
 use Illuminate\Support\Facades\Storage;
 
 class EventController extends Controller
@@ -14,16 +16,9 @@ class EventController extends Controller
         return response()->json($events);
     }
 
-    public function store(Request $request)
+    public function store(StoreEventRequest $request)
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'date' => 'required|date',
-            'time' => 'required',
-            'venue_id' => 'required|exists:venues,id',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:10240'
-        ]);
+        $validated = $request->validated();
 
         // Handle image upload
         if ($request->hasFile('image')) {
@@ -40,18 +35,11 @@ class EventController extends Controller
         return response()->json($event);
     }
 
-    public function update(Request $request, $id)
+    public function update(UpdateEventRequest $request, $id)
     {
         $event = Event::findOrFail($id);
         
-        $validated = $request->validate([
-            'title' => 'sometimes|required|string|max:255',
-            'description' => 'sometimes|required|string',
-            'date' => 'sometimes|required|date',
-            'time' => 'sometimes|required',
-            'venue_id' => 'sometimes|required|exists:venues,id',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:10240'
-        ]);
+        $validated = $request->validated();
 
         // Handle image upload
         if ($request->hasFile('image')) {

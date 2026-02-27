@@ -4,6 +4,7 @@ import { useEventsStore } from '../stores/events';
 import { useRouter } from 'vue-router';
 import BaseButton from '../components/BaseButton.vue';
 import { useToast } from 'vue-toastification';
+import AdminPageLayout from '../components/admin/AdminPageLayout.vue';
 
 const eventsStore = useEventsStore();
 const router = useRouter();
@@ -33,37 +34,21 @@ const deleteEvent = async (id: number) => {
 </script>
 
 <template>
-  <div>
-    <!-- Page Header -->
-    <div class="level mb-5">
-      <div class="level-left">
-        <div class="level-item">
-          <h1 class="title is-3">Event Management</h1>
-        </div>
-      </div>
-      <div class="level-right">
-        <div class="level-item">
-          <BaseButton variant="primary" @click="router.push('/admin/events/create')">
-            Create Event
-          </BaseButton>
-        </div>
-      </div>
-    </div>
-
-    <!-- Loading -->
-    <div v-if="eventsStore.isLoading" class="has-text-centered py-6 has-text-grey">
-      <p>Loading...</p>
-    </div>
-
-    <!-- Empty -->
-    <div v-else-if="eventsStore.events.length === 0" class="has-text-centered py-6">
-      <i class="bi bi-calendar-event" style="font-size: 3rem; color: var(--border-secondary);"></i>
-      <h2 class="title is-4 mt-4">No events found</h2>
-      <p class="has-text-grey">Create your first event to start selling tickets</p>
-    </div>
+  <AdminPageLayout
+    title="Event Management"
+    :is-loading="eventsStore.isLoading"
+    :is-empty="eventsStore.events.length === 0"
+    empty-icon="bi-calendar-event"
+    empty-title="No events found"
+    empty-subtitle="Create your first event to start selling tickets"
+  >
+    <template #header-actions>
+      <BaseButton variant="primary" @click="router.push('/admin/events/create')">
+        Create Event
+      </BaseButton>
+    </template>
 
     <!-- Events list -->
-    <div v-else class="events-list is-flex is-flex-direction-column" style="gap: 1.5rem;">
       <div v-for="event in eventsStore.events" :key="event.id" class="box">
         <article class="media is-align-items-center">
           <!-- Thumbnail -->
@@ -112,8 +97,8 @@ const deleteEvent = async (id: number) => {
           </div>
         </article>
       </div>
-    </div>
-  </div>
+    <!-- End List -->
+  </AdminPageLayout>
 </template>
 
 

@@ -102,7 +102,7 @@ const getSeatStyle = (seat: Seat) => {
       
       <!-- Compact Price Legend -->
       <div class="price-legend-compact">
-        <div class="legend-items box py-2 px-4 is-flex is-align-items-center" style="gap: 1.5rem;">
+        <div class="legend-items box py-2 px-4 is-flex is-align-items-center" >
           <div class="legend-item" v-for="type in venueStore.currentVenue?.seatTypes" :key="type.id">
             <div class="legend-color" :style="{ backgroundColor: type.style?.color || venueStore.currentVenue?.defaultSeatStyle?.color }"></div>
             <span>{{ type.name }}: {{ formatPrice(type.priceInCents) }}</span>

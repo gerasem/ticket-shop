@@ -45,8 +45,9 @@ const handleSubmit = async () => {
 
     await eventsStore.createEvent(formData);
     router.push('/admin/events');
-  } catch (error: any) {
-    errorMsg.value = error.response?.data?.message || 'Error creating event';
+  } catch (error: unknown) {
+    const e = error as { response?: { data?: { message?: string } } };
+    errorMsg.value = e.response?.data?.message || 'Error creating event';
   } finally {
     isLoading.value = false;
   }

@@ -268,29 +268,62 @@ const handleTypesUpdate = (types: SeatType[]) => {
 };
 
 // ─── Computed ─────────────────────────────────────────────────────────────────
-const overlappingSeatIds = computed(() => {
-  if (!venueRef.value) return new Set<string>();
+const overlappingSeatIds = ref<Set<string>>(new Set());
+let overlapTimeout: ReturnType<typeof setTimeout> | null = null;
+
+const calculateOverlaps = () => {
+  if (!venueRef.value) {
+    overlappingSeatIds.value = new Set();
+    return;
+  }
   const seats = venueRef.value.seats;
   const overlapping = new Set<string>();
-  for (let i = 0; i < seats.length; i++) {
-    const seatA = seats[i];
-    if (!seatA) continue;
-    const styleA = getSeatStyle(seatA);
-    for (let j = i + 1; j < seats.length; j++) {
-      const seatB = seats[j];
-      if (!seatB) continue;
-      const styleB = getSeatStyle(seatB);
-      if (geometry.checkIntersection(
-        { x: seatA.x, y: seatA.y, width: parseInt(styleA.width as string), height: parseInt(styleA.height as string), rotation: seatA.rotation },
-        { x: seatB.x, y: seatB.y, width: parseInt(styleB.width as string), height: parseInt(styleB.height as string), rotation: seatB.rotation }
-      )) {
-        overlapping.add(seatA.id);
-        overlapping.add(seatB.id);
+  
+  // Cache seat styles and radii to avoid re-calculating inside the N^2 loop
+  const seatData = seats.map(seat => {
+    const style = getSeatStyle(seat);
+    const w = parseInt(style.width as string) || 30;
+    const h = parseInt(style.height as string) || 30;
+    // Bounding circle radius
+    const radius = Math.sqrt(w * w + h * h) / 2;
+    return { seat, w, h, radius };
+  });
+
+  for (let i = 0; i < seatData.length; i++) {
+    const a = seatData[i];
+    for (let j = i + 1; j < seatData.length; j++) {
+      const b = seatData[j];
+      
+      // 1. Fast Bounding Circle pre-check
+      const dx = a.seat.x - b.seat.x;
+      const dy = a.seat.y - b.seat.y;
+      const distSq = dx * dx + dy * dy;
+      const rSum = a.radius + b.radius;
+      
+      if (distSq < rSum * rSum) {
+        // 2. Expensive SAT Poly Intersection check
+        if (geometry.checkIntersection(
+          { x: a.seat.x, y: a.seat.y, width: a.w, height: a.h, rotation: a.seat.rotation },
+          { x: b.seat.x, y: b.seat.y, width: b.w, height: b.h, rotation: b.seat.rotation }
+        )) {
+          overlapping.add(a.seat.id);
+          overlapping.add(b.seat.id);
+        }
       }
     }
   }
-  return overlapping;
-});
+  overlappingSeatIds.value = overlapping;
+};
+
+// Debounce the recalculation to avoid lagging the UI during dragging
+watch(
+  () => venueRef.value?.seats,
+  () => {
+    if (overlapTimeout) clearTimeout(overlapTimeout);
+    overlapTimeout = setTimeout(calculateOverlaps, 150);
+  },
+  { deep: true, immediate: true }
+);
 
 const getSeatType = (seat: Seat) =>
   venueRef.value?.seatTypes.find(t => t.id === seat.typeId);
@@ -435,7 +468,7 @@ onMounted(async () => {
         <!-- Select tool controls -->
         <template v-if="activeTool === 'select'">
           <div class="sidebar-section">
-            <BaseButton variant="light" size="small" outlined fullwidth @click="selectAllSeats">
+            <BaseButton  size="small" fullwidth @click="selectAllSeats">
               Select All Seats
             </BaseButton>
           </div>
@@ -796,6 +829,7 @@ onMounted(async () => {
   .tool-help-list {
     margin: 0;
     padding-left: 20px;
+    list-style: disc;
   }
 
   li { margin-bottom: 4px; }
