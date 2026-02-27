@@ -1,8 +1,6 @@
 /// <reference types="vite/client" />
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
-import ClientView from '../views/ClientView.vue'
-import AdminView from '../views/AdminView.vue'
+import { useAuthStore } from '../stores/auth'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -10,7 +8,7 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: HomeView
+      component: () => import('../views/HomeView.vue')
     },
     {
       path: '/event/:id',
@@ -20,7 +18,7 @@ const router = createRouter({
     {
       path: '/booking',
       name: 'booking',
-      component: ClientView
+      component: () => import('../views/ClientView.vue')
     },
     {
       path: '/admin',
@@ -28,21 +26,17 @@ const router = createRouter({
     },
     {
       path: '/admin/venue',
-      redirect: '/admin/venues' // Backward compatibility or just redirect
+      redirect: '/admin/venues'
     },
     {
-        path: '/admin/venues',
-        name: 'admin-venues',
-        component: () => import('../views/AdminVenuesView.vue')
+      path: '/admin/venues',
+      name: 'admin-venues',
+      component: () => import('../views/AdminVenuesView.vue')
     },
     {
       path: '/admin/venues/:id/editor',
       name: 'venue-editor',
-      component: AdminView,
-      beforeEnter: (to, from, next) => {
-          // You might want to preload the venue here or just let the view handle it
-          next(); 
-      }
+      component: () => import('../views/AdminView.vue')
     },
     {
       path: '/admin/events',
@@ -72,13 +66,10 @@ const router = createRouter({
   ]
 })
 
-import { useAuthStore } from '../stores/auth'
-
-router.beforeEach(async (to, from, next) => {
+router.beforeEach(async (to, _from, next) => {
   const authStore = useAuthStore()
 
-  // Ensure auth state is known before navigating
-  if (!authStore.user && !authStore.isAuthenticated) {
+  if (!authStore.user) {
     await authStore.checkAuth()
   }
 

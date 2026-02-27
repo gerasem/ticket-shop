@@ -2,7 +2,7 @@
 import { ref, onMounted, computed, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useVenueStore } from '../stores/venue';
-import { useVenueEditor } from '../composables/useVenueEditor';
+import { useVenueHistory } from '../composables/useVenueHistory';
 import { useGeometry } from '../composables/useGeometry';
 import { usePrice } from '../composables/usePrice';
 import { useKeyboardControls } from '../composables/useKeyboardControls';
@@ -26,7 +26,7 @@ const toast = useToast();
 const venueStore = useVenueStore();
 const route = useRoute();
 const venueRef = ref(venueStore.currentVenue);
-const venueEditor = useVenueEditor(venueRef);
+const venueHistory = useVenueHistory(venueRef);
 const geometry = useGeometry();
 const { formatPrice } = usePrice();
 
@@ -34,7 +34,7 @@ const { formatPrice } = usePrice();
 watch(() => venueStore.currentVenue, (val) => { venueRef.value = val; }, { immediate: true });
 
 // ─── History ─────────────────────────────────────────────────────────────────
-const { initHistory, commit, undo, redo, canUndo, canRedo } = venueEditor;
+const { initHistory, commit, undo, redo, canUndo, canRedo } = venueHistory;
 
 // ─── Composables ─────────────────────────────────────────────────────────────
 const {

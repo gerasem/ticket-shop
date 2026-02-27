@@ -1,49 +1,35 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import axios from 'axios';
+import { eventsApi } from '../services/api/eventsApi';
+import type { Event } from '../types/event';
 
-export interface Event {
-  id: number;
-  title: string;
-  description: string;
-  date: string;
-  time: string;
-  venue_id: string;
-  image?: string;
-  venue?: any;
-}
+export type { Event };
 
 export const useEventsStore = defineStore('events', () => {
   const events = ref<Event[]>([]);
   const isLoading = ref(false);
   const error = ref<string | null>(null);
 
-  async function loadEvents() {
+  const loadEvents = async () => {
     try {
       isLoading.value = true;
       error.value = null;
-      const response = await axios.get('/api/events');
-      events.value = response.data;
+      events.value = await eventsApi.list();
     } catch (e) {
       console.error('Failed to load events', e);
       error.value = 'Failed to load events';
     } finally {
       isLoading.value = false;
     }
-  }
+  };
 
-  async function createEvent(eventData: FormData | Omit<Event, 'id'>) {
+  const createEvent = async (eventData: Parameters<typeof eventsApi.create>[0]) => {
     try {
       isLoading.value = true;
       error.value = null;
-      
-      const config = eventData instanceof FormData ? {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      } : {};
-      
-      const response = await axios.post('/api/events', eventData, config);
-      events.value.push(response.data);
-      return response.data;
+      const created = await eventsApi.create(eventData);
+      events.value.push(created);
+      return created;
     } catch (e) {
       console.error('Failed to create event', e);
       error.value = 'Failed to create event';
@@ -51,23 +37,16 @@ export const useEventsStore = defineStore('events', () => {
     } finally {
       isLoading.value = false;
     }
-  }
+  };
 
-  async function updateEvent(id: number, eventData: FormData | Partial<Event>) {
+  const updateEvent = async (id: number, eventData: Parameters<typeof eventsApi.update>[1]) => {
     try {
       isLoading.value = true;
       error.value = null;
-      
-      const config = eventData instanceof FormData ? {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      } : {};
-      
-      const response = await axios.put(`/api/events/${id}`, eventData, config);
+      const updated = await eventsApi.update(id, eventData);
       const index = events.value.findIndex(e => e.id === id);
-      if (index !== -1) {
-        events.value[index] = response.data;
-      }
-      return response.data;
+      if (index !== -1) events.value[index] = updated;
+      return updated;
     } catch (e) {
       console.error('Failed to update event', e);
       error.value = 'Failed to update event';
@@ -75,13 +54,13 @@ export const useEventsStore = defineStore('events', () => {
     } finally {
       isLoading.value = false;
     }
-  }
+  };
 
-  async function deleteEvent(id: number) {
+  const deleteEvent = async (id: number) => {
     try {
       isLoading.value = true;
       error.value = null;
-      await axios.delete(`/api/events/${id}`);
+      await eventsApi.delete(id);
       events.value = events.value.filter(e => e.id !== id);
     } catch (e) {
       console.error('Failed to delete event', e);
@@ -90,15 +69,7 @@ export const useEventsStore = defineStore('events', () => {
     } finally {
       isLoading.value = false;
     }
-  }
-
-  return {
-    events,
-    isLoading,
-    error,
-    loadEvents,
-    createEvent,
-    updateEvent,
-    deleteEvent
   };
+
+  return { events, isLoading, error, loadEvents, createEvent, updateEvent, deleteEvent };
 });

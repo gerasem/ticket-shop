@@ -3,9 +3,11 @@ import { onMounted } from 'vue';
 import { useEventsStore } from '../stores/events';
 import { useRouter } from 'vue-router';
 import BaseButton from '../components/BaseButton.vue';
+import { useToast } from 'vue-toastification';
 
 const eventsStore = useEventsStore();
 const router = useRouter();
+const toast = useToast();
 
 onMounted(() => {
   eventsStore.loadEvents();
@@ -20,9 +22,13 @@ const formatDate = (dateStr: string) => {
 };
 
 const deleteEvent = async (id: number) => {
-  if (confirm('Are you sure you want to delete this event?')) {
-    await eventsStore.deleteEvent(id);
-  }
+  toast.warning('Delete this event? This cannot be undone.', {
+    timeout: false,
+    onClick: async () => {
+      await eventsStore.deleteEvent(id);
+      toast.success('Event deleted.');
+    },
+  });
 };
 </script>
 
@@ -96,59 +102,7 @@ const deleteEvent = async (id: number) => {
 </template>
 
 <style scoped lang="scss">
-.admin-events {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem 1.5rem;
-}
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-}
-
-.header h1 {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #111827;
-  margin: 0;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 4rem 2rem;
-  min-height: 400px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #6b7280;
-}
-
-.empty-content {
-  max-width: 400px;
-}
-
-.empty-icon {
-  width: 64px;
-  height: 64px;
-  color: #d1d5db;
-  margin: 0 auto 1rem;
-}
-
-.empty-content h2 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #374151;
-  margin: 0 0 0.5rem 0;
-}
-
-.empty-content p {
-  color: #6b7280;
-  font-size: 1rem;
-  margin: 0;
-}
+@use '../assets/styles/admin-shared.scss';
 
 .events-list {
   display: flex;
@@ -160,28 +114,28 @@ const deleteEvent = async (id: number) => {
   display: grid;
   grid-template-columns: 200px 1fr auto;
   gap: 1.5rem;
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-primary);
   border-radius: 12px;
   overflow: hidden;
-  transition: all 0.2s;
-}
+  transition: box-shadow 0.2s, border-color 0.2s;
 
-.event-card:hover {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  border-color: #d1d5db;
+  &:hover {
+    box-shadow: var(--shadow-sm);
+    border-color: var(--border-secondary);
+  }
 }
 
 .event-image {
   width: 200px;
   height: 150px;
   overflow: hidden;
-}
 
-.event-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 }
 
 .event-details {
@@ -189,35 +143,30 @@ const deleteEvent = async (id: number) => {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-}
 
-.event-details h3 {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #111827;
-  margin: 0;
+  h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+  }
 }
 
 .event-meta {
   display: flex;
   gap: 1.5rem;
   font-size: 0.875rem;
-}
 
-.meta-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: #6b7280;
-}
-
-.icon {
-  width: 16px;
-  height: 16px;
+  .meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+  }
 }
 
 .event-description {
-  color: #4b5563;
+  color: var(--text-secondary);
   font-size: 0.9375rem;
   line-height: 1.5;
   margin: 0;
@@ -233,7 +182,7 @@ const deleteEvent = async (id: number) => {
   flex-direction: column;
   gap: 0.5rem;
   padding: 1.5rem;
-  border-left: 1px solid #f3f4f6;
+  border-left: 1px solid var(--border-subtle);
   align-items: stretch;
 }
 
@@ -249,7 +198,7 @@ const deleteEvent = async (id: number) => {
 
   .event-actions {
     border-left: none;
-    border-top: 1px solid #f3f4f6;
+    border-top: 1px solid var(--border-subtle);
     flex-direction: row;
   }
 }

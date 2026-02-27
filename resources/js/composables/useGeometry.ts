@@ -48,20 +48,13 @@ export function useGeometry() {
   };
 
   /**
-   * Get element's bounding rectangle relative to viewport
-   */
-  const getElementRect = (element: HTMLElement): DOMRect => {
-    return element.getBoundingClientRect();
-  };
-
-  /**
    * Convert mouse event to relative coordinates within an element
    */
   const getRelativeCoordinates = (event: MouseEvent, element: HTMLElement): Point => {
-    const rect = getElementRect(element);
+    const rect = element.getBoundingClientRect();
     return {
       x: event.clientX - rect.left,
-      y: event.clientY - rect.top
+      y: event.clientY - rect.top,
     };
   };
 
@@ -148,7 +141,6 @@ export function useGeometry() {
   return {
     calculateRectangleBounds,
     boundsToRectangle,
-    getElementRect,
     getRelativeCoordinates,
     checkIntersection
   };

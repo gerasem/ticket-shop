@@ -9,7 +9,6 @@ interface BaseButtonProps {
   fullwidth?: boolean;
   disabled?: boolean;
   type?: 'button' | 'submit' | 'reset';
-  customClass?: string;
 }
 
 const props = withDefaults(defineProps<BaseButtonProps>(), {
@@ -20,22 +19,16 @@ const props = withDefaults(defineProps<BaseButtonProps>(), {
   fullwidth: false,
   disabled: false,
   type: 'button',
-  customClass: ''
 });
 
-const buttonClasses = computed(() => {
-  return [
-    'button',
-    props.variant ? `is-${props.variant}` : '',
-    props.size ? `is-${props.size}` : '',
-    {
-      'is-outlined': props.outlined,
-      'is-loading': props.loading,
-      'is-fullwidth': props.fullwidth
-    },
-    props.customClass
-  ].filter(Boolean).join(' ');
-});
+const buttonClasses = computed(() => [
+  'button',
+  props.variant && `is-${props.variant}`,
+  props.size && `is-${props.size}`,
+  props.outlined && 'is-outlined',
+  props.loading && 'is-loading',
+  props.fullwidth && 'is-fullwidth',
+].filter(Boolean).join(' '));
 </script>
 
 <template>
