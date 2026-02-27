@@ -32,9 +32,9 @@
     </div>
 
     <div class="settings-group">
-      <button class="action-btn select-all-btn" @click="$emit('recalculate-rows')">
+      <BaseButton variant="primary" size="small" outlined fullwidth @click="$emit('recalculate-rows')">
         Recalculate Rows
-      </button>
+      </BaseButton>
     </div>
 
     <!-- Seat Styling Settings -->
@@ -97,17 +97,17 @@
     <div class="settings-group">
       <label>Row Arc Towards Stage</label>
       <div class="curvature-controls">
-        <button 
-          class="curvature-btn" 
+        <BaseButton 
+          variant="light"
           @click="decreaseCurvature"
           :disabled="venue.curvature === -100"
-        ><i class="bi bi-arrow-counterclockwise" style="font-size: 20px;"></i></button>
+        ><i class="bi bi-arrow-counterclockwise" style="font-size: 20px;"></i></BaseButton>
         <span class="curvature-value">{{ venue.curvature }}%</span>
-        <button 
-          class="curvature-btn" 
+        <BaseButton 
+          variant="light"
           @click="increaseCurvature"
           :disabled="venue.curvature === 100"
-        ><i class="bi bi-arrow-clockwise" style="font-size: 20px;"></i></button>
+        ><i class="bi bi-arrow-clockwise" style="font-size: 20px;"></i></BaseButton>
       </div>
     </div>
     
@@ -139,25 +139,34 @@
       </div>
     </div>
     
+    <!-- Center Actions -->
+    <div v-if="venue" class="settings-group">
+      <div class="label is-small">Center Diagram</div>
+      <div class="center-actions">
+        <BaseButton variant="primary" size="small" outlined @click="emit('center')">Center Content</BaseButton>
+      </div>
+    </div>
+    
     <!-- Manage Seat Types Button -->
     <div class="settings-divider"></div>
     <div class="settings-group">
-      <button class="action-btn manage-types-btn" @click="$emit('open-type-modal')">
+      <BaseButton variant="light" size="small" outlined fullwidth @click="$emit('open-type-modal')">
         Manage Seat Types
-      </button>
+      </BaseButton>
     </div>
     
     <!-- Manage Colors Button -->
     <div class="settings-group">
-      <button class="action-btn manage-colors-btn" @click="$emit('open-color-modal')">
+      <BaseButton variant="light" size="small" outlined fullwidth @click="$emit('open-color-modal')">
         Manage Colors
-      </button>
+      </BaseButton>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import type { Venue } from '../../services/mockData';
+import BaseButton from '../BaseButton.vue';
 
 const props = defineProps<{
   venue: Venue;
@@ -171,6 +180,7 @@ const emit = defineEmits<{
   (e: 'recalculate-rows'): void;
   (e: 'open-type-modal'): void;
   (e: 'open-color-modal'): void;
+  (e: 'center'): void;
 }>();
 
 // Curvature controls
@@ -295,91 +305,12 @@ const applyCurvature = () => {
   letter-spacing: 0.5px;
 }
 
-.action-btn {
-  width: 100%;
-  padding: 6px;
-  border-radius: 4px;
-  border: none;
-  font-weight: bold;
-  cursor: pointer;
-  font-size: 0.8rem;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-}
-
-.select-all-btn {
-  background: rgb(var(--color-primary-light));
-  color: rgb(var(--color-primary));
-  border: 1px solid rgb(var(--color-primary));
-}
-
-.select-all-btn:hover {
-  background: rgb(var(--color-primary-light));
-}
-
-.manage-types-btn {
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
-  border: 1px solid var(--border-secondary);
-}
-
-.manage-types-btn:hover {
-  background: var(--bg-secondary);
-  border-color: rgb(var(--color-primary));
-}
-
-.manage-colors-btn {
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
-  border: 1px solid var(--border-secondary);
-}
-
-.manage-colors-btn:hover {
-  background: var(--bg-secondary);
-  border-color: rgb(var(--color-primary));
-}
-
 .curvature-controls {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
   margin-top: 0.25rem;
-}
-
-.curvature-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: 1px solid var(--border-secondary);
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
-  cursor: pointer;
-  font-size: 1.6rem;
-  font-weight: bold;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  line-height: 1;
-}
-
-.curvature-btn:hover:not(:disabled) {
-  background: var(--bg-secondary);
-  border-color: rgb(var(--color-primary));
-}
-
-.curvature-btn:active:not(:disabled) {
-  transform: scale(0.95);
-}
-
-.curvature-btn:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
 }
 
 .curvature-value {

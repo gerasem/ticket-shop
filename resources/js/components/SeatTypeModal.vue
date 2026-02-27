@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import type { Venue, SeatType } from '../services/mockData';
+import BaseButton from './BaseButton.vue';
 
 const props = defineProps<{
   modelValue: boolean;
@@ -118,12 +119,22 @@ if (isOpen.value) {
           <!-- Header -->
           <div class="modal-header">
             <h2>Manage Seat Types</h2>
-            <button class="close-btn" @click="closeModal"><i class="bi bi-x-lg"></i></button>
+            <button class="delete" aria-label="close" @click="closeModal"></button>
           </div>
           
           <!-- Content -->
           <div class="modal-content">
             <div class="types-list">
+              <BaseButton 
+                variant="primary" 
+                size="small" 
+                outlined
+                fullwidth
+                title="Create new seat type"
+                @click="addNewType"
+              >
+                Create
+              </BaseButton>
               <div 
                 v-for="type in editingTypes" 
                 :key="type.id"
@@ -205,26 +216,24 @@ if (isOpen.value) {
                 </div>
                 
                 <!-- Delete Button -->
-                <button 
-                  class="delete-type-btn"
+                <BaseButton 
+                  variant="danger"
+                  outlined
+                  class="mt-2"
                   @click="deleteType(type.id)"
                   :disabled="editingTypes.length <= 1"
                 >
                   Delete Type
-                </button>
+                </BaseButton>
               </div>
             </div>
             
-            <!-- Add New Type Button -->
-            <button class="add-type-btn" @click="addNewType">
-              + Add New Type
-            </button>
           </div>
           
           <!-- Footer -->
           <div class="modal-footer">
-            <button class="cancel-btn" @click="closeModal">Cancel</button>
-            <button class="save-btn" @click="saveChanges">Save Changes</button>
+            <BaseButton variant="light" @click="closeModal">Cancel</BaseButton>
+            <BaseButton variant="primary" @click="saveChanges">Save Changes</BaseButton>
           </div>
         </div>
       </div>
@@ -270,27 +279,6 @@ if (isOpen.value) {
   margin: 0;
   font-size: 1.25rem;
   color: var(--color-accent);
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  color: var(--color-text-tertiary);
-  font-size: 1.5rem;
-  cursor: pointer;
-  padding: 0;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  transition: all 0.2s;
-}
-
-.close-btn:hover {
-  background: var(--color-border-light);
-  color: var(--color-text-white);
 }
 
 .modal-content {
@@ -375,82 +363,12 @@ if (isOpen.value) {
   font-family: monospace;
 }
 
-.delete-type-btn {
-  background: var(--color-danger-light);
-  color: var(--color-danger);
-  border: 1px solid var(--color-danger-strong);
-  padding: 0.5rem;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.85rem;
-  margin-top: 0.5rem;
-  transition: all 0.2s;
-}
-
-.delete-type-btn:hover:not(:disabled) {
-  background: var(--color-danger-medium);
-}
-
-.delete-type-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.add-type-btn {
-  width: 100%;
-  background: var(--color-accent-light);
-  color: var(--color-accent);
-  border: 1px dashed var(--color-accent-strong);
-  padding: 0.75rem;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 0.95rem;
-  font-weight: 500;
-  transition: all 0.2s;
-}
-
-.add-type-btn:hover {
-  background: var(--color-accent-medium);
-  border-style: solid;
-}
-
 .modal-footer {
   display: flex;
   justify-content: flex-end;
   gap: 0.75rem;
   padding: 1.5rem;
   border-top: 1px solid var(--color-border-light);
-}
-
-.cancel-btn {
-  background: var(--color-border-light);
-  color: var(--color-text-white);
-  border: 1px solid var(--color-border-medium);
-  padding: 0.5rem 1.5rem;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: all 0.2s;
-}
-
-.cancel-btn:hover {
-  background: var(--color-border-medium);
-}
-
-.save-btn {
-  background: var(--color-accent);
-  color: var(--color-text-white);
-  border: none;
-  padding: 0.5rem 1.5rem;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 500;
-  transition: all 0.2s;
-}
-
-.save-btn:hover {
-  background: var(--color-accent-hover);
 }
 
 /* Transition */

@@ -14,12 +14,31 @@
         @change="handleBackgroundUpload"
         style="display: none;"
       />
-    </div>
-
-    <div v-if="venue.backgroundImage" class="settings-group">
-      <button class="action-btn select-all-btn" @click="$emit('remove-background')">
-        Remove Background
-      </button>
+      <div class="background-actions" v-if="venue.backgroundImage">
+        <BaseButton 
+          variant="primary" 
+          size="small" 
+          outlined 
+          fullwidth
+          @click="$emit('reset-transform')"
+          :disabled="!venue.backgroundImage"
+        >
+          <span class="icon is-small">
+            <i class="bi bi-arrow-counterclockwise"></i>
+          </span>
+          <span>Reset Transform</span>
+        </BaseButton>
+        <BaseButton 
+          variant="danger" 
+          size="small" 
+          fullwidth
+          class="mt-2"
+          @click="$emit('remove-background')"
+          :disabled="!venue.backgroundImage"
+        >
+          Remove Background
+        </BaseButton>
+      </div>
     </div>
 
     <!-- Scale Control -->
@@ -48,9 +67,9 @@
     <div v-if="venue.backgroundImage" class="settings-group">
       <label>Position</label>
       <div class="arrow-buttons">
-        <button class="arrow-btn up" @click="$emit('move-background', 0, -1)"><i class="bi bi-arrow-down-short" style="transform: rotate(180deg); font-size: 18px;"></i></button>
+        <BaseButton variant="light" size="small" @click="$emit('move-background', 0, -1)"><i class="bi bi-arrow-down-short" style="transform: rotate(180deg); font-size: 18px;"></i></BaseButton>
         <div class="horizontal-arrows">
-          <button class="arrow-btn left" @click="$emit('move-background', -1, 0)"><i class="bi bi-arrow-left-short" style="font-size: 18px;"></i></button>
+          <BaseButton variant="light" size="small" @click="$emit('move-background', -1, 0)"><i class="bi bi-arrow-left-short" style="font-size: 18px;"></i></BaseButton>
           <div class="step-control-compact">
             <label>Step</label>
             <input 
@@ -61,9 +80,9 @@
               class="step-input" 
             />
           </div>
-          <button class="arrow-btn right" @click="$emit('move-background', 1, 0)"><i class="bi bi-arrow-right-short" style="font-size: 18px;"></i></button>
+          <BaseButton variant="light" size="small" @click="$emit('move-background', 1, 0)"><i class="bi bi-arrow-right-short" style="font-size: 18px;"></i></BaseButton>
         </div>
-        <button class="arrow-btn down" @click="$emit('move-background', 0, 1)"><i class="bi bi-arrow-down-short" style="font-size: 18px;"></i></button>
+        <BaseButton variant="light" size="small" @click="$emit('move-background', 0, 1)"><i class="bi bi-arrow-down-short" style="font-size: 18px;"></i></BaseButton>
       </div>
     </div>
 
@@ -71,9 +90,9 @@
     <div v-if="venue.backgroundImage" class="settings-group">
       <label>Rotation</label>
       <div class="curvature-controls">
-        <button class="curvature-btn" @click="$emit('rotate-background', -5)"><i class="bi bi-arrow-counterclockwise" style="font-size: 20px;"></i></button>
+        <BaseButton variant="light" @click="$emit('rotate-background', -5)"><i class="bi bi-arrow-counterclockwise" style="font-size: 20px;"></i></BaseButton>
         <span class="curvature-value">{{ venue.backgroundImage.rotation }}°</span>
-        <button class="curvature-btn" @click="$emit('rotate-background', 5)"><i class="bi bi-arrow-clockwise" style="font-size: 20px;"></i></button>
+        <BaseButton variant="light" @click="$emit('rotate-background', 5)"><i class="bi bi-arrow-clockwise" style="font-size: 20px;"></i></BaseButton>
       </div>
     </div>
   </div>
@@ -81,6 +100,7 @@
 
 <script setup lang="ts">
 import type { Venue } from '../../services/mockData';
+import BaseButton from '../BaseButton.vue';
 
 const props = defineProps<{
   venue: Venue;
@@ -88,9 +108,11 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
+  (e: 'update:venue', venue: Venue): void;
   (e: 'update:moveStep', value: number): void;
   (e: 'remove-background'): void;
   (e: 'move-background', dx: number, dy: number): void;
+  (e: 'reset-transform'): void;
   (e: 'rotate-background', angle: number): void;
   (e: 'upload-background', event: Event): void;
 }>();
@@ -251,31 +273,6 @@ const handleBackgroundUpload = (event: Event) => {
   margin: 0;
 }
 
-.arrow-btn {
-  width: 30px;
-  height: 30px;
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-secondary);
-  border-radius: 4px;
-  color: var(--text-primary);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  transition: all 0.2s;
-}
-
-.arrow-btn:hover {
-  background: var(--bg-secondary);
-  color: rgb(var(--color-primary));
-  border-color: rgb(var(--color-primary));
-}
-
-.arrow-btn:active {
-  transform: scale(0.95);
-}
-
 /* Curvature/Rotation Controls */
 .curvature-controls {
   display: flex;
@@ -283,34 +280,6 @@ const handleBackgroundUpload = (event: Event) => {
   justify-content: center;
   gap: 0.5rem;
   margin-top: 0.25rem;
-}
-
-.curvature-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: 1px solid var(--border-secondary);
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
-  cursor: pointer;
-  font-size: 1.6rem;
-  font-weight: bold;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  line-height: 1;
-}
-
-.curvature-btn:hover:not(:disabled) {
-  background: var(--bg-secondary);
-  border-color: rgb(var(--color-primary));
-  color: rgb(var(--color-primary));
-}
-
-.curvature-btn:active:not(:disabled) {
-  transform: scale(0.95);
 }
 
 .curvature-value {

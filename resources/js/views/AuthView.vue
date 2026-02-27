@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import BaseButton from '../components/BaseButton.vue';
 import { useAuthStore } from '../stores/auth';
 
 const router = useRouter();
@@ -53,7 +54,7 @@ const handleSubmit = async () => {
 
         <div class="field mt-5">
           <div class="control">
-            <button type="submit" class="button is-primary is-fullwidth">Login</button>
+            <BaseButton type="submit" variant="primary" fullwidth>Login</BaseButton>
           </div>
         </div>
       </form>

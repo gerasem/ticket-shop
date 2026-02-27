@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useVenueStore } from '../stores/venue';
+import BaseButton from '../components/BaseButton.vue';
 
 const router = useRouter();
 const venueStore = useVenueStore();
@@ -54,9 +55,9 @@ const editVenue = (id: string) => {
   <div class="admin-venues">
     <div class="header">
       <h1>Venues Management</h1>
-      <button class="button is-primary" @click="showCreateModal = true">
+      <BaseButton variant="primary" @click="showCreateModal = true">
         Create Venue
-      </button>
+      </BaseButton>
     </div>
 
     <!-- Create Venue Modal -->
@@ -81,8 +82,8 @@ const editVenue = (id: string) => {
         </div>
         
         <div class="modal-actions">
-          <button class="button is-outlined" @click="showCreateModal = false">Cancel</button>
-          <button class="button is-primary" @click="handleCreateVenue" :disabled="!newVenueName || venueStore.isLoading">Create</button>
+          <BaseButton outlined @click="showCreateModal = false">Cancel</BaseButton>
+          <BaseButton variant="primary" @click="handleCreateVenue" :disabled="!newVenueName || venueStore.isLoading">Create</BaseButton>
         </div>
       </div>
     </div>
@@ -121,18 +122,22 @@ const editVenue = (id: string) => {
         </div>
 
         <div class="venue-actions">
-          <button 
-            class="button is-outlined is-small" 
+          <BaseButton 
+            outlined 
+            size="small" 
             @click="editVenue(venue.id)"
           >
             Editor
-          </button>
-          <button 
-            class="button is-danger is-outlined is-small delete-btn" 
+          </BaseButton>
+          <BaseButton 
+            variant="danger" 
+            outlined 
+            size="small" 
+            class="delete-btn" 
             @click="deleteVenue(venue.id)"
           >
             Delete
-          </button>
+          </BaseButton>
         </div>
       </div>
     </div>

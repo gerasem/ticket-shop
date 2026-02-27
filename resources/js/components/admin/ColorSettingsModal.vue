@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
+import BaseButton from '../BaseButton.vue';
 
 const props = defineProps<{
   modelValue: boolean;
 }>();
 
-const emit = defineEmits<{
-  'update:modelValue': [value: boolean];
-}>();
+const emit = defineEmits(['update:modelValue', 'save']);
 
 // Color categories and their variables
 interface ColorVariable {
@@ -122,7 +121,7 @@ onMounted(() => {
           <!-- Header -->
           <div class="modal-header">
             <h2>Manage Colors</h2>
-            <button class="close-btn" @click="closeModal"><i class="bi bi-x-lg"></i></button>
+            <button class="delete" aria-label="close" @click="closeModal"></button>
           </div>
           
           <!-- Content -->
@@ -162,8 +161,8 @@ onMounted(() => {
           
           <!-- Footer -->
           <div class="modal-footer">
-            <button class="reset-btn" @click="resetToDefaults">Reset to Defaults</button>
-            <button class="close-footer-btn" @click="closeModal">Close</button>
+            <BaseButton variant="danger" outlined @click="resetToDefaults">Reset to Defaults</BaseButton>
+            <BaseButton variant="primary" @click="$emit('save')">Save Colors</BaseButton>
           </div>
         </div>
       </div>
@@ -211,24 +210,9 @@ onMounted(() => {
   color: var(--text-primary);
 }
 
-.close-btn {
-  background: none;
-  border: none;
-  color: var(--text-muted);
-  font-size: 1.5rem;
-  cursor: pointer;
-  padding: 0;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  transition: all 0.2s;
-}
-
-.close-btn:hover {
-  background: var(--bg-tertiary);
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
   color: var(--text-primary);
 }
 
@@ -313,35 +297,12 @@ onMounted(() => {
   border-top: 1px solid var(--border-secondary);
 }
 
-.reset-btn {
-  background: var(--error-light);
-  color: var(--error);
-  border: 1px solid var(--error-border);
-  padding: 0.5rem 1.5rem;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: all 0.2s;
-}
-
-.reset-btn:hover {
-  background: #fee2e2;
-}
-
-.close-footer-btn {
-  background: rgb(var(--color-primary));
-  color: white;
-  border: none;
-  padding: 0.5rem 1.5rem;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 500;
-  transition: all 0.2s;
-}
-
-.close-footer-btn:hover {
-  background: rgb(var(--color-primary-hover));
+.modal-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  border-top: 1px solid var(--border-secondary);
 }
 
 /* Transition */

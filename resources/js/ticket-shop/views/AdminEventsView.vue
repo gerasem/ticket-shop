@@ -2,6 +2,7 @@
 import { onMounted } from 'vue';
 import { useEventsStore } from '../stores/events';
 import { useRouter } from 'vue-router';
+import BaseButton from '../../components/BaseButton.vue';
 
 const eventsStore = useEventsStore();
 const router = useRouter();
@@ -36,12 +37,12 @@ const deleteEvent = async (id: number) => {
       </div>
       <div class="level-right">
         <div class="level-item">
-          <button class="button is-primary" @click="router.push({ name: 'admin-events-create' })">
+          <BaseButton variant="primary" @click="router.push({ name: 'admin-events-create' })">
             <span class="icon is-small">
               <i class="fas fa-plus"></i>
             </span>
             <span>Create Event</span>
-          </button>
+          </BaseButton>
         </div>
       </div>
     </div>
@@ -108,22 +109,22 @@ const deleteEvent = async (id: number) => {
               </td>
               <td class="is-vcentered has-text-right">
                 <div class="buttons is-right are-small">
-                  <button 
-                    class="button is-info is-light" 
+                  <BaseButton 
+                    variant="info" class="is-light" 
                     @click="router.push({ name: 'admin-events-edit', params: { id: event.id } })"
                   >
                     <span class="icon is-small">
                       <i class="fas fa-edit"></i>
                     </span>
-                  </button>
-                  <button 
-                    class="button is-danger is-light" 
+                  </BaseButton>
+                  <BaseButton 
+                    variant="danger" class="is-light" 
                     @click="deleteEvent(event.id)"
                   >
                     <span class="icon is-small">
                       <i class="fas fa-trash"></i>
                     </span>
-                  </button>
+                  </BaseButton>
                 </div>
               </td>
             </tr>

@@ -18,6 +18,7 @@ import AdminBackgroundSettings from '../components/admin/AdminBackgroundSettings
 import AdminObjectSettings from '../components/admin/AdminObjectSettings.vue';
 import AdminSeatSettings from '../components/admin/AdminSeatSettings.vue';
 import ColorSettingsModal from '../components/admin/ColorSettingsModal.vue';
+import BaseButton from '../components/BaseButton.vue';
 
 const venueStore = useVenueStore();
 const route = useRoute();
@@ -940,13 +941,14 @@ watch(activeTool, (newTool) => {
     <div class="header">
       <h1>Venue Layout Editor</h1>
       <div class="header-actions">
-        <button 
-          class="save-btn" 
+        <BaseButton 
+          variant="primary" 
           @click="handleSave" 
           :disabled="venueStore.isLoading"
+          :loading="venueStore.isLoading"
         >
           {{ venueStore.isLoading ? 'Saving...' : 'Save Venue' }}
-        </button>
+        </BaseButton>
       </div>
     </div>
     
@@ -1023,9 +1025,9 @@ watch(activeTool, (newTool) => {
 
         <!-- Select All Section (when select tool is active) -->
         <div v-if="activeTool === 'select'" class="sidebar-section select-all-section">
-          <button class="action-btn select-all-btn" @click="selectAllSeats">
+          <BaseButton variant="light" size="small" outlined fullwidth @click="selectAllSeats">
             Select All Seats
-          </button>
+          </BaseButton>
         </div>
           
 
@@ -1055,9 +1057,9 @@ watch(activeTool, (newTool) => {
             
             <!-- Arrow Controls -->
             <div class="arrow-buttons">
-              <button class="arrow-btn up" @click="moveSelection(0, -1)">↑</button>
+              <BaseButton size="small" variant="light" @click="moveSelection(0, -1)">↑</BaseButton>
               <div class="horizontal-arrows">
-                <button class="arrow-btn left" @click="moveSelection(-1, 0)">←</button>
+                <BaseButton size="small" variant="light" @click="moveSelection(-1, 0)">←</BaseButton>
                 
                 <!-- Step Control (Centered) -->
                 <div class="step-control-compact">
@@ -1065,24 +1067,24 @@ watch(activeTool, (newTool) => {
                   <input type="number" v-model="moveStep" min="1" class="step-input" />
                 </div>
 
-                <button class="arrow-btn right" @click="moveSelection(1, 0)">→</button>
+                <BaseButton size="small" variant="light" @click="moveSelection(1, 0)">→</BaseButton>
               </div>
-              <button class="arrow-btn down" @click="moveSelection(0, 1)">↓</button>
+              <BaseButton size="small" variant="light" @click="moveSelection(0, 1)">↓</BaseButton>
             </div>
 
             <!-- Rotation Controls -->
             <div class="rotation-controls">
               <label>Rotate</label>
               <div class="rotation-buttons">
-                <button class="rotate-btn" @click="rotateCounterClockwise" title="Rotate Counter-Clockwise">↶</button>
-                <button class="rotate-btn" @click="rotateClockwise" title="Rotate Clockwise">↷</button>
+                <BaseButton size="small" variant="light" @click="rotateCounterClockwise" title="Rotate Counter-Clockwise">↶</BaseButton>
+                <BaseButton size="small" variant="light" @click="rotateClockwise" title="Rotate Clockwise">↷</BaseButton>
               </div>
             </div>
 
             <!-- Selection Info (Vertical) -->
             <div class="selection-info-vertical">
               <span class="selected-count">Selected: {{ selectedSeats.size }}</span>
-              <button class="clear-btn" @click="clearSelection">Clear Selection</button>
+              <BaseButton size="small" variant="danger" outlined fullwidth @click="clearSelection">Clear Selection</BaseButton>
               
               <!-- Type Selection (only for seats, not stage) -->
               <div v-if="selectedSeats.size > 0" class="settings-group type-edit-section">
@@ -1227,26 +1229,6 @@ watch(activeTool, (newTool) => {
   gap: 1rem;
 }
 
-.save-btn {
-  background: rgb(var(--color-primary));
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.save-btn:hover {
-  background: rgb(var(--color-primary-hover));
-}
-
-.save-btn:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
 .editor-container {
   display: flex;
   gap: 1rem;
@@ -1343,53 +1325,6 @@ watch(activeTool, (newTool) => {
   font-size: 0.8rem;
   color: var(--text-primary);
   font-weight: 600;
-}
-
-.clear-btn {
-  background: transparent;
-  border: 1px solid var(--border-secondary);
-  color: var(--text-secondary);
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  cursor: pointer;
-  width: 100%;
-  text-align: center;
-  transition: all 0.2s;
-}
-
-.clear-btn:hover {
-  border-color: var(--error);
-  color: var(--error);
-  background: var(--error-light);
-}
-
-.action-btn {
-  width: 100%;
-  padding: 8px;
-  border-radius: 6px;
-  border: none;
-  font-weight: 600;
-  cursor: pointer;
-  font-size: 0.85rem;
-  transition: all 0.2s;
-  background: rgb(var(--color-primary));
-  color: white;
-}
-
-.action-btn:hover {
-  background: rgb(var(--color-primary-hover));
-}
-
-.select-all-btn {
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
-  border: 1px solid var(--border-secondary);
-}
-
-.select-all-btn:hover {
-  background: var(--bg-secondary);
-  border-color: var(--text-secondary);
 }
 
 /* Footer / Help */

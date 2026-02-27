@@ -2,6 +2,7 @@
 import { toRef, ref } from 'vue';
 import { type Venue } from '../services/mockData';
 import { useVenueEditor } from '../composables/useVenueEditor';
+import BaseButton from './BaseButton.vue';
 
 const props = defineProps<{
   venue: Venue;
@@ -85,9 +86,9 @@ const handleMouseLeave = () => {
 
     <!-- Zoom Controls -->
     <div class="zoom-controls">
-      <button @click="zoomOut" :disabled="zoomLevel <= MIN_ZOOM" title="Zoom Out">-</button>
+      <BaseButton size="small" variant="light" @click="zoomOut" :disabled="zoomLevel <= MIN_ZOOM" title="Zoom Out">-</BaseButton>
       <span class="zoom-level">{{ Math.round(zoomLevel * 100) }}%</span>
-      <button @click="zoomIn" :disabled="zoomLevel >= MAX_ZOOM" title="Zoom In">+</button>
+      <BaseButton size="small" variant="light" @click="zoomIn" :disabled="zoomLevel >= MAX_ZOOM" title="Zoom In">+</BaseButton>
     </div>
 
     <!-- Scrollable wrapper -->
@@ -268,38 +269,12 @@ const handleMouseLeave = () => {
   align-items: center;
   gap: 0.5rem;
   background: var(--bg-primary);
-  padding: 0.5rem;
   border-radius: 8px;
   transition: all 0.2s;
   padding: 4px;
   border: 1px solid var(--border-secondary);
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
   z-index: 10;
- }
-
-.zoom-controls button {
-  width: 25px;
-  border-radius: 6px;
-  border: 1px solid transparent;
-  padding: 3px 0;
-  font-size: 13px;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: var(--bg-tertiary);
-  color: var(--text-primary);
-  cursor: pointer;
-  transition: all 0.25s;
-}
-
-.zoom-controls button:hover:not(:disabled) {
-  background: var(--bg-secondary);
-  border-color: rgb(var(--color-primary));
-  color: rgb(var(--color-primary));
-}
-
-.zoom-controls button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
 }
 
 .zoom-level {

@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useEventsStore } from '../stores/events';
 import { useVenueStore } from '../stores/venue';
 import ImageUpload from '../components/ImageUpload.vue';
+import BaseButton from '../components/BaseButton.vue';
 
 const router = useRouter();
 const route = useRoute();
@@ -203,15 +204,15 @@ const handleCancel = () => {
             </div>
 
             <div class="field is-grouped mt-5">
-              <div class="control is-expanded">
-                <button type="submit" class="button is-primary is-fullwidth" :class="{ 'is-loading': isLoading }" :disabled="isLoading">
-                  {{ isLoading ? 'Saving...' : 'Save Changes' }}
-                </button>
+              <div class="control">
+                <BaseButton type="submit" variant="primary" fullwidth :loading="isLoading">
+                  Сохранить изменения
+                </BaseButton>
               </div>
               <div class="control">
-                <button type="button" class="button" @click="handleCancel" :disabled="isLoading">
-                  Cancel
-                </button>
+                <BaseButton type="button" @click="handleCancel" :disabled="isLoading">
+                  Отмена
+                </BaseButton>
               </div>
             </div>
           </form>

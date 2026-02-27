@@ -1,7 +1,10 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useCartStore } from '../stores/cart';
+import { loadStripe } from '@stripe/stripe-js';
+import axios from 'axios';
+import BaseButton from '../components/BaseButton.vue';
 import { usePrice } from '../composables/usePrice';
 
 const router = useRouter();
@@ -131,12 +134,16 @@ const handlePayment = async () => {
                 </div>
               </div>
               
-              <div class="field mt-5">
-                <div class="control">
-                  <button class="button is-primary is-fullwidth is-medium" :class="{ 'is-loading': isProcessing }" @click="handlePayment" :disabled="isProcessing">
-                    {{ isProcessing ? 'Processing...' : `Pay ${formatPrice(cartStore.totalPriceInCents)}` }}
-                  </button>
-                </div>
+              <div class="mt-5">
+                <BaseButton 
+                  variant="primary" 
+                  fullwidth 
+                  size="medium" 
+                  :loading="isProcessing" 
+                  @click="handlePayment"
+                >
+                  Pay {{ formatPrice(cartStore.totalPriceInCents) }}
+                </BaseButton>
               </div>
             </div>
           </div>

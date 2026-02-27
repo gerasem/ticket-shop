@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import BaseButton from '../components/BaseButton.vue';
 import { onMounted } from 'vue';
 import { useVenueStore } from '../stores/venue';
 import { useCartStore } from '../stores/cart';
@@ -130,20 +131,22 @@ const getSeatTypeClass = (seat: any) => {
         <div class="cart-header is-flex is-justify-content-space-between is-align-items-center mb-4">
           <h3 class="title is-4 mb-0">Your Cart</h3>
           <div class="buttons is-right are-small">
-            <button 
+            <BaseButton 
               v-if="cartStore.selectedSeats.length > 0"
-              class="button is-outlined" 
+              outlined
+              size="small" 
               @click="clearCart"
             >
               Clear
-            </button>
-            <button 
+            </BaseButton>
+            <BaseButton 
               v-if="cartStore.selectedSeats.length > 0"
-              class="button is-primary"
+              variant="primary"
+              size="small"
               @click="handleCheckout"
             >
               Checkout
-            </button>
+            </BaseButton>
           </div>
         </div>
         <div v-if="cartStore.selectedSeats.length === 0" class="empty-cart has-text-grey is-italic has-text-centered py-6">
@@ -161,12 +164,14 @@ const getSeatTypeClass = (seat: any) => {
             </div>
             <div class="cart-item-right is-flex is-align-items-center" style="gap: 0.5rem;">
               <span class="cart-seat-price has-text-primary has-text-weight-semibold">{{ formatPrice(getSeatType(seat)?.priceInCents || 0) }}</span>
-              <button 
-                class="delete is-medium" 
-                @click="removeSeat(seat.id)"
+              <BaseButton 
+              outlined
+              size="small" 
+              class="ml-3" 
+              @click="removeSeat(seat.id)"
                 title="Remove seat"
               >
-              </button>
+              </BaseButton>
             </div>
           </div>
         </div>

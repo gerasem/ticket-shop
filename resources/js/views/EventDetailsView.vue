@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useEventsStore } from '../stores/events';
+import BaseButton from '../components/BaseButton.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -40,12 +41,9 @@ const formatDate = (dateStr: string) => {
 
 <template>
   <div class="event-details container section">
-    <button class="button is-outlined mb-6" @click="goBack">
-      <span class="icon is-small">
-        <i class="fas fa-arrow-left"></i>
-      </span>
-      <span>Back to Events</span>
-    </button>
+    <BaseButton outlined class="mb-6" @click="goBack">
+      &larr; Back to Events
+    </BaseButton>
 
     <div v-if="eventsStore.isLoading" class="has-text-centered py-6 has-text-grey">
       Loading...
@@ -113,10 +111,10 @@ const formatDate = (dateStr: string) => {
             <p class="has-text-grey-dark" style="line-height: 1.6;">{{ event.description }}</p>
           </div>
 
-          <div class="mt-auto pt-4">
-            <button class="button is-primary is-fullwidth is-medium" @click="goToSeatSelection">
-              Select Seats
-            </button>
+          <div class="actions mt-auto pt-4">
+            <BaseButton variant="primary" fullwidth size="medium" @click="goToSeatSelection">
+              Buy Tickets
+            </BaseButton>
           </div>
         </div>
       </div>
@@ -128,9 +126,9 @@ const formatDate = (dateStr: string) => {
       </span>
       <h2 class="title is-3 mb-2">Event not found</h2>
       <p class="subtitle is-6 has-text-grey mb-5">Unfortunately, the requested event does not exist or has been deleted</p>
-      <button class="button is-primary" @click="goBack">
-        Back to Home
-      </button>
+      <BaseButton variant="primary" @click="goBack">
+        Return to Home
+      </BaseButton>
     </div>
   </div>
 </template>

@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router';
 import { useEventsStore } from '../stores/events';
 import { useVenueStore } from '../stores/venue';
 import ImageUpload from '../components/ImageUpload.vue';
+import BaseButton from '../components/BaseButton.vue';
 
 const router = useRouter();
 const eventsStore = useEventsStore();
@@ -165,15 +166,15 @@ const handleCancel = () => {
             </div>
 
             <div class="field is-grouped mt-5">
-              <div class="control is-expanded">
-                <button type="submit" class="button is-primary is-fullwidth" :class="{ 'is-loading': isLoading }" :disabled="isLoading">
-                  {{ isLoading ? 'Creating...' : 'Create Event' }}
-                </button>
+              <div class="control">
+                <BaseButton type="submit" variant="primary" fullwidth :loading="isLoading">
+                  Создать мероприятие
+                </BaseButton>
               </div>
               <div class="control">
-                <button type="button" class="button" @click="handleCancel" :disabled="isLoading">
-                  Cancel
-                </button>
+                <BaseButton type="button" @click="handleCancel" :disabled="isLoading">
+                  Отмена
+                </BaseButton>
               </div>
             </div>
           </form>

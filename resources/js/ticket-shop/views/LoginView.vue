@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import { useAuthStore } from '../stores/auth';
 import { useRouter } from 'vue-router';
+import BaseButton from '../../components/BaseButton.vue';
 
 const authStore = useAuthStore();
 const router = useRouter();
@@ -74,12 +75,13 @@ const handleLogin = async () => {
 
               <div class="field mt-5">
                 <div class="control">
-                  <button 
-                    class="button is-primary is-fullwidth" 
-                    :class="{ 'is-loading': isLoading }"
+                  <BaseButton 
+                    variant="primary" 
+                    fullwidth
+                    :loading="isLoading"
                   >
                     Sign In
-                  </button>
+                  </BaseButton>
                 </div>
               </div>
             </form>

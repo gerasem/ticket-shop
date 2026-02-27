@@ -27,9 +27,13 @@
     </div>
 
     <div class="settings-group">
-      <button class="action-btn add-btn" @click="emitAdd">
+      <BaseButton outlined variant="primary" size="small" fullwidth @click="emitAdd">
         Add Seats
-      </button>
+      </BaseButton>
+    </div>
+
+    <div class="actions">
+        <BaseButton variant="primary" size="small" fullwidth @click="emit('delete-seats')">Delete Seats</BaseButton>
     </div>
 
     <div class="settings-divider"></div>
@@ -46,13 +50,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
+import type { Venue, SeatType } from '../../services/mockData';
+import BaseButton from '../BaseButton.vue';
 
 const rows = ref(1);
 const seatsPerRow = ref(1);
 
 const emit = defineEmits<{
   (e: 'add-seat-block', rows: number, seatsPerRow: number): void;
+  (e: 'delete-seats'): void;
 }>();
 
 const emitAdd = () => {

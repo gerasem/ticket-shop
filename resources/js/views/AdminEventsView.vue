@@ -2,6 +2,7 @@
 import { onMounted } from 'vue';
 import { useEventsStore } from '../stores/events';
 import { useRouter } from 'vue-router';
+import BaseButton from '../components/BaseButton.vue';
 
 const eventsStore = useEventsStore();
 const router = useRouter();
@@ -29,9 +30,9 @@ const deleteEvent = async (id: number) => {
   <div class="admin-events">
     <div class="header">
       <h1>Event Management</h1>
-      <button class="button is-primary" @click="router.push('/admin/events/create')">
+      <BaseButton variant="primary" @click="router.push('/admin/events/create')">
         Create Event
-      </button>
+      </BaseButton>
     </div>
 
     <!-- Loading state -->
@@ -72,18 +73,22 @@ const deleteEvent = async (id: number) => {
           <p class="event-description">{{ event.description }}</p>
         </div>
         <div class="event-actions">
-          <button 
-            class="button is-outlined is-small" 
+          <BaseButton 
+            outlined 
+            size="small" 
             @click="router.push(`/admin/events/${event.id}/edit`)"
           >
             Edit
-          </button>
-          <button 
-            class="button is-danger is-outlined is-small delete-btn" 
+          </BaseButton>
+          <BaseButton 
+            variant="danger" 
+            outlined 
+            size="small" 
+            class="delete-btn" 
             @click="deleteEvent(event.id)"
           >
             Delete
-          </button>
+          </BaseButton>
         </div>
       </div>
     </div>

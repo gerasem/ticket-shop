@@ -60,9 +60,9 @@
       <div class="settings-group">
         <label>Rotation (°)</label>
         <div class="curvature-controls">
-          <button class="curvature-btn" @click="$emit('update-property', 'rotation', ((selectedObject.rotation || 0) - 15 + 360) % 360)"><i class="bi bi-arrow-counterclockwise" style="font-size: 20px;"></i></button>
+          <BaseButton variant="light" @click="$emit('update-property', 'rotation', ((selectedObject.rotation || 0) - 15 + 360) % 360)"><i class="bi bi-arrow-counterclockwise" style="font-size: 20px;"></i></BaseButton>
           <span class="curvature-value">{{ selectedObject.rotation || 0 }}°</span>
-          <button class="curvature-btn" @click="$emit('update-property', 'rotation', ((selectedObject.rotation || 0) + 15) % 360)"><i class="bi bi-arrow-clockwise" style="font-size: 20px;"></i></button>
+          <BaseButton variant="light" @click="$emit('update-property', 'rotation', ((selectedObject.rotation || 0) + 15) % 360)"><i class="bi bi-arrow-clockwise" style="font-size: 20px;"></i></BaseButton>
         </div>
       </div>
 
@@ -96,9 +96,9 @@
         <label>Movement</label>
         <div class="movement-controls">
           <div class="arrow-grid">
-            <button class="arrow-btn" @click="$emit('move-selection', 0, -1)"><i class="bi bi-arrow-up-short" style="font-size: 18px;"></i></button>
+            <BaseButton variant="light" size="small" @click="$emit('move-selection', 0, -1)"><i class="bi bi-arrow-up-short" style="font-size: 18px;"></i></BaseButton>
             <div class="arrow-row">
-              <button class="arrow-btn" @click="$emit('move-selection', -1, 0)"><i class="bi bi-arrow-left-short" style="font-size: 18px;"></i></button>
+              <BaseButton variant="light" size="small" @click="$emit('move-selection', -1, 0)"><i class="bi bi-arrow-left-short" style="font-size: 18px;"></i></BaseButton>
               <div class="step-control">
                 <label>STEP</label>
                 <input 
@@ -110,21 +110,26 @@
                   max="100"
                 />
               </div>
-              <button class="arrow-btn" @click="$emit('move-selection', 1, 0)"><i class="bi bi-arrow-right-short" style="font-size: 18px;"></i></button>
+              <BaseButton variant="light" size="small" @click="$emit('move-selection', 1, 0)"><i class="bi bi-arrow-right-short" style="font-size: 18px;"></i></BaseButton>
             </div>
-            <button class="arrow-btn" @click="$emit('move-selection', 0, 1)"><i class="bi bi-arrow-down-short" style="font-size: 18px;"></i></button>
+            <BaseButton variant="light" size="small" @click="$emit('move-selection', 0, 1)"><i class="bi bi-arrow-down-short" style="font-size: 18px;"></i></BaseButton>
           </div>
         </div>
       </div>
 
       <!-- Delete and Deselect Buttons -->
-      <div class="settings-group">
-        <!-- <button class="action-btn delete-btn" @click="$emit('delete-object')">
+      <div class="object-actions">
+        <BaseButton 
+          variant="danger" 
+          size="small" 
+          fullwidth 
+          @click="emit('delete-object', props.selectedObject.id)"
+        >
           Delete Object
-        </button> -->
-        <button class="clear-btn" @click="$emit('deselect')" style="margin-top: 0.5rem;">
+        </BaseButton>
+        <BaseButton variant="light" size="small" outlined fullwidth class="mt-2" @click="$emit('deselect')">
           Deselect
-        </button>
+        </BaseButton>
       </div>
     </div>
 
@@ -144,6 +149,7 @@
 <script setup lang="ts">
 import type { VenueObject } from '../../types/venueObjects';
 import { OBJECT_TEMPLATES } from '../../types/venueObjects';
+import BaseButton from '../BaseButton.vue';
 
 const props = defineProps<{
   selectedObject: VenueObject | null;
@@ -155,7 +161,7 @@ const emit = defineEmits<{
   (e: 'update-property', property: keyof VenueObject, value: any): void;
   (e: 'move-selection', dx: number, dy: number): void;
   (e: 'update:moveStep', value: number): void;
-  (e: 'delete-object'): void;
+  (e: 'delete-object', id: string): void;
   (e: 'deselect'): void;
 }>();
 
@@ -267,33 +273,6 @@ const objectTemplates = OBJECT_TEMPLATES;
   margin-top: 0.25rem;
 }
 
-.curvature-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: 1px solid var(--border-secondary);
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
-  cursor: pointer;
-  font-size: 1.6rem;
-  font-weight: bold;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  line-height: 1;
-}
-
-.curvature-btn:hover:not(:disabled) {
-  background: var(--bg-secondary);
-  border-color: rgb(var(--color-primary));
-}
-
-.curvature-btn:active:not(:disabled) {
-  transform: scale(0.95);
-}
-
 .curvature-value {
   font-size: 1rem;
   color: var(--text-primary);
@@ -362,70 +341,6 @@ const objectTemplates = OBJECT_TEMPLATES;
 .step-input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
-}
-
-.arrow-btn {
-  width: 30px;
-  height: 30px;
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-secondary);
-  border-radius: 4px;
-  color: var(--text-primary);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  transition: all 0.2s;
-}
-
-.arrow-btn:hover {
-  background: var(--bg-secondary);
-  border-color: rgb(var(--color-primary));
-  color: rgb(var(--color-primary));
-}
-
-.arrow-btn:active {
-  transform: scale(0.95);
-}
-
-.action-btn {
-  width: 100%;
-  padding: 6px;
-  border-radius: 4px;
-  border: none;
-  font-weight: bold;
-  cursor: pointer;
-  font-size: 0.8rem;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-}
-
-.delete-btn {
-  background: var(--error-light);
-  color: var(--error);
-  border: 1px solid var(--error-border);
-  margin-top: 0.5rem;
-}
-
-.clear-btn {
-  background: transparent;
-  border: 1px solid var(--border-secondary);
-  color: var(--text-muted);
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-size: 0.7rem;
-  cursor: pointer;
-  width: 100%;
-  text-align: center;
-}
-
-.clear-btn:hover {
-  border-color: var(--error);
-  color: var(--error);
 }
 
 .settings-divider {
