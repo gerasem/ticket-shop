@@ -33,173 +33,128 @@ const deleteEvent = async (id: number) => {
 </script>
 
 <template>
-  <div class="admin-events">
-    <div class="header">
-      <h1>Event Management</h1>
-      <BaseButton variant="primary" @click="router.push('/admin/events/create')">
-        Create Event
-      </BaseButton>
-    </div>
-
-    <!-- Loading state -->
-    <div v-if="eventsStore.isLoading" class="empty-state">
-      <p>Loading...</p>
-    </div>
-
-    <!-- Empty state -->
-    <div v-else-if="eventsStore.events.length === 0" class="empty-state">
-      <div class="empty-content">
-        <i class="bi bi-calendar-event empty-icon"></i>
-        <h2>No events found</h2>
-        <p>Create your first event to start selling tickets</p>
+  <div>
+    <!-- Page Header -->
+    <div class="level mb-5">
+      <div class="level-left">
+        <div class="level-item">
+          <h1 class="title is-3">Event Management</h1>
+        </div>
+      </div>
+      <div class="level-right">
+        <div class="level-item">
+          <BaseButton variant="primary" @click="router.push('/admin/events/create')">
+            Create Event
+          </BaseButton>
+        </div>
       </div>
     </div>
 
+    <!-- Loading -->
+    <div v-if="eventsStore.isLoading" class="has-text-centered py-6 has-text-grey">
+      <p>Loading...</p>
+    </div>
+
+    <!-- Empty -->
+    <div v-else-if="eventsStore.events.length === 0" class="has-text-centered py-6">
+      <i class="bi bi-calendar-event" style="font-size: 3rem; color: var(--border-secondary);"></i>
+      <h2 class="title is-4 mt-4">No events found</h2>
+      <p class="has-text-grey">Create your first event to start selling tickets</p>
+    </div>
+
     <!-- Events list -->
-    <div v-else class="events-list">
-      <div v-for="event in eventsStore.events" :key="event.id" class="event-card">
-        <div class="event-image">
-          <img 
-            :src="event.image ? `/storage/${event.image}` : 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?w=400'" 
-            :alt="event.title"
-          />
-        </div>
-        <div class="event-details">
-          <h3>{{ event.title }}</h3>
-          <div class="event-meta">
-            <span class="meta-item">
-              <i class="bi bi-calendar-event icon"></i>
-              {{ formatDate(event.date) }}
-            </span>
-            <span class="meta-item">
-              <i class="bi bi-clock icon"></i>
-              {{ event.time }}
-            </span>
+    <div v-else class="events-list is-flex is-flex-direction-column" style="gap: 1.5rem;">
+      <div v-for="event in eventsStore.events" :key="event.id" class="box">
+        <article class="media is-align-items-center">
+          <!-- Thumbnail -->
+          <figure class="media-left">
+            <p class="image is-128x128">
+              <img
+                :src="event.image ? `/storage/${event.image}` : '/images/default-event.jpg'"
+                :alt="event.title"
+                style="object-fit: cover; height: 100%; border-radius: 8px;"
+              />
+            </p>
+          </figure>
+
+          <!-- Details -->
+          <div class="media-content">
+            <div class="content">
+              <p class="mb-2">
+                <strong class="is-size-5">{{ event.title }}</strong>
+              </p>
+              <div class="tags mb-2">
+                <span class="tag is-light is-primary">
+                  <i class="bi bi-calendar-event mr-2"></i>
+                  {{ formatDate(event.date) }}
+                </span>
+                <span class="tag is-light is-info">
+                  <i class="bi bi-clock mr-2"></i>
+                  {{ event.time }}
+                </span>
+              </div>
+              <p class="has-text-grey" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.5;">
+                {{ event.description }}
+              </p>
+            </div>
           </div>
-          <p class="event-description">{{ event.description }}</p>
-        </div>
-        <div class="event-actions">
-          <BaseButton 
-            outlined 
-            size="small" 
-            @click="router.push(`/admin/events/${event.id}/edit`)"
-          >
-            Edit
-          </BaseButton>
-          <BaseButton 
-            variant="danger" 
-            outlined 
-            size="small" 
-            class="delete-btn" 
-            @click="deleteEvent(event.id)"
-          >
-            Delete
-          </BaseButton>
-        </div>
+
+          <!-- Actions -->
+          <div class="media-right px-3">
+            <div class="buttons is-flex-direction-column">
+              <BaseButton variant="primary" outlined size="small" class="mb-2 w-100" @click="router.push(`/admin/events/${event.id}/edit`)">
+                Edit
+              </BaseButton>
+              <BaseButton variant="danger" outlined size="small" class="w-100" @click="deleteEvent(event.id)">
+                Delete
+              </BaseButton>
+            </div>
+          </div>
+        </article>
       </div>
     </div>
   </div>
 </template>
 
+
 <style scoped lang="scss">
 @use '../assets/styles/admin-shared.scss';
 
-.events-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.event-card {
-  display: grid;
-  grid-template-columns: 200px 1fr auto;
-  gap: 1.5rem;
-  background: var(--bg-primary);
-  border: 1px solid var(--border-primary);
-  border-radius: 12px;
-  overflow: hidden;
-  transition: box-shadow 0.2s, border-color 0.2s;
-
-  &:hover {
-    box-shadow: var(--shadow-sm);
-    border-color: var(--border-secondary);
-  }
-}
-
-.event-image {
-  width: 200px;
-  height: 150px;
-  overflow: hidden;
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-}
-
-.event-details {
-  padding: 1.5rem 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-
-  h3 {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin: 0;
-  }
-}
-
-.event-meta {
-  display: flex;
-  gap: 1.5rem;
-  font-size: 0.875rem;
-
-  .meta-item {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: var(--text-secondary);
-  }
-}
-
-.event-description {
-  color: var(--text-secondary);
-  font-size: 0.9375rem;
-  line-height: 1.5;
-  margin: 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.event-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  padding: 1.5rem;
-  border-left: 1px solid var(--border-subtle);
-  align-items: stretch;
+.w-100 {
+  width: 100%;
 }
 
 @media (max-width: 768px) {
-  .event-card {
-    grid-template-columns: 1fr;
+  .media {
+    flex-direction: column;
+    align-items: flex-start !important;
   }
-
-  .event-image {
+  .media-left {
+    margin-right: 0;
+    margin-bottom: 1rem;
     width: 100%;
-    height: 200px;
+    
+    .image {
+      width: 100% !important;
+      height: 200px !important;
+    }
   }
-
-  .event-actions {
-    border-left: none;
-    border-top: 1px solid var(--border-subtle);
-    flex-direction: row;
+  .media-right {
+    margin-left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    
+    .buttons {
+      flex-direction: row !important;
+      width: 100%;
+      
+      .button {
+        flex: 1;
+        margin-bottom: 0 !important;
+        margin-right: 0.5rem;
+      }
+    }
   }
 }
 </style>

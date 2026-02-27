@@ -36,7 +36,8 @@ const router = createRouter({
     {
       path: '/admin/venues/:id/editor',
       name: 'venue-editor',
-      component: () => import('../views/AdminView.vue')
+      component: () => import('../views/AdminView.vue'),
+      meta: { fullscreen: true }
     },
     {
       path: '/admin/events',

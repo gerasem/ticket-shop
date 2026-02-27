@@ -9,7 +9,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  label: 'Изображение',
+  label: 'Image',
   required: false
 });
 
@@ -52,43 +52,56 @@ function removeImage() {
 </script>
 
 <template>
-  <div class="space-y-2">
-    <Label :for="label">
+  <div class="field">
+    <label v-if="label" class="label" :for="label">
       {{ label }}
-      <span v-if="required" class="text-red-500">*</span>
-    </Label>
+      <span v-if="required" class="has-text-danger">*</span>
+    </label>
     
-    <div class="space-y-3">
+    <div class="control">
       <!-- File Input -->
-      <input
-        ref="fileInput"
-        :id="label"
-        type="file"
-        accept="image/*"
-        @change="handleFileChange"
-        :required="required && !previewUrl"
-        class="flex h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-800 dark:bg-zinc-950 dark:ring-offset-zinc-950 dark:placeholder:text-zinc-400 dark:focus-visible:ring-zinc-300"
-      />
+      <div class="file has-name is-fullwidth mb-3">
+        <label class="file-label">
+          <input
+            ref="fileInput"
+            :id="label"
+            class="file-input"
+            type="file"
+            accept="image/*"
+            @change="handleFileChange"
+            :required="required && !previewUrl"
+          />
+          <span class="file-cta">
+            <span class="file-icon">
+              <i class="bi bi-upload"></i>
+            </span>
+            <span class="file-label">
+              Choose a file...
+            </span>
+          </span>
+          <span class="file-name">
+            {{ fileInput?.files?.[0]?.name || 'No file selected' }}
+          </span>
+        </label>
+      </div>
       
       <!-- Image Preview -->
-      <div v-if="previewUrl" class="relative">
+      <div v-if="previewUrl" class="box is-paddingless" style="position: relative; max-width: 400px; display: inline-block;">
         <img 
           :src="previewUrl" 
           alt="Preview" 
-          class="w-full max-w-md rounded-lg border border-zinc-200 object-cover"
-          style="aspect-ratio: 16 / 9;"
+          style="display: block; width: 100%; border-radius: 6px; aspect-ratio: 16 / 9; object-fit: cover;"
         />
         <button
           type="button"
           @click="removeImage"
-          class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-2 hover:bg-red-600 transition"
-        >
-          <i class="bi bi-x-lg w-4 h-4"></i>
-        </button>
+          class="delete is-medium"
+          style="position: absolute; top: 0.5rem; right: 0.5rem; background-color: rgba(10, 10, 10, 0.7);"
+        ></button>
       </div>
       
-      <p class="text-xs text-zinc-500">
-        Изображение будет автоматически изменено до соотношения 16:9 (1920x1080)
+      <p class="help has-text-grey">
+        Image will be automatically resized to a 16:9 ratio (1920x1080)
       </p>
     </div>
   </div>

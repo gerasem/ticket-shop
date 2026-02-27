@@ -30,7 +30,7 @@ onMounted(() => {
 const handleSeatClick = (seatId: string) => {
   if (!venueStore.currentVenue) return;
   const seat = venueStore.currentVenue.seats.find(s => s.id === seatId);
-  if (!seat || seat.status === 'booked') return;
+  if (!seat || seat.status === 'booked' || seat.status === 'reserved') return;
 
   if (seat.status === 'readyToBook') {
     // Deselect
@@ -79,6 +79,20 @@ const getSeatTypeClass = (seat: Seat) => {
   const type = getSeatType(seat);
   return `type-${type?.id || 'unknown'}`;
 };
+
+const getSeatStyle = (seat: Seat) => {
+  const type = getSeatType(seat);
+  const defaultStyle = venueStore.currentVenue?.defaultSeatStyle;
+  if (!defaultStyle) return {};
+  const merged = { ...defaultStyle, ...type?.style };
+  return {
+    width: merged.width + 'px',
+    height: merged.height + 'px',
+    backgroundColor: merged.color,
+    borderRadius: merged.borderRadius,
+    transform: seat.rotation ? `rotate(${seat.rotation}deg)` : undefined,
+  };
+};
 </script>
 
 <template>
@@ -90,7 +104,7 @@ const getSeatTypeClass = (seat: Seat) => {
       <div class="price-legend-compact">
         <div class="legend-items box py-2 px-4 is-flex is-align-items-center" style="gap: 1.5rem;">
           <div class="legend-item" v-for="type in venueStore.currentVenue?.seatTypes" :key="type.id">
-            <div class="legend-color" :class="`type-${type.id}`"></div>
+            <div class="legend-color" :style="{ backgroundColor: type.style?.color || venueStore.currentVenue?.defaultSeatStyle?.color }"></div>
             <span>{{ type.name }}: {{ formatPrice(type.priceInCents) }}</span>
           </div>
           <div class="legend-separator"></div>
@@ -112,8 +126,12 @@ const getSeatTypeClass = (seat: Seat) => {
         <template #seat="{ seat }">
           <div
             class="seat"
-            :class="[seat.status, getSeatTypeClass(seat)]"
-            :style="{ left: seat.x + 'px', top: seat.y + 'px' }"
+            :class="[seat.status]"
+            :style="{ 
+              left: seat.x + 'px', 
+              top: seat.y + 'px',
+              ...(seat.status === 'free' ? getSeatStyle(seat) : {})
+            }"
             @click="handleSeatClick(seat.id)"
           >
             <span class="seat-number-display">{{ seat.place }}</span>
@@ -135,6 +153,7 @@ const getSeatTypeClass = (seat: Seat) => {
           <div class="buttons is-right are-small">
             <BaseButton 
               v-if="cartStore.selectedSeats.length > 0"
+              variant="danger"
               outlined
               size="small" 
               @click="clearCart"
@@ -159,7 +178,7 @@ const getSeatTypeClass = (seat: Seat) => {
             v-for="seat in cartStore.selectedSeats" 
             :key="seat.id"
             class="cart-item box is-shadowless p-3 mb-2 is-flex is-justify-content-space-between is-align-items-center"
-            style="border: 1px solid var(--border-primary);"
+            :style="{ borderLeft: `4px solid ${getSeatType(seat)?.style?.color || 'var(--border-primary)'}`, borderTop: '1px solid var(--border-primary)', borderRight: '1px solid var(--border-primary)', borderBottom: '1px solid var(--border-primary)' }"
           >
             <div class="cart-seat-info">
               <span class="cart-seat-label has-text-weight-semibold">Row {{ seat.row }}, Seat {{ seat.place }}</span>
@@ -167,12 +186,14 @@ const getSeatTypeClass = (seat: Seat) => {
             <div class="cart-item-right is-flex is-align-items-center" style="gap: 0.5rem;">
               <span class="cart-seat-price has-text-primary has-text-weight-semibold">{{ formatPrice(getSeatType(seat)?.priceInCents || 0) }}</span>
               <BaseButton 
-              outlined
-              size="small" 
-              class="ml-3" 
-              @click="removeSeat(seat.id)"
+                variant="danger"
+                outlined
+                size="small" 
+                class="ml-3" 
+                @click="removeSeat(seat.id)"
                 title="Remove seat"
               >
+                <i class="bi bi-trash"></i>
               </BaseButton>
             </div>
           </div>
@@ -257,34 +278,9 @@ const getSeatTypeClass = (seat: Seat) => {
   height: 600px;
 }
 
-/* Type-based colors for FREE seats */
-.seat.free.type-standard {
-  background: var(--color-seat-standard); /* Gray - default */
-}
-
-.seat.free.type-premium {
-  background: var(--color-seat-premium); /* Blue */
-}
-
-.seat.free.type-vip {
-  background: var(--color-seat-vip); /* Gold */
-}
-
-/* Legend colors matching seat types */
-.legend-color.type-standard {
-  background: var(--color-seat-standard);
-}
-
-.legend-color.type-premium {
-  background: var(--color-seat-premium);
-}
-
-.legend-color.type-vip {
-  background: var(--color-seat-vip);
-}
-
-/* Booked seats - red */
-.seat.booked {
+/* Booked/Reserved seats - red */
+.seat.booked,
+.seat.reserved {
   background: var(--color-danger) !important;
   cursor: not-allowed;
 }

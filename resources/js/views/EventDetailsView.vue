@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useEventsStore } from '../stores/events';
 import BaseButton from '../components/BaseButton.vue';
@@ -15,133 +15,141 @@ onMounted(async () => {
   }
 });
 
-const event = computed(() => {
-  return eventsStore.events.find(e => e.id === parseInt(eventId));
-});
+const event = computed(() =>
+  eventsStore.events.find(e => e.id === parseInt(eventId))
+);
 
-const goBack = () => {
-  router.push('/');
-};
+const goBack = () => router.push('/');
 
 const goToSeatSelection = () => {
   if (event.value?.venue_id) {
-    router.push({ path: '/booking', query: { venueId: event.value.venue_id, eventId: eventId } });
+    router.push({ path: '/booking', query: { venueId: event.value.venue_id, eventId } });
   }
 };
 
-const formatDate = (dateStr: string) => {
-  return new Date(dateStr).toLocaleDateString('en-US', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
+const formatDate = (dateStr: string) =>
+  new Date(dateStr).toLocaleDateString('en-US', {
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
   });
-};
 </script>
 
 <template>
-  <div class="event-details container section">
-    <BaseButton outlined class="mb-6" @click="goBack">
-      &larr; Back to Events
-    </BaseButton>
+  <!-- Loading -->
+  <div v-if="eventsStore.isLoading" class="has-text-centered py-6 has-text-grey">
+    <p>Loading...</p>
+  </div>
 
-    <div v-if="eventsStore.isLoading" class="has-text-centered py-6 has-text-grey">
-      Loading...
+  <!-- Not found -->
+  <div v-else-if="!event" class="has-text-centered py-6">
+    <i class="bi bi-search" style="font-size: 3rem; color: var(--border-secondary);"></i>
+    <h2 class="title is-3 mt-4">Event not found</h2>
+    <p class="has-text-grey mb-5">The requested event does not exist or has been removed.</p>
+    <BaseButton variant="primary" @click="goBack">Return to Home</BaseButton>
+  </div>
+
+  <!-- Event Detail -->
+  <div v-else>
+    <!-- Back link -->
+    <div class="mb-5">
+      <BaseButton variant="primary" outlined @click="goBack">
+        ← Back to Events
+      </BaseButton>
     </div>
 
-    <div v-else-if="event" class="box is-paddingless" style="overflow: hidden;">
-      <div class="columns is-gapless mb-0">
-        <div class="column is-5 image-section" style="min-height: 400px; background: #f3f4f6;">
-          <img 
-            :src="event.image ? `/storage/${event.image}` : 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?w=800'" 
-            :alt="event.title"
-            class="event-image is-fullwidth h-100" style="object-fit:cover; height: 100%;"
-          />
+    <!-- Hero image -->
+    <div class="event-hero mb-5">
+      <img
+        :src="event.image ? `/storage/${event.image}` : '/images/default-event.jpg'"
+        :alt="event.title"
+        class="event-hero-img"
+      />
+      <div class="event-hero-overlay">
+        <h1 class="title is-2 has-text-white mb-2">{{ event.title }}</h1>
+      </div>
+    </div>
+
+    <!-- Info grid + CTA -->
+    <div class="columns is-desktop">
+      <!-- Left: details -->
+      <div class="column">
+        <!-- Info tags row -->
+        <div class="tags are-medium mb-5">
+          <span class="tag is-primary is-light">
+            <i class="bi bi-calendar-event mr-2"></i>
+            {{ formatDate(event.date) }}
+          </span>
+          <span class="tag is-info is-light">
+            <i class="bi bi-clock mr-2"></i>
+            {{ event.time }}
+          </span>
+          <span v-if="event.venue" class="tag is-success is-light">
+            <i class="bi bi-geo-alt mr-2"></i>
+            {{ event.venue.name }}
+          </span>
         </div>
 
-        <div class="column is-7 is-flex is-flex-direction-column py-6 px-6">
-          <h1 class="title is-2 mb-5">{{ event.title }}</h1>
+        <!-- Description -->
+        <div class="content">
+          <h2 class="title is-4">About the Event</h2>
+          <p class="has-text-grey-dark" style="line-height: 1.7">{{ event.description }}</p>
+        </div>
+      </div>
 
-          <div class="columns is-multiline mb-5">
-            <div class="column is-half">
-              <div class="box is-shadowless" style="border: 1px solid #e5e7eb;">
-                <div class="is-flex is-align-items-center" style="gap: 1rem;">
-                  <span class="icon is-large has-text-primary">
-                    <i class="fas fa-calendar-alt fa-lg"></i>
-                  </span>
-                  <div>
-                    <p class="is-size-7 has-text-grey is-uppercase has-text-weight-bold mb-1">Date</p>
-                    <p class="is-size-6 has-text-weight-semibold">{{ formatDate(event.date) }}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+      <!-- Right: CTA card -->
+      <div class="column is-4-desktop">
+        <div class="card">
+          <div class="card-content">
+            <p class="title is-5 mb-2">Ready to attend?</p>
+            <p class="has-text-grey mb-4">Choose your seats and book your tickets now.</p>
 
-            <div class="column is-half">
-              <div class="box is-shadowless" style="border: 1px solid #e5e7eb;">
-                <div class="is-flex is-align-items-center" style="gap: 1rem;">
-                  <span class="icon is-large has-text-primary">
-                    <i class="fas fa-clock fa-lg"></i>
-                  </span>
-                  <div>
-                    <p class="is-size-7 has-text-grey is-uppercase has-text-weight-bold mb-1">Time</p>
-                    <p class="is-size-6 has-text-weight-semibold">{{ event.time }}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <table class="table is-fullwidth is-narrow mb-4">
+              <tbody>
+                <tr>
+                  <td class="has-text-grey">Date</td>
+                  <td class="has-text-weight-semibold">{{ formatDate(event.date) }}</td>
+                </tr>
+                <tr>
+                  <td class="has-text-grey">Time</td>
+                  <td class="has-text-weight-semibold">{{ event.time }}</td>
+                </tr>
+                <tr v-if="event.venue">
+                  <td class="has-text-grey">Venue</td>
+                  <td class="has-text-weight-semibold">{{ event.venue.name }}</td>
+                </tr>
+              </tbody>
+            </table>
 
-            <div class="column is-half" v-if="event.venue">
-              <div class="box is-shadowless" style="border: 1px solid #e5e7eb;">
-                <div class="is-flex is-align-items-center" style="gap: 1rem;">
-                  <span class="icon is-large has-text-primary">
-                    <i class="fas fa-map-marker-alt fa-lg"></i>
-                  </span>
-                  <div>
-                    <p class="is-size-7 has-text-grey is-uppercase has-text-weight-bold mb-1">Venue</p>
-                    <p class="is-size-6 has-text-weight-semibold">{{ event.venue.name }}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="description-section mb-6 is-flex-grow-1">
-            <h3 class="title is-4 mb-3">About Event</h3>
-            <p class="has-text-grey-dark" style="line-height: 1.6;">{{ event.description }}</p>
-          </div>
-
-          <div class="actions mt-auto pt-4">
-            <BaseButton variant="primary" fullwidth size="medium" @click="goToSeatSelection">
+            <BaseButton variant="primary" fullwidth @click="goToSeatSelection">
               Buy Tickets
             </BaseButton>
           </div>
         </div>
       </div>
     </div>
-
-    <div v-else class="has-text-centered py-6 px-4">
-      <span class="icon is-large has-text-grey-light mb-4" style="font-size: 3rem;">
-        <i class="fas fa-search"></i>
-      </span>
-      <h2 class="title is-3 mb-2">Event not found</h2>
-      <p class="subtitle is-6 has-text-grey mb-5">Unfortunately, the requested event does not exist or has been deleted</p>
-      <BaseButton variant="primary" @click="goBack">
-        Return to Home
-      </BaseButton>
-    </div>
   </div>
 </template>
 
 <style scoped lang="scss">
-.event-details {
-  min-height: calc(100vh - 80px);
-  background: #f9fafb;
-}
+.event-hero {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  height: 320px;
 
-@media (max-width: 1024px) {
-  .image-section {
-    min-height: 350px !important;
+  &-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  &-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.65) 0%, transparent 50%);
+    display: flex;
+    align-items: flex-end;
+    padding: 2rem;
   }
 }
 </style>

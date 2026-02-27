@@ -26,53 +26,64 @@ const formatDate = (dateStr: string) => {
 </script>
 
 <template>
-  <div class="home">
-    <div class="hero">
-      <h1>Upcoming Events</h1>
-      <p>Discover the best events and book your tickets</p>
+  <div>
+    <!-- Hero -->
+    <div class="hero-section has-text-centered py-6 mb-6">
+      <h1 class="title is-1 mb-3">Upcoming Events</h1>
+      <p class="subtitle is-5 has-text-grey">Discover the best events and book your tickets</p>
     </div>
 
-    <!-- Loading state -->
-    <div v-if="eventsStore.isLoading" class="empty-state">
+    <!-- Loading -->
+    <div v-if="eventsStore.isLoading" class="has-text-centered py-6 has-text-grey">
       <p>Loading...</p>
     </div>
 
-    <!-- Empty state -->
-    <div v-else-if="eventsStore.events.length === 0" class="empty-state">
-      <i class="bi bi-calendar-event empty-icon"></i>
-      <h2>Events coming soon</h2>
-      <p>Stay tuned - interesting events will be here soon!</p>
+    <!-- Empty -->
+    <div v-else-if="eventsStore.events.length === 0" class="has-text-centered py-6">
+      <i class="bi bi-calendar-event" style="font-size: 3rem; color: var(--border-secondary);"></i>
+      <h2 class="title is-4 mt-4">Events coming soon</h2>
+      <p class="has-text-grey">Stay tuned - interesting events will be here soon!</p>
     </div>
 
-    <!-- Events grid -->
-    <div v-else class="events-grid">
-      <div v-for="event in eventsStore.events" :key="event.id" class="event-card" @click="goToEvent(event.id)">
-        <div class="event-image">
-          <img 
-            :src="event.image ? `/storage/${event.image}` : 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?w=800'" 
-            :alt="event.title" 
-          />
-          <div class="event-date-badge">
-            <span class="month">{{ new Date(event.date).toLocaleString('en-US', { month: 'short' }) }}</span>
-            <span class="day">{{ new Date(event.date).getDate() }}</span>
+    <!-- Events grid using Bulma columns -->
+    <div v-else class="columns is-multiline">
+      <div
+        v-for="event in eventsStore.events"
+        :key="event.id"
+        class="column is-4-desktop is-6-tablet is-12-mobile"
+      >
+        <div class="event-card" @click="goToEvent(event.id)">
+          <div class="event-image">
+            <img
+              :src="event.image ? `/storage/${event.image}` : '/images/default-event.jpg'"
+              :alt="event.title"
+            />
+            <div class="event-date-badge">
+              <span class="month">{{ new Date(event.date).toLocaleString('en-US', { month: 'short' }) }}</span>
+              <span class="day">{{ new Date(event.date).getDate() }}</span>
+            </div>
           </div>
-        </div>
-        <div class="event-content">
-          <h3>{{ event.title }}</h3>
-          <div class="event-meta">
-            <span class="meta-item">
-              <i class="bi bi-calendar-event icon"></i>
-              {{ formatDate(event.date) }}
-            </span>
-            <span class="meta-item">
-              <i class="bi bi-clock icon"></i>
-              {{ event.time }}
-            </span>
+
+          <div class="event-content">
+            <h3>{{ event.title }}</h3>
+
+            <div class="event-meta">
+              <span class="meta-item">
+                <i class="bi bi-calendar-event icon"></i>
+                {{ formatDate(event.date) }}
+              </span>
+              <span class="meta-item">
+                <i class="bi bi-clock icon"></i>
+                {{ event.time }}
+              </span>
+            </div>
+
+            <p class="description">{{ event.description }}</p>
+
+            <BaseButton variant="primary" fullwidth>
+              Buy Tickets
+            </BaseButton>
           </div>
-          <p class="description">{{ event.description }}</p>
-          <BaseButton variant="primary" fullwidth>
-            Buy Tickets
-          </BaseButton>
         </div>
       </div>
     </div>
@@ -80,101 +91,49 @@ const formatDate = (dateStr: string) => {
 </template>
 
 <style scoped lang="scss">
-.home {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 2rem 1.5rem;
+// Hero
+.hero-section {
+  h1 { color: var(--text-primary); }
+  p   { color: var(--text-secondary); }
 }
 
-.hero {
-  text-align: center;
-  margin-bottom: 3rem;
-  padding: 3rem 1rem;
-}
-
-.hero h1 {
-  font-size: 3rem;
-  font-weight: 800;
-  margin-bottom: 1rem;
-  color: #111827;
-}
-
-.hero p {
-  color: #6b7280;
-  font-size: 1.25rem;
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 4rem 2rem;
-  min-height: 400px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.empty-icon {
-  width: 80px;
-  height: 80px;
-  color: #d1d5db;
-  margin-bottom: 1.5rem;
-}
-
-.empty-state h2 {
-  font-size: 1.75rem;
-  font-weight: 600;
-  color: #374151;
-  margin: 0 0 0.5rem 0;
-}
-
-.empty-state p {
-  color: #6b7280;
-  font-size: 1.1rem;
-  margin: 0;
-}
-
-.events-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 2rem;
-  margin-bottom: 4rem;
-}
-
+// Card
 .event-card {
-  background: white;
+  background: var(--bg-primary);
   border-radius: 12px;
   overflow: hidden;
-  transition: all 0.3s;
   cursor: pointer;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
+  border: 1px solid var(--border-primary);
+  box-shadow: var(--shadow-sm);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
 
-.event-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
-  border-color: rgb(var(--color-primary));
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+    border-color: rgb(var(--color-primary));
+
+    .event-image img {
+      transform: scale(1.08);
+    }
+  }
 }
 
 .event-image {
   height: 220px;
   position: relative;
   overflow: hidden;
-  background: #f3f4f6;
-}
+  background: var(--bg-tertiary);
+  flex-shrink: 0;
 
-.event-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.4s;
-}
-
-.event-card:hover .event-image img {
-  transform: scale(1.08);
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s;
+  }
 }
 
 .event-date-badge {
@@ -190,33 +149,36 @@ const formatDate = (dateStr: string) => {
   align-items: center;
   min-width: 60px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
 
-.event-date-badge .month {
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  color: rgb(var(--color-primary));
-  font-weight: 700;
-  letter-spacing: 0.5px;
-}
+  .month {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: rgb(var(--color-primary));
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
 
-.event-date-badge .day {
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: #111827;
-  line-height: 1;
+  .day {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1;
+  }
 }
 
 .event-content {
   padding: 1.5rem;
-}
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 
-.event-content h3 {
-  margin: 0 0 1rem 0;
-  font-size: 1.375rem;
-  font-weight: 700;
-  color: #111827;
-  line-height: 1.3;
+  h3 {
+    margin: 0 0 1rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.3;
+  }
 }
 
 .event-meta {
@@ -225,45 +187,25 @@ const formatDate = (dateStr: string) => {
   gap: 0.5rem;
   margin-bottom: 1rem;
   font-size: 0.875rem;
-}
 
-.meta-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: #6b7280;
-}
-
-.icon {
-  width: 16px;
-  height: 16px;
-  flex-shrink: 0;
+  .meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+  }
 }
 
 .description {
-  color: #4b5563;
+  color: var(--text-secondary);
   font-size: 0.9375rem;
   line-height: 1.6;
-  margin-bottom: 1.5rem;
+  margin-bottom: auto;
+  padding-bottom: 1.5rem;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
-}
-
-@media (max-width: 768px) {
-  .hero h1 {
-    font-size: 2rem;
-  }
-  
-  .hero p {
-    font-size: 1rem;
-  }
-  
-  .events-grid {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-  }
 }
 </style>

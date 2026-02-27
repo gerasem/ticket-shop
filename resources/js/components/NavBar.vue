@@ -13,7 +13,7 @@ const handleLogout = async () => {
 
 <template>
   <nav class="navbar is-white has-shadow" role="navigation" aria-label="main navigation">
-    <div class="container">
+    <div class="container is-fluid">
       <div class="navbar-brand">
         <router-link to="/" class="navbar-item">
           <strong class="is-size-5">🎟 TicketShop</strong>

@@ -203,15 +203,15 @@ const handleCancel = () => {
               {{ errorMsg }}
             </div>
 
-            <div class="field is-grouped mt-5">
+            <div class="field is-grouped is-grouped-right mt-6">
               <div class="control">
-                <BaseButton type="submit" variant="primary" fullwidth :loading="isLoading">
-                  Сохранить изменения
+                <BaseButton type="button" variant="light" outlined @click="handleCancel" :disabled="isLoading">
+                  Cancel
                 </BaseButton>
               </div>
               <div class="control">
-                <BaseButton type="button" @click="handleCancel" :disabled="isLoading">
-                  Отмена
+                <BaseButton type="submit" variant="primary" :loading="isLoading">
+                  Save Changes
                 </BaseButton>
               </div>
             </div>

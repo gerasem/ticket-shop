@@ -584,19 +584,22 @@ onMounted(async () => {
 
 <style scoped lang="scss">
 .admin-view {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border-primary);
+  background: var(--bg-primary);
+  flex-shrink: 0;
 
   h1 {
-    font-size: 2rem;
+    font-size: 1.5rem;
     font-weight: 700;
     color: var(--text-primary);
     margin: 0;
@@ -606,8 +609,10 @@ onMounted(async () => {
 .editor-container {
   display: flex;
   gap: 1rem;
-  align-items: flex-start;
-  height: calc(100vh - 160px);
+  align-items: stretch;
+  flex: 1;
+  overflow: hidden;
+  padding: 1rem 1.5rem;
 }
 
 .sidebar {
