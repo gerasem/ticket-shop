@@ -37,6 +37,7 @@ class VenueController extends Controller
             'objects' => $venue->objects,
             'seatTypes' => $venue->seat_types, // Note camelCase
             'defaultSeatStyle' => $venue->default_seat_style,
+            'backgroundImage' => $venue->background_image,
             'seats' => $venue->seats->map(function($seat) {
                 return [
                     'id' => $seat->json_id,
@@ -99,6 +100,11 @@ class VenueController extends Controller
                 }
                 if ($request->has('defaultSeatStyle')) {
                     $venue->default_seat_style = $request->input('defaultSeatStyle');
+                }
+                if ($request->has('backgroundImage')) {
+                    $venue->background_image = $request->input('backgroundImage');
+                } else if ($request->exists('backgroundImage') && is_null($request->input('backgroundImage'))) {
+                    $venue->background_image = null;
                 }
                 $venue->save();
 
@@ -168,5 +174,19 @@ class VenueController extends Controller
         $venue->seats()->delete(); // Delete associated seats
         $venue->delete();
         return response()->json(['message' => 'Venue deleted']);
+    }
+
+    public function uploadImage(Request $request, $id)
+    {
+        $request->validate([
+            'image' => 'required|image|max:10240' // 10MB max
+        ]);
+
+        $venue = Venue::findOrFail($id);
+        $path = $request->file('image')->store('venues', 'public');
+        
+        return response()->json([
+            'url' => '/storage/' . $path
+        ]);
     }
 }

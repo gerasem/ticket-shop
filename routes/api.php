@@ -22,10 +22,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/events/{id}', [EventController::class, 'update']);
     Route::delete('/events/{id}', [EventController::class, 'destroy']);
     
-    // Venue CRUD
     Route::post('/venues', [VenueController::class, 'store']);
     Route::put('/venues/{id}', [VenueController::class, 'update']);
     Route::delete('/venues/{id}', [VenueController::class, 'destroy']);
+    Route::post('/venues/{id}/image', [VenueController::class, 'uploadImage']);
 });
 
 Route::get('/user', function (Request $request) {

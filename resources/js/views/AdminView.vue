@@ -20,6 +20,7 @@ import AdminObjectSettings from '../components/admin/AdminObjectSettings.vue';
 import AdminSeatSettings from '../components/admin/AdminSeatSettings.vue';
 import ColorSettingsModal from '../components/admin/ColorSettingsModal.vue';
 import { useToast } from 'vue-toastification';
+import { venueApi } from '../services/api/venueApi';
 
 const toast = useToast();
 
@@ -192,20 +193,31 @@ const onWindowMouseUp = () => {
 // ─── Background ───────────────────────────────────────────────────────────────
 const backgroundMoveStep = ref(10);
 
-const handleBackgroundUpload = (event: Event) => {
+const isUploadingBackground = ref(false);
+
+const handleBackgroundUpload = async (event: Event) => {
   const input = event.target as HTMLInputElement;
-  if (!input.files?.[0] || !venueRef.value) return;
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    if (!venueRef.value || !e.target?.result) return;
+  const file = input.files?.[0];
+  if (!file || !venueRef.value) return;
+
+  try {
+    isUploadingBackground.value = true;
+    const url = await venueApi.uploadImage(venueRef.value.id, file);
+    
     if (!venueRef.value.backgroundImage) {
-      venueRef.value.backgroundImage = { url: e.target.result as string, scale: 100, x: 0, y: 0, rotation: 0 };
+      venueRef.value.backgroundImage = { url, scale: 100, x: 0, y: 0, rotation: 0 };
     } else {
-      venueRef.value.backgroundImage.url = e.target.result as string;
+      venueRef.value.backgroundImage.url = url;
     }
     commit();
-  };
-  reader.readAsDataURL(input.files[0]);
+    toast.success('Background image uploaded');
+  } catch (e) {
+    console.error('Background upload failed', e);
+    toast.error('Failed to upload background image');
+  } finally {
+    isUploadingBackground.value = false;
+    input.value = ''; // Reset input so same file can be selected again
+  }
 };
 
 const removeBackground = () => {
@@ -448,6 +460,7 @@ onMounted(async () => {
           v-if="activeTool === 'background'"
           :venue="venueRef"
           v-model:moveStep="backgroundMoveStep"
+          :is-uploading="isUploadingBackground"
           @remove-background="removeBackground"
           @move-background="moveBackground"
           @rotate-background="rotateBackground"

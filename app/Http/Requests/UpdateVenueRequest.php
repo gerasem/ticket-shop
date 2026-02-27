@@ -29,7 +29,8 @@ class UpdateVenueRequest extends FormRequest
             'objects' => 'sometimes|array',
             'seatTypes' => 'sometimes|array',
             'defaultSeatStyle' => 'sometimes|array',
-            'seats' => 'sometimes|array'
+            'seats' => 'sometimes|array',
+            'backgroundImage' => 'sometimes|array|nullable'
         ];
     }
 }

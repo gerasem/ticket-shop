@@ -3,9 +3,10 @@
     <!-- Upload Background -->
     <div class="settings-group">
       <label>Background Image</label>
-      <label for="background-upload" class="upload-button">
-        <span class="upload-icon"><i class="bi bi-upload" style="font-size: 18px;"></i></span>
-        <span class="upload-text">Choose Image</span>
+      <label :for="isUploading ? '' : 'background-upload'" class="upload-button" :class="{ 'is-disabled': isUploading }">
+        <span v-if="isUploading" class="icon is-small is-loading mr-2"><i class="bi bi-arrow-repeat spin"></i></span>
+        <span v-else class="upload-icon"><i class="bi bi-upload" style="font-size: 18px;"></i></span>
+        <span class="upload-text">{{ isUploading ? 'Uploading...' : 'Choose Image' }}</span>
       </label>
       <input 
         id="background-upload"
@@ -13,6 +14,7 @@
         accept="image/*"
         @change="handleBackgroundUpload"
         style="display: none;"
+        :disabled="isUploading"
       />
       <div class="background-actions" v-if="venue.backgroundImage">
         <BaseButton 
@@ -105,6 +107,7 @@ import BaseButton from '../BaseButton.vue';
 const props = defineProps<{
   venue: Venue;
   moveStep: number;
+  isUploading?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -215,6 +218,18 @@ const handleBackgroundUpload = (event: Event) => {
   transform: translateY(0);
   box-shadow: 0 1px 4px rgba(0,0,0,0.1);
 }
+
+.upload-button.is-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+  display: inline-block;
+}
+@keyframes spin { 100% { transform: rotate(360deg); } }
 
 .upload-icon {
   font-size: 1.2rem;

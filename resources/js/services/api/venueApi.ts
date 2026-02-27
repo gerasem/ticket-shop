@@ -14,6 +14,14 @@ export const venueApi = {
   save: (id: string, data: Venue) =>
     api.put<Venue>(`/api/venues/${id}`, data).then(r => r.data),
 
+  uploadImage: (id: string, file: File) => {
+    const formData = new FormData();
+    formData.append('image', file);
+    return api.post<{url: string}>(`/api/venues/${id}/image`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    }).then(r => r.data.url);
+  },
+
   delete: (id: string) =>
     api.delete(`/api/venues/${id}`),
 };

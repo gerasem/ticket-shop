@@ -11,13 +11,14 @@ class Venue extends Model
     
     protected $fillable = [
         'id', 'name', 'type', 'width', 'height', 'curvature',
-        'objects', 'seat_types', 'default_seat_style'
+        'objects', 'seat_types', 'default_seat_style', 'background_image'
     ];
 
     protected $casts = [
         'objects' => 'array',
         'seat_types' => 'array',
         'default_seat_style' => 'array',
+        'background_image' => 'array',
     ];
 
     public function seats()
