@@ -60,7 +60,7 @@ const emitAdd = () => {
 };
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 /* Reusing styles from AdminView/other settings */
 .settings-section {
   width: 100%;

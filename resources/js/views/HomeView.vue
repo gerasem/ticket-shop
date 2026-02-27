@@ -2,7 +2,6 @@
 import { onMounted } from 'vue';
 import { useEventsStore } from '../stores/events';
 import { useRouter } from 'vue-router';
-import { Button } from '../components/ui/button';
 
 const eventsStore = useEventsStore();
 const router = useRouter();
@@ -76,16 +75,16 @@ const formatDate = (dateStr: string) => {
             </span>
           </div>
           <p class="description">{{ event.description }}</p>
-          <Button variant="primary" class="w-full">
+          <button class="button is-primary is-fullwidth">
             Buy Tickets
-          </Button>
+          </button>
         </div>
       </div>
     </div>
   </div>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 .home {
   max-width: 1400px;
   margin: 0 auto;

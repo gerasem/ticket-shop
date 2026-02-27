@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
-import IconImage from '../ui/IconImage.vue';
+import IconImage from '../IconImage.vue';
 
 const props = defineProps<{
   modelValue: boolean;
@@ -172,7 +172,7 @@ onMounted(() => {
   </Teleport>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 .modal-overlay {
   position: fixed;
   top: 0;

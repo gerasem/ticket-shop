@@ -2,7 +2,6 @@
 import { onMounted } from 'vue';
 import { useEventsStore } from '../stores/events';
 import { useRouter } from 'vue-router';
-import { Button } from '../components/ui/button';
 
 const eventsStore = useEventsStore();
 const router = useRouter();
@@ -30,9 +29,9 @@ const deleteEvent = async (id: number) => {
   <div class="admin-events">
     <div class="header">
       <h1>Event Management</h1>
-      <Button variant="primary" @click="router.push('/admin/events/create')">
+      <button class="button is-primary" @click="router.push('/admin/events/create')">
         Create Event
-      </Button>
+      </button>
     </div>
 
     <!-- Loading state -->
@@ -79,28 +78,25 @@ const deleteEvent = async (id: number) => {
           <p class="event-description">{{ event.description }}</p>
         </div>
         <div class="event-actions">
-          <Button 
-            variant="secondary-outline" 
-            size="sm" 
+          <button 
+            class="button is-outlined is-small" 
             @click="router.push(`/admin/events/${event.id}/edit`)"
           >
             Edit
-          </Button>
-          <Button 
-            variant="secondary-outline" 
-            size="sm" 
-            class="delete-btn"
+          </button>
+          <button 
+            class="button is-danger is-outlined is-small delete-btn" 
             @click="deleteEvent(event.id)"
           >
             Delete
-          </Button>
+          </button>
         </div>
       </div>
     </div>
   </div>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 .admin-events {
   max-width: 1200px;
   margin: 0 auto;
@@ -240,15 +236,6 @@ const deleteEvent = async (id: number) => {
   padding: 1.5rem;
   border-left: 1px solid #f3f4f6;
   align-items: stretch;
-}
-
-.delete-btn {
-  border-color: #ef4444;
-  color: #ef4444;
-}
-
-.delete-btn:hover {
-  background: #fef2f2;
 }
 
 @media (max-width: 768px) {

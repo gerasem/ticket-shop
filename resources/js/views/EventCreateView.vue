@@ -3,10 +3,6 @@ import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useEventsStore } from '../stores/events';
 import { useVenueStore } from '../stores/venue';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Label } from '../components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import ImageUpload from '../components/ImageUpload.vue';
 
 const router = useRouter();
@@ -61,111 +57,132 @@ const handleCancel = () => {
 </script>
 
 <template>
-  <div class="container">
-    <div class="max-w-2xl mx-auto">
-      <div class="mb-6">
-        <h1 class="text-3xl font-bold text-gray-900">Create Event</h1>
-        <p class="text-gray-600 mt-2">Fill in the information for the new event</p>
-      </div>
+  <div class="container section">
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="mb-5">
+          <h1 class="title is-3">Create Event</h1>
+          <p class="subtitle is-6 has-text-grey mt-2">Fill in the information for the new event</p>
+        </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Event Information</CardTitle>
-          <CardDescription>All fields are required</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form @submit.prevent="handleSubmit" class="space-y-6">
-            <div class="space-y-2">
-              <Label for="title">Title</Label>
-              <Input
-                id="title"
-                v-model="form.title"
-                placeholder="Enter event title"
-                required
-                :disabled="isLoading"
-              />
-            </div>
-
-            <div class="space-y-2">
-              <Label for="description">Description</Label>
-              <textarea
-                id="description"
-                v-model="form.description"
-                class="flex min-h-[120px] w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm ring-offset-white placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-800 dark:bg-zinc-950 dark:ring-offset-zinc-950 dark:placeholder:text-zinc-400 dark:focus-visible:ring-zinc-300"
-                placeholder="Enter event description"
-                required
-                :disabled="isLoading"
-              ></textarea>
-            </div>
-
-            <div class="grid grid-cols-2 gap-4">
-              <div class="space-y-2">
-                <Label for="date">Date</Label>
-                <Input
-                  id="date"
-                  v-model="form.date"
-                  type="date"
-                  required
-                  :disabled="isLoading"
-                />
-              </div>
-
-              <div class="space-y-2">
-                <Label for="time">Time</Label>
-                <Input
-                  id="time"
-                  v-model="form.time"
-                  type="time"  
+        <div class="box">
+          <h3 class="title is-4 mb-2">Event Information</h3>
+          <p class="subtitle is-6 has-text-grey mb-5">All fields are required</p>
+          
+          <form @submit.prevent="handleSubmit">
+            <div class="field">
+              <label class="label" for="title">Title</label>
+              <div class="control">
+                <input
+                  id="title"
+                  v-model="form.title"
+                  class="input"
+                  type="text"
+                  placeholder="Enter event title"
                   required
                   :disabled="isLoading"
                 />
               </div>
             </div>
 
-            <div class="space-y-2">
-              <Label for="venue_id">Venue</Label>
-              <select
-                id="venue_id"
-                v-model="form.venue_id"
-                class="flex h-10 w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-800 dark:bg-zinc-950 dark:ring-offset-zinc-950 dark:placeholder:text-zinc-400 dark:focus-visible:ring-zinc-300"
-                required
-                :disabled="isLoading"
-              >
-                <option value="">Select Venue</option>
-                <option v-for="venue in venueStore.venuesList" :key="venue.id" :value="venue.id">
-                  {{ venue.name }}
-                </option>
-              </select>
+            <div class="field">
+              <label class="label" for="description">Description</label>
+              <div class="control">
+                <textarea
+                  id="description"
+                  v-model="form.description"
+                  class="textarea"
+                  placeholder="Enter event description"
+                  rows="4"
+                  required
+                  :disabled="isLoading"
+                ></textarea>
+              </div>
             </div>
 
-            <ImageUpload
-              v-model="imageFile"
-              label="Event Image"
-            />
+            <div class="columns">
+              <div class="column">
+                <div class="field">
+                  <label class="label" for="date">Date</label>
+                  <div class="control">
+                    <input
+                      id="date"
+                      v-model="form.date"
+                      class="input"
+                      type="date"
+                      required
+                      :disabled="isLoading"
+                    />
+                  </div>
+                </div>
+              </div>
 
-            <div v-if="errorMsg" class="p-3 bg-red-50 border border-red-200 rounded-md">
-              <p class="text-sm text-red-800">{{ errorMsg }}</p>
+              <div class="column">
+                <div class="field">
+                  <label class="label" for="time">Time</label>
+                  <div class="control">
+                    <input
+                      id="time"
+                      v-model="form.time"
+                      class="input"
+                      type="time"  
+                      required
+                      :disabled="isLoading"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <div class="flex gap-3 pt-4">
-              <Button type="submit" variant="primary" :disabled="isLoading" class="flex-1">
-                {{ isLoading ? 'Creating...' : 'Create Event' }}
-              </Button>
-              <Button type="button" variant="secondary-outline" @click="handleCancel" :disabled="isLoading">
-                Cancel
-              </Button>
+            <div class="field">
+              <label class="label" for="venue_id">Venue</label>
+              <div class="control">
+                <div class="select is-fullwidth">
+                  <select
+                    id="venue_id"
+                    v-model="form.venue_id"
+                    required
+                    :disabled="isLoading"
+                  >
+                    <option value="">Select Venue</option>
+                    <option v-for="venue in venueStore.venuesList" :key="venue.id" :value="venue.id">
+                      {{ venue.name }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="label">Event Image</label>
+              <div class="control">
+                <ImageUpload v-model="imageFile" />
+              </div>
+            </div>
+
+            <div v-if="errorMsg" class="notification is-danger is-light mt-4">
+              {{ errorMsg }}
+            </div>
+
+            <div class="field is-grouped mt-5">
+              <div class="control is-expanded">
+                <button type="submit" class="button is-primary is-fullwidth" :class="{ 'is-loading': isLoading }" :disabled="isLoading">
+                  {{ isLoading ? 'Creating...' : 'Create Event' }}
+                </button>
+              </div>
+              <div class="control">
+                <button type="button" class="button" @click="handleCancel" :disabled="isLoading">
+                  Cancel
+                </button>
+              </div>
             </div>
           </form>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
-<style scoped>
-.container {
-  padding: 2rem 1.5rem;
-  max-width: 1400px;
-  margin: 0 auto;
-}
+<style scoped lang="scss">
+// Custom styles if needed, falling back to Bulma structure
 </style>

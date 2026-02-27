@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
-import { Label } from './ui/label';
 
 interface Props {
   modelValue?: File | null;

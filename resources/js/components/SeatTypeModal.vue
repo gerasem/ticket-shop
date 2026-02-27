@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import type { Venue, SeatType } from '../services/mockData';
-import IconImage from './ui/IconImage.vue';
+import IconImage from './IconImage.vue';
 
 const props = defineProps<{
   modelValue: boolean;
@@ -233,7 +233,7 @@ if (isOpen.value) {
   </Teleport>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 .modal-overlay {
   position: fixed;
   top: 0;

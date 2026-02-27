@@ -144,7 +144,7 @@
 <script setup lang="ts">
 import type { VenueObject } from '../../types/venueObjects';
 import { OBJECT_TEMPLATES } from '../../types/venueObjects';
-import IconImage from '../ui/IconImage.vue';
+import IconImage from '../IconImage.vue';
 
 const props = defineProps<{
   selectedObject: VenueObject | null;
@@ -163,7 +163,7 @@ const emit = defineEmits<{
 const objectTemplates = OBJECT_TEMPLATES;
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 /* Reusing styles from AdminView to ensure consistency */
 
 .objects-section {

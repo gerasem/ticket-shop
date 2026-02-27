@@ -1200,7 +1200,7 @@ watch(activeTool, (newTool) => {
   </div>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 
 
 .admin-view {

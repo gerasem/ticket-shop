@@ -5,7 +5,6 @@ import { useCartStore } from '../stores/cart';
 import { usePrice } from '../composables/usePrice';
 import VenueGrid from '../components/VenueGrid.vue';
 import { useRouter, useRoute } from 'vue-router';
-import { Button } from '../components/ui/button';
 
 const venueStore = useVenueStore();
 const cartStore = useCartStore();
@@ -53,7 +52,6 @@ const clearCart = () => {
     venueStore.updateSeatStatus(seat.id, 'free');
   });
   // Clear cart
-  // Clear cart
   cartStore.clearCart();
 };
 
@@ -83,11 +81,11 @@ const getSeatTypeClass = (seat: any) => {
 <template>
   <div class="client-view">
     <div class="header-section">
-      <h1>Select Your Seats</h1>
+      <h1 class="title is-2">Select Your Seats</h1>
       
       <!-- Compact Price Legend -->
       <div class="price-legend-compact">
-        <div class="legend-items">
+        <div class="legend-items box py-2 px-4 is-flex is-align-items-center" style="gap: 1.5rem;">
           <div class="legend-item" v-for="type in venueStore.currentVenue?.seatTypes" :key="type.id">
             <div class="legend-color" :class="`type-${type.id}`"></div>
             <span>{{ type.name }}: {{ formatPrice(type.priceInCents) }}</span>
@@ -128,55 +126,53 @@ const getSeatTypeClass = (seat: any) => {
       </VenueGrid>
 
       <!-- Right: Shopping Cart -->
-      <aside class="shopping-cart">
-        <div class="cart-header">
-          <h3>Your Cart</h3>
-          <h3>Your Cart</h3>
-          <div class="flex gap-2">
-            <Button 
+      <aside class="shopping-cart box">
+        <div class="cart-header is-flex is-justify-content-space-between is-align-items-center mb-4">
+          <h3 class="title is-4 mb-0">Your Cart</h3>
+          <div class="buttons is-right are-small">
+            <button 
               v-if="cartStore.selectedSeats.length > 0"
-              variant="secondary-outline" 
-              size="sm"
+              class="button is-outlined" 
               @click="clearCart"
             >
               Clear
-            </Button>
-            <Button 
+            </button>
+            <button 
               v-if="cartStore.selectedSeats.length > 0"
-              size="sm"
+              class="button is-primary"
               @click="handleCheckout"
             >
               Checkout
-            </Button>
+            </button>
           </div>
         </div>
-        <div v-if="cartStore.selectedSeats.length === 0" class="empty-cart">
+        <div v-if="cartStore.selectedSeats.length === 0" class="empty-cart has-text-grey is-italic has-text-centered py-6">
           No seats selected
         </div>
         <div v-else class="cart-items">
           <div 
             v-for="seat in cartStore.selectedSeats" 
             :key="seat.id"
-            class="cart-item"
+            class="cart-item box is-shadowless p-3 mb-2 is-flex is-justify-content-space-between is-align-items-center"
+            style="border: 1px solid var(--border-primary);"
           >
             <div class="cart-seat-info">
-              <span class="cart-seat-label">Row {{ seat.row }}, Seat {{ seat.place }}</span>
+              <span class="cart-seat-label has-text-weight-semibold">Row {{ seat.row }}, Seat {{ seat.place }}</span>
             </div>
-            <div class="cart-item-right">
-              <span class="cart-seat-price">{{ formatPrice(getSeatType(seat)?.priceInCents || 0) }}</span>
+            <div class="cart-item-right is-flex is-align-items-center" style="gap: 0.5rem;">
+              <span class="cart-seat-price has-text-primary has-text-weight-semibold">{{ formatPrice(getSeatType(seat)?.priceInCents || 0) }}</span>
               <button 
-                class="remove-seat-btn" 
+                class="delete is-medium" 
                 @click="removeSeat(seat.id)"
                 title="Remove seat"
               >
-                ✕
               </button>
             </div>
           </div>
         </div>
-        <div class="cart-total">
-          <strong class="total-label">Total:</strong>
-          <strong class="total-price">{{ formatPrice(cartStore.totalPriceInCents) }}</strong>
+        <div class="cart-total is-flex is-justify-content-space-between pt-4 mt-2" style="border-top: 2px solid var(--border-primary);">
+          <strong class="total-label has-text-grey">Total:</strong>
+          <strong class="total-price has-text-primary is-size-4">{{ formatPrice(cartStore.totalPriceInCents) }}</strong>
         </div>
       </aside>
     </div>
@@ -185,7 +181,7 @@ const getSeatTypeClass = (seat: any) => {
   </div>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 
 .client-view {
   padding: 2rem;
@@ -208,12 +204,6 @@ const getSeatTypeClass = (seat: any) => {
 }
 
 .price-legend-compact .legend-items {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  background: white;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
   font-size: 0.85rem;
   color: var(--text-subtle);
   border: 1px solid var(--border-primary);
@@ -247,8 +237,6 @@ const getSeatTypeClass = (seat: any) => {
   background: var(--color-accent); /* Green for selected - accent color */
 }
 
-
-
 .main-container {
   display: flex;
   gap: 2rem;
@@ -256,29 +244,11 @@ const getSeatTypeClass = (seat: any) => {
   margin: 0 auto;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 .seats-grid {
   position: relative;
   flex: 1;
   height: 600px;
 }
-
-
 
 /* Type-based colors for FREE seats */
 .seat.free.type-standard {
@@ -326,7 +296,6 @@ const getSeatTypeClass = (seat: any) => {
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
-
 .seat-tooltip {
   display: none;
   position: absolute;
@@ -372,136 +341,17 @@ const getSeatTypeClass = (seat: any) => {
 /* Shopping Cart */
 .shopping-cart {
   width: 300px;
-  background: white;
-  padding: 1.5rem;
-  border-radius: 12px;
   height: fit-content;
   position: sticky;
   top: 2rem;
   border: 1px solid var(--border-primary);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.cart-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-.shopping-cart h3 {
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.clear-cart-btn {
-  background: transparent;
-  border: 1px solid var(--color-border-medium);
-  color: var(--color-text-tertiary);
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  width: fit-content;
-}
-
-.clear-cart-btn:hover {
-  background: var(--color-danger-light);
-  border-color: var(--color-danger-strong);
-  color: var(--color-danger);
-}
-
-.empty-cart {
-  color: var(--text-muted);
-  font-style: italic;
-  text-align: center;
-  padding: 3rem 1rem;
-  font-size: 0.9375rem;
 }
 
 .cart-items {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
   max-height: 400px;
   overflow-y: auto;
 }
 
-.cart-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem;
-  background: var(--bg-secondary);
-  border-radius: 6px;
-  font-size: 0.9rem;
-  gap: 0.5rem;
-  border: 1px solid var(--border-primary);
-}
-
-.cart-seat-info {
-  flex: 1;
-}
-
-.cart-seat-label {
-  color: var(--text-primary);
-  font-weight: 600;
-  display: block;
-}
-
-.cart-item-right {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.cart-seat-price {
-  color: rgb(var(--color-primary));
-  font-weight: 600;
-}
-
-.remove-seat-btn {
-  background: transparent;
-  border: none;
-  color: var(--color-text-tertiary);
-  font-size: 1rem;
-  cursor: pointer;
-  padding: 0.25rem;
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  transition: all 0.2s;
-}
-
-.remove-seat-btn:hover {
-  background: var(--color-danger-light);
-  color: var(--color-danger);
-}
-
-.cart-total {
-  display: flex;
-  justify-content: space-between;
-  padding-top: 1rem;
-  border-top: 2px solid var(--border-primary);
-  font-size: 1.1rem;
-  color: var(--text-primary);
-}
-
-.total-price {
-  color: rgb(var(--color-primary));
-  font-size: 1.5rem;
-  font-weight: 700;
-}
-
-.total-label {
-  color: var(--text-subtle);
-  font-weight: 600;
-}
 </style>

@@ -2,7 +2,6 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useVenueStore } from '../stores/venue';
-import Button from '../components/ui/button/Button.vue';
 
 const router = useRouter();
 const venueStore = useVenueStore();
@@ -55,9 +54,9 @@ const editVenue = (id: string) => {
   <div class="admin-venues">
     <div class="header">
       <h1>Venues Management</h1>
-      <Button variant="primary" @click="showCreateModal = true">
+      <button class="button is-primary" @click="showCreateModal = true">
         Create Venue
-      </Button>
+      </button>
     </div>
 
     <!-- Create Venue Modal -->
@@ -82,8 +81,8 @@ const editVenue = (id: string) => {
         </div>
         
         <div class="modal-actions">
-          <Button variant="secondary-outline" @click="showCreateModal = false">Cancel</Button>
-          <Button variant="primary" @click="handleCreateVenue" :disabled="!newVenueName || venueStore.isLoading">Create</Button>
+          <button class="button is-outlined" @click="showCreateModal = false">Cancel</button>
+          <button class="button is-primary" @click="handleCreateVenue" :disabled="!newVenueName || venueStore.isLoading">Create</button>
         </div>
       </div>
     </div>
@@ -126,28 +125,25 @@ const editVenue = (id: string) => {
         </div>
 
         <div class="venue-actions">
-          <Button 
-            variant="secondary-outline" 
-            size="sm" 
+          <button 
+            class="button is-outlined is-small" 
             @click="editVenue(venue.id)"
           >
             Editor
-          </Button>
-          <Button 
-            variant="secondary-outline" 
-            size="sm" 
-            class="delete-btn"
+          </button>
+          <button 
+            class="button is-danger is-outlined is-small delete-btn" 
             @click="deleteVenue(venue.id)"
           >
             Delete
-          </Button>
+          </button>
         </div>
       </div>
     </div>
   </div>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 .admin-venues {
   max-width: 1200px;
   margin: 0 auto;
@@ -345,15 +341,6 @@ const editVenue = (id: string) => {
   display: flex;
   gap: 0.75rem;
   /* Horizontal actions unlike events vertical */
-}
-
-.delete-btn {
-  border-color: #ef4444;
-  color: #ef4444;
-}
-
-.delete-btn:hover {
-  background: #fef2f2;
 }
 
 @media (max-width: 768px) {

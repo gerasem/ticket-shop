@@ -15,6 +15,6 @@ import NavBar from './components/NavBar.vue';
   </div>
 </template>
 
-<style>
+<style lang="scss">
 /* New styles for V2 specific can go here or in a new SCSS file */
 </style>

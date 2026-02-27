@@ -134,7 +134,7 @@ const deleteEvent = async (id: number) => {
   </div>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 .loader-wrapper .icon {
     display: inline-block;
 }

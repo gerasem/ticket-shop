@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import IconImage from './ui/IconImage.vue';
+import IconImage from './IconImage.vue';
 
 type Tool = 'select' | 'pan' | 'settings' | 'add-seat' | 'background' | 'objects';
 
@@ -100,7 +100,7 @@ const emit = defineEmits<{
   </div>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 /* Main Toolbar */
 .main-toolbar {
   width: 60px;

@@ -2,9 +2,6 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Label } from '../components/ui/label';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -28,33 +25,43 @@ const handleSubmit = async () => {
 
 <template>
   <div class="auth-container">
-    <div class="auth-card">
-      <h2>Admin Login</h2>
+    <div class="box auth-card">
+      <h2 class="title is-4 has-text-centered mb-2">Admin Login</h2>
       
-      <p class="description">
+      <p class="subtitle is-6 has-text-centered has-text-grey mb-5">
         Please login to access the admin area.
       </p>
 
       <form @submit.prevent="handleSubmit">
-        <div class="form-group">
-          <Label>Username</Label>
-          <Input type="text" v-model="username" required placeholder="Enter username" />
+        <div class="field">
+          <label class="label">Username</label>
+          <div class="control">
+            <input class="input" type="text" v-model="username" required placeholder="Enter username" />
+          </div>
         </div>
         
-        <div class="form-group">
-          <Label>Password</Label>
-          <Input type="password" v-model="password" required placeholder="Enter password" />
+        <div class="field">
+          <label class="label">Password</label>
+          <div class="control">
+            <input class="input" type="password" v-model="password" required placeholder="Enter password" />
+          </div>
         </div>
         
-        <div class="error-msg" v-if="errorMsg">{{ errorMsg }}</div>
+        <div class="notification is-danger is-light mt-4 p-3 has-text-centered is-size-7" v-if="errorMsg">
+          {{ errorMsg }}
+        </div>
 
-        <Button type="submit" class="w-full mt-4" variant="primary">Login</Button>
+        <div class="field mt-5">
+          <div class="control">
+            <button type="submit" class="button is-primary is-fullwidth">Login</button>
+          </div>
+        </div>
       </form>
     </div>
   </div>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 .auth-container {
   display: flex;
   justify-content: center;
@@ -64,45 +71,7 @@ const handleSubmit = async () => {
 }
 
 .auth-card {
-  background: white;
-  padding: 2.5rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   width: 100%;
   max-width: 400px;
-  border: 1px solid var(--border-primary);
-}
-
-h2 {
-  text-align: center;
-  margin-bottom: 0.5rem;
-  color: var(--text-primary);
-  font-size: 1.5rem;
-  font-weight: 700;
-}
-
-.description {
-  text-align: center;
-  margin-bottom: 2rem;
-  color: var(--text-secondary);
-  font-size: 0.95rem;
-}
-
-.form-group {
-  margin-bottom: 1.25rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.error-msg {
-  background: var(--error-light);
-  color: var(--error);
-  padding: 0.75rem;
-  border-radius: 6px;
-  margin-top: 1rem;
-  text-align: center;
-  font-size: 0.9rem;
-  border: 1px solid var(--error-border);
 }
 </style>

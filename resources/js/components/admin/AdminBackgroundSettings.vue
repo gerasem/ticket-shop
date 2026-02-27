@@ -81,7 +81,7 @@
 
 <script setup lang="ts">
 import type { Venue } from '../../services/mockData';
-import IconImage from '../ui/IconImage.vue';
+import IconImage from '../IconImage.vue';
 
 const props = defineProps<{
   venue: Venue;
@@ -101,7 +101,7 @@ const handleBackgroundUpload = (event: Event) => {
 };
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 /* Reusing styles from AdminView to ensure consistency */
 
 .settings-section {

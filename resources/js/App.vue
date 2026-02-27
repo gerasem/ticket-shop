@@ -40,7 +40,7 @@ const handleLogout = () => {
   </div>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 .app-container {
   min-height: 100vh;
   display: flex;

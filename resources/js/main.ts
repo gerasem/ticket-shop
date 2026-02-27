@@ -4,9 +4,9 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
 
-import '../css/app.css' // Tailwind CSS
-import './style.css' // Assuming default style file or we will create one
-import './assets/venue.css'
+import '../css/app.scss' // Tailwind CSS
+import './style.scss' // Assuming default style file or we will create one
+import './assets/venue.scss'
 
 import { useAuthStore } from './stores/auth'
 

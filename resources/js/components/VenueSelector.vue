@@ -53,7 +53,7 @@ const onVenueChange = async (event: Event) => {
   </div>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 .venue-selector {
   display: inline-block;
 }

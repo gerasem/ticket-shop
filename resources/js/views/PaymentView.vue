@@ -3,10 +3,6 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useCartStore } from '../stores/cart';
 import { usePrice } from '../composables/usePrice';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Label } from '../components/ui/label';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../components/ui/card';
 
 const router = useRouter();
 const cartStore = useCartStore();
@@ -83,87 +79,102 @@ const handlePayment = async () => {
 </script>
 
 <template>
-  <div class="payment-view container mx-auto p-6 max-w-4xl">
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <!-- Left: Payment Form -->
-      <div class="md:col-span-2 space-y-6">
-        <h1 class="text-3xl font-bold mb-6">Checkout</h1>
+  <div class="container section">
+    <div class="columns is-desktop is-centered">
+      <div class="column is-8">
+        <h1 class="title is-2 mb-6">Checkout</h1>
         
-        <Card>
-          <CardHeader>
-            <CardTitle>Payment Details</CardTitle>
-            <CardDescription>Enter your payment information to complete the purchase.</CardDescription>
-          </CardHeader>
-          <CardContent class="space-y-4">
-            <div class="grid grid-cols-2 gap-4">
-              <div class="space-y-2 col-span-2">
-                <Label for="name">Full Name</Label>
-                <Input id="name" v-model="form.name" placeholder="John Doe" required />
+        <div class="columns is-variable is-5">
+          <!-- Left: Payment Form -->
+          <div class="column is-7">
+            <div class="box">
+              <h3 class="title is-4 mb-2">Payment Details</h3>
+              <p class="subtitle is-6 has-text-grey mb-5">Enter your payment information to complete the purchase.</p>
+              
+              <div class="field">
+                <label class="label" for="name">Full Name</label>
+                <div class="control">
+                  <input id="name" v-model="form.name" class="input" type="text" placeholder="John Doe" required />
+                </div>
               </div>
-              <div class="space-y-2 col-span-2">
-                <Label for="email">Email Address</Label>
-                <Input id="email" type="email" v-model="form.email" placeholder="john@example.com" required />
+              
+              <div class="field">
+                <label class="label" for="email">Email Address</label>
+                <div class="control">
+                  <input id="email" v-model="form.email" class="input" type="email" placeholder="john@example.com" required />
+                </div>
               </div>
-              <div class="space-y-2 col-span-2">
-                <Label for="card">Card Number</Label>
-                <Input id="card" v-model="form.cardNumber" placeholder="0000 0000 0000 0000" />
+              
+              <div class="field">
+                <label class="label" for="card">Card Number</label>
+                <div class="control">
+                  <input id="card" v-model="form.cardNumber" class="input" type="text" placeholder="0000 0000 0000 0000" />
+                </div>
               </div>
-              <div class="space-y-2">
-                <Label for="expiry">Expiry Date</Label>
-                <Input id="expiry" v-model="form.expiry" placeholder="MM/YY" />
+              
+              <div class="columns">
+                <div class="column">
+                  <div class="field">
+                    <label class="label" for="expiry">Expiry Date</label>
+                    <div class="control">
+                      <input id="expiry" v-model="form.expiry" class="input" type="text" placeholder="MM/YY" />
+                    </div>
+                  </div>
+                </div>
+                <div class="column">
+                  <div class="field">
+                    <label class="label" for="cvv">CVV</label>
+                    <div class="control">
+                      <input id="cvv" v-model="form.cvv" class="input" type="text" placeholder="123" />
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div class="space-y-2">
-                <Label for="cvv">CVV</Label>
-                <Input id="cvv" v-model="form.cvv" placeholder="123" />
-              </div>
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button class="w-full" size="lg" @click="handlePayment" :disabled="isProcessing">
-              {{ isProcessing ? 'Processing...' : `Pay ${formatPrice(cartStore.totalPriceInCents)}` }}
-            </Button>
-          </CardFooter>
-        </Card>
-      </div>
-
-      <!-- Right: Summary & Timer -->
-      <div class="space-y-6">
-        <!-- Timer Card -->
-        <Card class="bg-primary/5 border-primary/20">
-          <CardHeader class="pb-2">
-            <CardTitle class="text-lg font-medium text-primary">Time Remaining</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div class="text-4xl font-mono font-bold text-primary">{{ timeLeft }}</div>
-            <p class="text-sm text-muted-foreground mt-2">Your tickets are reserved for 15 minutes.</p>
-          </CardContent>
-        </Card>
-
-        <!-- Order Summary -->
-        <Card>
-          <CardHeader>
-            <CardTitle>Order Summary</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div class="space-y-4">
-              <div v-for="seat in cartStore.selectedSeats" :key="seat.id" class="flex justify-between text-sm">
-                <span>Row {{ seat.row }}, Seat {{ seat.place }}</span>
-                <!-- Assuming we have type info in cart or can fetch. For now just price -->
-                <!-- Ideally cartStore should populate this fully -->
-                <span class="font-medium">Ticket</span> 
-              </div>
-              <div class="border-t pt-4 flex justify-between font-bold text-lg">
-                <span>Total</span>
-                <span>{{ formatPrice(cartStore.totalPriceInCents) }}</span>
+              
+              <div class="field mt-5">
+                <div class="control">
+                  <button class="button is-primary is-fullwidth is-medium" :class="{ 'is-loading': isProcessing }" @click="handlePayment" :disabled="isProcessing">
+                    {{ isProcessing ? 'Processing...' : `Pay ${formatPrice(cartStore.totalPriceInCents)}` }}
+                  </button>
+                </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+
+          <!-- Right: Summary & Timer -->
+          <div class="column is-5">
+            <div class="box has-background-primary-light mb-5">
+              <h4 class="title is-5 has-text-primary mb-2">Time Remaining</h4>
+              <div class="is-size-2 has-text-weight-bold has-text-primary font-mono">{{ timeLeft }}</div>
+              <p class="is-size-7 has-text-grey mt-2">Your tickets are reserved for 15 minutes.</p>
+            </div>
+
+            <div class="box">
+              <h4 class="title is-5 mb-4">Order Summary</h4>
+              
+              <div class="content">
+                <div v-for="seat in cartStore.selectedSeats" :key="seat.id" class="is-flex is-justify-content-space-between mb-2 is-size-6">
+                  <span>Row {{ seat.row }}, Seat {{ seat.place }}</span>
+                  <span class="has-text-weight-medium">Ticket</span> 
+                </div>
+                
+                <hr class="my-4">
+                
+                <div class="is-flex is-justify-content-space-between has-text-weight-bold is-size-5">
+                  <span>Total</span>
+                  <span>{{ formatPrice(cartStore.totalPriceInCents) }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
-<style scoped>
-/* Additional specific styles if needed */
+<style scoped lang="scss">
+.font-mono {
+  font-family: monospace;
+}
 </style>
