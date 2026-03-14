@@ -2,6 +2,7 @@
 import { onMounted } from 'vue';
 import { useEventsStore } from '../stores/events';
 import { useRouter } from 'vue-router';
+import { formatDate } from '../utils/formatDate';
 import BaseButton from '../components/BaseButton.vue';
 
 const eventsStore = useEventsStore();
@@ -13,15 +14,6 @@ onMounted(() => {
 
 const goToEvent = (eventId: number) => {
   router.push(`/event/${eventId}`);
-};
-
-const formatDate = (dateStr: string) => {
-  return new Date(dateStr).toLocaleDateString('en-US', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
 };
 </script>
 

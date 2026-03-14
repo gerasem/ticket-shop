@@ -1,4 +1,3 @@
-/// <reference types="vite/client" />
 import { createRouter, createWebHistory } from 'vue-router'
 
 const router = createRouter({

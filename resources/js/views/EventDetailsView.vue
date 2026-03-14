@@ -2,6 +2,7 @@
 import { onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useEventsStore } from '../stores/events';
+import { formatDate } from '../utils/formatDate';
 import BaseButton from '../components/BaseButton.vue';
 
 const route = useRoute();
@@ -26,11 +27,6 @@ const goToSeatSelection = () => {
     router.push({ path: '/booking', query: { venueId: event.value.venue_id, eventId } });
   }
 };
-
-const formatDate = (dateStr: string) =>
-  new Date(dateStr).toLocaleDateString('en-US', {
-    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-  });
 </script>
 
 <template>

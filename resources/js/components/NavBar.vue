@@ -1,6 +1,3 @@
-<script setup lang="ts">
-</script>
-
 <template>
   <nav class="navbar is-white has-shadow" role="navigation" aria-label="main navigation">
     <div class="container is-fluid">

@@ -3,21 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\Venue;
-use App\Models\Seat;
 use Illuminate\Http\Request;
 
 class VenueController extends Controller
 {
     public function index()
     {
-        return Venue::select('id', 'name')->get()->map(function($venue) {
-            return [
-                'id' => $venue->id,
-                'name' => $venue->name,
-                // 'file' is no longer needed but kept for compatibility if frontend expects it, 
-                // though we should refactor frontend to not need it.
-            ];
-        });
+        return Venue::select('id', 'name')->get()->map(fn($venue) => [
+            'id' => $venue->id,
+            'name' => $venue->name,
+        ]);
     }
 
     public function show($id)
