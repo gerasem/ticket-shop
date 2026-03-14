@@ -1,0 +1,45 @@
+/* ===================================
+   CSS DESIGN TOKENS — single source of truth
+   All other files should use these variables.
+   =================================== */
+
+:root {
+  /* ── Primary Color ──────────────────── */
+  --color-primary: 22, 163, 74;           /* green-600 */
+  --color-primary-hover: 21, 128, 61;     /* green-700 */
+  --color-primary-light: rgba(22, 163, 74, 0.08);
+
+  /* ── Background ─────────────────────── */
+  --bg-primary:   #ffffff;
+  --bg-secondary: #f9fafb;
+  --bg-tertiary:  #f3f4f6;
+
+  /* ── Text ────────────────────────────── */
+  --text-primary:   #111827;
+  --text-secondary: #6b7280;
+  --text-muted:     #9ca3af;
+  --text-heading:   #374151;
+
+  /* ── Borders ─────────────────────────── */
+  --border-primary:  #e5e7eb;
+  --border-secondary: #d1d5db;
+  --border-subtle:   #f3f4f6;
+
+  /* ── Feedback Colors ─────────────────── */
+  --color-error:        #ef4444;
+  --color-error-light:  #fef2f2;
+  --color-success:      #22c55e;
+  --color-warning:      #f59e0b;
+  --color-danger:       #ef4444;
+  --color-accent:       #22c55e;
+  --color-seat-selected:#22c55e;
+
+  /* ── Seat Type Colors ─────────────────── */
+  --color-seat-standard: #64748b;
+  --color-seat-premium:  #3b82f6;
+  --color-seat-vip:      #f59e0b;
+
+  /* ── Shadows ──────────────────────────── */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.12);
+}

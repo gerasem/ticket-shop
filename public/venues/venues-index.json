@@ -1,0 +1,19 @@
+{
+  "venues": [
+    {
+      "id": "default-venue",
+      "name": "Grand Cinema Hall",
+      "file": "default-venue.json"
+    },
+    {
+      "id": "theater-venue",
+      "name": "Royal Theater",
+      "file": "theater-venue.json"
+    },
+    {
+      "id": "cafe-venue",
+      "name": "Cozy Jazz Cafe",
+      "file": "cafe-venue.json"
+    }
+  ]
+}
