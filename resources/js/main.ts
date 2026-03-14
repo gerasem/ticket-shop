@@ -10,8 +10,6 @@ import '../css/app.scss'
 import './style.scss'
 import './assets/venue.scss'
 
-import { useAuthStore } from './stores/auth'
-
 const app = createApp(App)
 
 app.use(createPinia())
@@ -22,8 +20,5 @@ app.use(Toast, {
   position: 'top-right',
 })
 
-const authStore = useAuthStore()
-authStore.checkAuth().then(() => {
-    app.use(router)
-    app.mount('#app')
-})
+app.use(router)
+app.mount('#app')

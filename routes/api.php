@@ -17,16 +17,6 @@ Route::post('/reservations', [App\Http\Controllers\ReservationController::class,
 // Events routes
 Route::get('/events', [EventController::class, 'index']);
 Route::get('/events/{id}', [EventController::class, 'show']);
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/events', [EventController::class, 'store']);
-    Route::put('/events/{id}', [EventController::class, 'update']);
-    Route::delete('/events/{id}', [EventController::class, 'destroy']);
-    
-    Route::post('/venues', [VenueController::class, 'store']);
-    Route::put('/venues/{id}', [VenueController::class, 'update']);
-    Route::delete('/venues/{id}', [VenueController::class, 'destroy']);
-    Route::post('/venues/{id}/image', [VenueController::class, 'uploadImage']);
-});
 
 Route::get('/user', function (Request $request) {
     return $request->user();
