@@ -75,11 +75,6 @@ const getSeatType = (seat: Seat) => {
   return venueStore.currentVenue?.seatTypes.find(t => t.id === seat.typeId);
 };
 
-const getSeatTypeClass = (seat: Seat) => {
-  const type = getSeatType(seat);
-  return `type-${type?.id || 'unknown'}`;
-};
-
 const getSeatStyle = (seat: Seat) => {
   const type = getSeatType(seat);
   const defaultStyle = venueStore.currentVenue?.defaultSeatStyle;

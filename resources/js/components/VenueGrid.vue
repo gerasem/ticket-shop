@@ -6,20 +6,10 @@ import BaseButton from './BaseButton.vue';
 
 const props = defineProps<{
   venue: Venue;
-  enableLabelSelection?: boolean; // Enable row/column selection by clicking labels
-  transparentSeats?: boolean; // Make seats semi-transparent when using objects tool
-  selectedObjectId?: string | null; // Currently selected object ID
-  activeTool?: string; // Current active tool
-  showLeftRowLabels?: boolean; // Show row labels on the left
-  showRightRowLabels?: boolean; // Show row labels on the right
 }>();
 
 const emit = defineEmits<{
   (e: 'grid-mousedown', event: MouseEvent): void;
-
-  (e: 'row-click', row: number): void;
-  (e: 'col-click', col: number): void;
-  (e: 'object-click', objectId: string, event: MouseEvent): void;
 }>();
 
 const venueEditor = useVenueEditor(toRef(props, 'venue'));
@@ -50,9 +40,7 @@ const wrapperRef = ref<HTMLElement | null>(null);
 const handleMouseDown = (event: MouseEvent) => {
   if (!wrapperRef.value) return;
   
-  // Only allow drag-to-scroll if Pan tool is active
-  if (props.activeTool !== 'pan') return;
-  
+  // Only allow drag-to-scroll with middle mouse button or when explicitly enabled
   isDragging.value = true;
   dragStart.value = {
     x: event.clientX + wrapperRef.value.scrollLeft,
@@ -114,17 +102,12 @@ const handleMouseLeave = () => {
       
         <div class="seating-area">
           <!-- Left row labels -->
-          <div 
-            v-if="showLeftRowLabels !== false"
-            class="row-labels row-labels-left"
-          >
+          <div class="row-labels row-labels-left">
             <div 
               v-for="row in venueEditor.getRows.value" 
               :key="'left-' + row"
               class="row-label"
-              :class="{ 'clickable': enableLabelSelection }"
               :style="{ top: venueEditor.getRowY(row) + 'px' }"
-              @click="enableLabelSelection && emit('row-click', row)"
             >
               {{ row }}
             </div>
@@ -150,8 +133,6 @@ const handleMouseLeave = () => {
               v-for="obj in venue.objects" 
               :key="obj.id"
               class="venue-object"
-              :class="{ selected: selectedObjectId === obj.id }"
-              @click="(e) => { if (activeTool === 'objects') { e.stopPropagation(); emit('object-click', obj.id, e); } }"
               :style="{
                 position: 'absolute',
                 left: obj.x + 'px',
@@ -178,23 +159,6 @@ const handleMouseLeave = () => {
 
             <!-- Seats Slot -->
             <slot name="seat" v-for="seat in venue.seats" :seat="seat"></slot>
-          </div>
-
-          <!-- Right row labels -->
-          <div 
-            v-if="showRightRowLabels"
-            class="row-labels-right"
-          >
-            <div 
-              v-for="row in venueEditor.getRows.value" 
-              :key="'right-' + row"
-              class="row-label"
-              :class="{ 'clickable': enableLabelSelection }"
-              :style="{ top: venueEditor.getRowY(row) + 'px' }"
-              @click="enableLabelSelection && emit('row-click', row)"
-            >
-              {{ row }}
-            </div>
           </div>
         </div>
       </div>

@@ -46,35 +46,6 @@ export const useVenueStore = defineStore('venue', () => {
     if (seat) seat.status = status;
   };
 
-  const createVenue = async (data: { name: string; width: number; height: number }) => {
-    const created = await venueApi.create(data);
-    await loadVenues();
-    return created;
-  };
-
-  const saveVenue = async () => {
-    if (!currentVenue.value || !currentVenueId.value) return;
-    try {
-      isLoading.value = true;
-      await venueApi.save(currentVenueId.value, currentVenue.value);
-    } catch (error) {
-      console.error('Failed to save venue', error);
-      errorMsg.value = 'Failed to save venue';
-      throw error;
-    } finally {
-      isLoading.value = false;
-    }
-  };
-
-  const deleteVenue = async (id: string) => {
-    await venueApi.delete(id);
-    await loadVenues();
-    if (currentVenueId.value === id) {
-      currentVenueId.value = null;
-      currentVenue.value = null;
-    }
-  };
-
   return {
     currentVenue,
     venuesList,
@@ -84,8 +55,5 @@ export const useVenueStore = defineStore('venue', () => {
     loadVenue,
     loadVenues,
     updateSeatStatus,
-    createVenue,
-    saveVenue,
-    deleteVenue,
   };
 });

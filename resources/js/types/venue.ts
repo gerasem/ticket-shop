@@ -16,8 +16,6 @@ export interface Seat {
   id: string;
   x: number;
   y: number;
-  originalX?: number;
-  originalY?: number;
   rotation?: number;
   status: 'free' | 'booked' | 'readyToBook' | 'reserved';
   row: number;
